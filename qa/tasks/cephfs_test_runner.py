@@ -35,7 +35,7 @@ class DecoratingLoader(loader.TestLoader):
         # a suite with one TestCase
         tests_in_result = list(result)
         if len(tests_in_result) == 1 and isinstance(tests_in_result[0], case.TestCase):
-            self._apply_params(tests_in_result[0])
+            self._apply_params(tests_in_result[0].__class__)
 
         return result
 
