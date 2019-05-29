@@ -46,6 +46,8 @@ if [ -n "$WITH_RADOSGW_AMQP_ENDPOINT" ] ; then
     ARGS="$ARGS -DWITH_RADOSGW_AMQP_ENDPOINT=$WITH_RADOSGW_AMQP_ENDPOINT"
 fi
 
+ARGS="$ARGS -DWITH_SPDK=OFF"
+
 mkdir build
 cd build
 if type cmake3 > /dev/null 2>&1 ; then
