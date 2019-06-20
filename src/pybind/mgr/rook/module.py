@@ -223,6 +223,10 @@ class RookOrchestrator(MgrModule, orchestrator.Orchestrator):
         self._rook_cluster = None
         self._rook_env = RookEnv()
 
+        true_strs = ('y', 'yes', 'true')
+        self._dev_mode = \
+            os.environ.get('CPEH_MGR_ROOK_DEV_MODE', '') in true_strs
+
         self._shutdown = threading.Event()
 
     def shutdown(self):
@@ -244,7 +248,7 @@ class RookOrchestrator(MgrModule, orchestrator.Orchestrator):
         # a Rook cluster.  For development convenience, also support
         # running outside (reading ~/.kube config)
 
-        if self._rook_env.cluster_name:
+        if not self._dev_mode:
             config.load_incluster_config()
             cluster_name = self._rook_env.cluster_name
         else:
