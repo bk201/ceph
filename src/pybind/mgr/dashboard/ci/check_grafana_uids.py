@@ -106,6 +106,8 @@ def parse_args():
                         help='Angular app base directory')
     parser.add_argument('grafana_dash_dir', type=str,
                         help='Directory contains Grafana dashboard JSON files')
+    parser.add_argument('--verbose', action='store_true',
+                        help='Display verbose mapping information.')
     return parser.parse_args()
 
 
@@ -113,36 +115,39 @@ def main():
     args = parse_args()
     tags = get_tags(args.angular_app_dir)
     grafana_dashboards = get_grafana_dashboards(args.grafana_dash_dir)
+    verbose = args.verbose
 
     if not tags:
         error_msg = 'Can not find any cd-grafana component under {}'.\
             format(args.angular_app_dir)
         exit(error_msg)
 
-    stdout('Found mappings:')
+    if verbose:
+        stdout('Found mappings:')
     no_dashboard_tags = []
     for tag in tags:
         uid = tag['attrs']['uid']
         if uid not in grafana_dashboards:
             no_dashboard_tags.append(copy.copy(tag))
             continue
-        msg = '{} ({}:{}) \n\t-> {} ({})'.\
-            format(uid, tag['file'], tag['line'],
-                   grafana_dashboards[uid]['title'],
-                   grafana_dashboards[uid]['file'])
-        stdout(msg)
+        if verbose:
+            msg = '{} ({}:{}) \n\t-> {} ({})'.\
+                format(uid, tag['file'], tag['line'],
+                       grafana_dashboards[uid]['title'],
+                       grafana_dashboards[uid]['file'])
+            stdout(msg)
 
     if no_dashboard_tags:
-        title = '\nComponents that have no mapped Grafana dashboards:\n'
-        lines = ('{} ({}:{})\n'.format(tag['attrs']['uid'],
-                                       tag['file'],
-                                       tag['line'])
+        title = ('Checking Grafana dashboards UIDs: ERROR\n'
+                 'Components that have no mapped Grafana dashboards:\n')
+        lines = ('{} ({}:{})'.format(tag['attrs']['uid'],
+                                     tag['file'],
+                                     tag['line'])
                  for tag in no_dashboard_tags)
         error_msg = title + '\n'.join(lines)
-        error_msg += '\nChecking Grafana dashboards UIDs: ERROR'
         exit(error_msg)
     else:
-        stdout('\nChecking Grafana dashboards UIDs: OK')
+        stdout('Checking Grafana dashboards UIDs: OK')
 
 
 if __name__ == '__main__':
