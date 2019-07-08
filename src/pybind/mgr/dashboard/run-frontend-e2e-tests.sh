@@ -48,12 +48,14 @@ if [ "$BASE_URL" == "" ]; then
 fi
 
 cd $DASH_DIR/frontend
+jq ".[].target = \"$BASE_URL\"" proxy.conf.json.sample > proxy.conf.json
+
 . $BUILD_DIR/src/pybind/mgr/dashboard/node-env/bin/activate
 npm ci
 npm run build -- --prod
 
 if [ $DEVICE == "chrome" ]; then
-    npm run e2e -- --serve=false --base-href $BASE_URL || stop
+    npm run e2e || stop
 elif [ $DEVICE == "docker" ]; then
     docker run -d -v $(pwd):/workdir --net=host --name angular-e2e-container rogargon/angular-e2e || stop
     docker exec angular-e2e-container npm run e2e -- --serve=false --base-href $BASE_URL
