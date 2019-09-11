@@ -10,6 +10,7 @@ export class Device {
   available: boolean;
   dev_id: string;
   extended: any;
+  osd_id: string;
 }
 
 export class InventoryNode {

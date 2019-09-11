@@ -5,9 +5,27 @@ import cherrypy
 
 from . import ApiController, Endpoint, ReadPermission
 from . import RESTController, Task
+from .. import mgr, logger
 from ..security import Scope
 from ..services.orchestrator import OrchClient
 from ..tools import wraps
+
+
+def get_device_osd_map():
+    """
+    {'node1': {'vdc': '2', 'vdb': '1'}, 'node2': {'vdc': '0'}}
+    """
+    device_osd_map = {}
+    for osd_id, osd_metadata in mgr.get('osd_metadata').items():
+        hostname = osd_metadata['hostname']
+        devices = osd_metadata['devices']
+        if not devices:
+            continue
+        if hostname not in device_osd_map:
+            device_osd_map[hostname] = {}
+        # TODO: multiple devices for an OSD?
+        device_osd_map[hostname][devices] = osd_id
+    return device_osd_map
 
 
 def orchestrator_task(name, metadata, wait_for=2.0):
@@ -40,8 +58,19 @@ class OrchestratorInventory(RESTController):
     def list(self, hostname=None):
         orch = OrchClient.instance()
         hosts = [hostname] if hostname else None
-        inventory_nodes = orch.inventory.list(hosts)
-        return [node.to_json() for node in inventory_nodes]
+        inventory_nodes = [node.to_json() for node in orch.inventory.list(hosts)]
+        device_osd_map = get_device_osd_map()
+        logger.info('kf: %s', device_osd_map)
+        for inventory_node in inventory_nodes:
+            osds = device_osd_map.get(inventory_node['name'])
+            if not osds:
+                for device in inventory_node['devices']:
+                    device['osd_id'] = ""
+                continue
+            for device in inventory_node['devices']:
+                osd_id = osds.get(device['id'], "")
+                device['osd_id'] = osd_id
+        return inventory_nodes
 
 
 @ApiController('/orchestrator/service', Scope.HOSTS)

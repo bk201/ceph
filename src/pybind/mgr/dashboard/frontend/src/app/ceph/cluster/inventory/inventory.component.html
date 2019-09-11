@@ -15,7 +15,17 @@
                 forceIdentifier="true"
                 columnMode="flex"
                 (fetchData)="getInventory($event)"
-                selectionType="single">
+                selectionType="single"
+                (updateSelection)="updateSelection($event)">
+        <div class="table-actions btn-toolbar">
+          <!-- TODO: correct permission? HOST or OSD? -->
+          <cd-table-actions [permission]="permissions.osd"
+                            [selection]="selection"
+                            class="btn-group"
+                            id="inventory-actions"
+                            [tableActions]="tableActions">
+          </cd-table-actions>
+        </div>
       </cd-table>
     </div>
   </div>

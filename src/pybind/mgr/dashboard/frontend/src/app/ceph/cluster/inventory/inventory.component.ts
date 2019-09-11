@@ -9,6 +9,12 @@ import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pip
 import { DimlessBinaryPipe } from '../../../shared/pipes/dimless-binary.pipe';
 import { SummaryService } from '../../../shared/services/summary.service';
 import { Device, InventoryNode } from './inventory.model';
+import { CdTableAction } from '../../../shared/models/cd-table-action';
+import { CdTableSelection } from '../../../shared/models/cd-table-selection';
+import { ActionLabelsI18n } from '../../../shared/constants/app.constants';
+import { Icons } from '../../../shared/enum/icons.enum';
+import { AuthStorageService } from '../../../shared/services/auth-storage.service';
+import { Permissions } from '../../../shared/models/permissions';
 
 @Component({
   selector: 'cd-inventory',
@@ -25,17 +31,45 @@ export class InventoryComponent implements OnChanges, OnInit {
   orchestratorExist = false;
   docsUrl: string;
 
+  permissions: Permissions;
   columns: Array<CdTableColumn> = [];
   devices: Array<Device> = [];
+  tableActions: CdTableAction[];
+  selection = new CdTableSelection();
   isLoadingDevices = false;
 
   constructor(
+    private authStorageService: AuthStorageService,
     private cephReleaseNamePipe: CephReleaseNamePipe,
     private dimlessBinary: DimlessBinaryPipe,
     private i18n: I18n,
+    private actionLabels: ActionLabelsI18n,
     private orchService: OrchestratorService,
     private summaryService: SummaryService
-  ) {}
+  ) {
+    this.permissions = this.authStorageService.getPermissions();
+    this.tableActions = [
+      {
+        name: this.i18n('Create OSD'),
+        permission: 'create',
+        icon: Icons.add,
+        // routerLink: () => this.urlBuilder.getAdd(),
+        click: () => this.createOSD(),
+        disable: () => !this.orchestratorExist || !this.selection.hasSelection || this.selection.first().osd_id !== '',
+        disableDesc: () => this.getDisableDesc(),
+        canBePrimary: () => this.selection.hasSelection && this.selection.first().osd_id === ''
+      },
+      {
+        name: this.i18n('Remove OSD'),
+        permission: 'delete',
+        icon: Icons.destroy,
+        click: () => this.removeOSD(),
+        disable: () => !this.orchestratorExist || !this.selection.hasSelection || this.selection.first().osd_id === '',
+        disableDesc: () => this.getDisableDesc(),
+        canBePrimary: () => this.selection.hasSelection && this.selection.first().osd_id !== ''
+      }
+    ];
+  }
 
   ngOnInit() {
     this.columns = [
@@ -69,6 +103,11 @@ export class InventoryComponent implements OnChanges, OnInit {
         name: this.i18n('Model'),
         prop: 'model',
         flexGrow: 1
+      },
+      {
+        name: this.i18n('OSD ID'),
+        prop: 'osd_id',
+        flexGrow: 1
       }
     ];
 
@@ -99,6 +138,10 @@ export class InventoryComponent implements OnChanges, OnInit {
       this.orchestratorExist = data.available;
       this.checkingOrchestrator = false;
     });
+  }
+
+  updateSelection(selection: CdTableSelection) {
+    this.selection = selection;
   }
 
   ngOnChanges() {
@@ -132,5 +175,17 @@ export class InventoryComponent implements OnChanges, OnInit {
         context.error();
       }
     );
+  }
+
+  createOSD() {
+
+  }
+
+  removeOSD() {
+
+  }
+
+  getDisableDesc() {
+    return '';
   }
 }
