@@ -20,17 +20,30 @@ then
     exit -1
 fi
 
+#BASE_IMAGE=ceph/daemon-base
+#BASE_TAG=latest-master
+#BASE_IMAGE=172.17.0.1:5001/ceph
+#BASE_TAG=15.0.0.2682.4.12
+BASE_IMAGE=172.17.0.1:5001/ceph/daemon-base
+BASE_TAG=e487604
+#FROM 172.17.0.1:5001/ceph/daemon-base:60403c0-original
+
 # The output image name: this should match whatever is configured as
 # the image name in your Rook cluster CRD object.
-IMAGE=ceph/ceph
-TAG=latest
+#IMAGE=ceph/daemon-base
+#TAG=60403c0
+#IMAGE=ceph
+#TAG=15.0.0.2682.4.12-wip
+IMAGE=ceph/daemon-base
+TAG=e487604-wip
 
 # The namespace where ceph containers are running in your
 # test cluster: used for bouncing the containers.
 NAMESPACE=rook-ceph
 
 mkdir -p kubejacker
-cp $SCRIPTPATH/Dockerfile kubejacker
+sed s,__BASE_CEPH_IMAGE__,"$BASE_IMAGE:$BASE_TAG", $SCRIPTPATH/Dockerfile > kubejacker/Dockerfile
+
 
 # TODO: let user specify which daemon they're interested
 # in -- doing all bins all the time is too slow and bloaty
@@ -49,11 +62,22 @@ cp $SCRIPTPATH/Dockerfile kubejacker
 #tar czf $BUILDPATH/kubejacker/lib.tar.gz $LIBS
 #popd
 
-pushd ../src/pybind/mgr
+TMP_DIR=/tmp/kubejack/mgr
+mkdir -p $TMP_DIR
+rsync -av --delete \
+    --exclude=__pycache__ \
+    --exclude=node_modules \
+    --exclude=.tox \
+    --exclude=wheelhouse \
+    ../../../src/pybind/mgr/ $TMP_DIR
+pushd $TMP_DIR
+#pushd ../src/pybind/mgr
 find ./ -name "*.pyc" -exec rm -f {} \;
+date > timestamp
 # Exclude node_modules because it's the huge sources in dashboard/frontend
-tar --exclude=node_modules --exclude=tests --exclude-backups -czf $BUILDPATH/kubejacker/mgr_plugins.tar.gz *
+tar --exclude-backups -czf $BUILDPATH/kubejacker/mgr_plugins.tar.gz *
 popd
+
 
 #ECLIBS="libec_*.so*"
 #pushd lib
@@ -68,15 +92,19 @@ popd
 #popd
 
 pushd kubejacker
-docker build -t $REPO/ceph/ceph:latest .
+docker build -t "$REPO/$IMAGE:$TAG" .
 popd
 
 # Push the image to the repository
 #docker tag $REPO/$IMAGE:$TAG $REPO/$IMAGE:latest
-docker push $REPO/ceph/ceph:latest
-#docker push $REPO/$IMAGE:$TAG
+#docker push $REPO/ceph/ceph:latest
+docker push $REPO/$IMAGE:$TAG
 
+ssh root@172.16.100.30 kubectl -n $NAMESPACE delete pod -l app=rook-ceph-mgr
+#kubectl -n rook-ceph patch deployment rook-ceph-mgr-a --patch '{"spec":{"template":{"spec":{"$setElementOrder/containers":[{"name":"mgr"}],"containers":[{"imagePullPolicy":"Always","name":"mgr"}]}}}}'
+exit 0
 # Finally, bounce the containers to pick up the new image
+
 kubectl -n $NAMESPACE delete pod -l app=rook-ceph-mds
 kubectl -n $NAMESPACE delete pod -l app=rook-ceph-mgr
 kubectl -n $NAMESPACE delete pod -l app=rook-ceph-mon

@@ -566,6 +566,7 @@ class Module(MgrModule):
 
         osd_devices = self.get('osd_map_crush')['devices']
         servers = self.get_service_list()
+        self.log.info('kf: {}'.format(self.get('osd_metadata')))
         for osd in osd_map['osds']:
             # id can be used to link osd metrics and metadata
             id_ = osd['osd']
@@ -597,6 +598,8 @@ class Module(MgrModule):
             if osd_metadata is None:
                 continue
 
+            import pprint
+            self.log.info('kf osd {}: {}'.format(str(id_), pprint.pformat(osd_metadata)))
             obj_store = osd_metadata.get('osd_objectstore', '')
             f_iface = osd_metadata.get('front_iface', '')
             b_iface = osd_metadata.get('back_iface', '')

@@ -1,0 +1,120 @@
+{
+    "inventory": [
+        {
+            "name": "test-host0",
+            "devices": [
+                {
+                    "type": "hdd",
+                    "id": "/dev/sda",
+                    "size": 4398046511104,
+                    "rotates": true
+                },
+                {
+                    "type": "hdd",
+                    "id": "/dev/sdb",
+                    "size": 4398046511104,
+                    "rotates": true
+                },
+                {
+                    "type": "ssd",
+                    "id": "/dev/sdc",
+                    "size": 549755813888,
+                    "rotates": true
+                }
+            ]
+        },
+        {
+            "name": "test-host1",
+            "devices": [
+                {
+                    "type": "hdd",
+                    "id": "/dev/sda",
+                    "size": 4398046511104,
+                    "rotates": true
+                },
+                {
+                    "type": "hdd",
+                    "id": "/dev/sdb",
+                    "size": 4398046511104,
+                    "rotates": true
+                },
+                {
+                    "type": "ssd",
+                    "id": "/dev/sdc",
+                    "size": 549755813888,
+                    "rotates": true
+                }
+            ]
+        },
+        {
+            "name": "test-host2",
+            "devices": [
+                {
+                    "type": "hdd",
+                    "id": "/dev/sda",
+                    "size": 4398046511104,
+                    "rotates": true
+                },
+                {
+                    "type": "hdd",
+                    "id": "/dev/sdb",
+                    "size": 4398046511104,
+                    "rotates": true
+                },
+                {
+                    "type": "ssd",
+                    "id": "/dev/sdc",
+                    "size": 549755813888,
+                    "rotates": true
+                }
+            ]
+        }
+    ],
+    "services": [
+        {
+            "nodename": "test-host0",
+            "service_type": "mon",
+            "service_instance": "a"
+        },
+        {
+            "nodename": "test-host1",
+            "service_type": "mon",
+            "service_instance": "b"
+        },
+        {
+            "nodename": "test-host2",
+            "service_type": "mon",
+            "service_instance": "c"
+        },
+        {
+            "nodename": "test-host0",
+            "service_type": "osd",
+            "service_instance": "0"
+        },
+        {
+            "nodename": "test-host0",
+            "service_type": "osd",
+            "service_instance": "1"
+        },
+        {
+            "nodename": "test-host1",
+            "service_type": "osd",
+            "service_instance": "2"
+        },
+        {
+            "nodename": "test-host1",
+            "service_type": "osd",
+            "service_instance": "3"
+        },
+        {
+            "nodename": "test-host2",
+            "service_type": "osd",
+            "service_instance": "4"
+        },
+        {
+            "nodename": "test-host2",
+            "service_type": "osd",
+            "service_instance": "5"
+        }
+    ]
+}

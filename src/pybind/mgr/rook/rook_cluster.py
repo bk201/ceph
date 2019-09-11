@@ -533,13 +533,14 @@ class RookCluster(object):
                     "value": {'name': n}
                 })
 
-            new_dirs = list(set(directories) - set(current_node['directories']))
-            for p in new_dirs:
-                patch.append({
-                    "op": "add",
-                    "path": "/spec/storage/nodes/{0}/directories/-".format(node_idx),
-                    "value": {'path': p}
-                })
+            if directories and 'directories' in current_node:
+                new_dirs = list(set(directories) - set(current_node['directories']))
+                for p in new_dirs:
+                    patch.append({
+                        "op": "add",
+                        "path": "/spec/storage/nodes/{0}/directories/-".format(node_idx),
+                        "value": {'path': p}
+                    })
 
         if len(patch) == 0:
             return "No change"
