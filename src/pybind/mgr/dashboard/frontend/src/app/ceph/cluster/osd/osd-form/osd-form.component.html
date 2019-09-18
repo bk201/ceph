@@ -1,0 +1,22 @@
+<div class="col-sm-12 col-lg-8">
+  <form name="osdForm"
+        #formDir="ngForm"
+        [formGroup]="osdForm"
+        novalidate>
+    <div class="card">
+      <div i18n="form title|Example: Create Pool@@formTitle"
+           class="card-header">{{ action | titlecase }} {{ resource | upperFirst }}</div>
+      <div class="card-body">
+
+      </div>
+      <div class="card-footer">
+        <div class="button-group text-right">
+          <cd-submit-button (submitAction)="submit()"
+                            i18n="form action button|Example: Create Pool@@formActionButton"
+                            [form]="formDir">{{ action | titlecase }} {{ resource | upperFirst }}</cd-submit-button>
+          <cd-back-button></cd-back-button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

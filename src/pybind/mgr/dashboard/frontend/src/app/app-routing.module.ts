@@ -35,6 +35,7 @@ import { AuthGuardService } from './shared/services/auth-guard.service';
 import { FeatureTogglesGuardService } from './shared/services/feature-toggles-guard.service';
 import { ModuleStatusGuardService } from './shared/services/module-status-guard.service';
 import { NoSsoGuardService } from './shared/services/no-sso-guard.service';
+import { OsdFormComponent } from './ceph/cluster/osd/osd-form/osd-form.component';
 
 export class PerformanceCounterBreadcrumbsResolver extends BreadcrumbsResolver {
   resolve(route: ActivatedRouteSnapshot) {
@@ -107,7 +108,13 @@ const routes: Routes = [
     canActivate: [AuthGuardService],
     canActivateChild: [AuthGuardService],
     data: { breadcrumbs: 'Cluster/OSDs' },
-    children: [{ path: '', component: OsdListComponent }]
+    children: [
+      { path: '', component: OsdListComponent },
+      { path: URLVerbs.CREATE,
+        component: OsdFormComponent,
+        data: { breadcrumbs: ActionLabels.CREATE }
+      }
+    ]
   },
   {
     path: 'configuration',

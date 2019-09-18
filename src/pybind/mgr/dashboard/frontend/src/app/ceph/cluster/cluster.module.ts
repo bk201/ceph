@@ -42,6 +42,7 @@ import { SilenceFormComponent } from './prometheus/silence-form/silence-form.com
 import { SilenceListComponent } from './prometheus/silence-list/silence-list.component';
 import { SilenceMatcherModalComponent } from './prometheus/silence-matcher-modal/silence-matcher-modal.component';
 import { ServicesComponent } from './services/services.component';
+import { OsdFormComponent } from './osd/osd-form/osd-form.component';
 
 @NgModule({
   entryComponents: [
@@ -100,7 +101,8 @@ import { ServicesComponent } from './services/services.component';
     ServicesComponent,
     InventoryComponent,
     HostFormComponent,
-    OsdSmartListComponent
+    OsdSmartListComponent,
+    OsdFormComponent
   ]
 })
 export class ClusterModule {}

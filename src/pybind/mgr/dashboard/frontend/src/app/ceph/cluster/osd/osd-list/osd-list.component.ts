@@ -23,11 +23,17 @@ import { OsdPgScrubModalComponent } from '../osd-pg-scrub-modal/osd-pg-scrub-mod
 import { OsdRecvSpeedModalComponent } from '../osd-recv-speed-modal/osd-recv-speed-modal.component';
 import { OsdReweightModalComponent } from '../osd-reweight-modal/osd-reweight-modal.component';
 import { OsdScrubModalComponent } from '../osd-scrub-modal/osd-scrub-modal.component';
+import { URLBuilderService } from '../../../../shared/services/url-builder.service';
+
+const BASE_URL = 'osd';
 
 @Component({
   selector: 'cd-osd-list',
   templateUrl: './osd-list.component.html',
-  styleUrls: ['./osd-list.component.scss']
+  styleUrls: ['./osd-list.component.scss'],
+  providers:[
+    { provide: URLBuilderService, useValue: new URLBuilderService(BASE_URL) }
+  ]
 })
 export class OsdListComponent implements OnInit {
   @ViewChild('statusColor', { static: true })
@@ -73,10 +79,18 @@ export class OsdListComponent implements OnInit {
     private dimlessBinaryPipe: DimlessBinaryPipe,
     private modalService: BsModalService,
     private i18n: I18n,
+    private urlBuilder: URLBuilderService,
     public actionLabels: ActionLabelsI18n
   ) {
     this.permissions = this.authStorageService.getPermissions();
     this.tableActions = [
+      {
+        name: this.actionLabels.CREATE,
+        permission: 'create',
+        icon: Icons.add,
+        routerLink: () => this.urlBuilder.getCreate(),
+        disable: () => { return false }
+      },
       {
         name: this.actionLabels.SCRUB,
         permission: 'update',
