@@ -11,6 +11,8 @@ export class Device {
   dev_id: string;
   extended: any;
   osd_id: string;
+  vendor: string;
+  model: string;
 }
 
 export class InventoryNode {

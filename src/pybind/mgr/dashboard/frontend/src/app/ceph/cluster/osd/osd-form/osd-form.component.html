@@ -1,4 +1,4 @@
-<div class="col-sm-12 col-lg-8">
+<div class="col-sm-12 col-lg-10">
   <form name="osdForm"
         #formDir="ngForm"
         [formGroup]="osdForm"
@@ -7,13 +7,181 @@
       <div i18n="form title|Example: Create Pool@@formTitle"
            class="card-header">{{ action | titlecase }} {{ resource | upperFirst }}</div>
       <div class="card-body">
+        <!-- Data devices -->
+        <legend i18n>Data devices</legend>
+        <div class="row">
+          <div class="col-sm-12">
+            <cd-table [data]="dataDevices"
+                      [columns]="columns"
+                      identifier="uid"
+                      [forceIdentifier]="true"
+                      [autoReload]="0"
+                      (fetchData)="getDataDevices($event)">
+              <div class="table-filters form-inline">
+                <div class="form-group filter"
+                     *ngFor="let filter of filters">
+                  <label class="col-form-label">{{ filter.label }}: </label>
+                  <select class="custom-select"
+                          [(ngModel)]="filter.value"
+                          [ngModelOptions]="{standalone: true}"
+                          (ngModelChange)="onFilterChange()"
+                          [disabled]="loading">
+                    <option *ngFor="let opt of filter.options">{{ opt }}</option>
+                  </select>
+                </div>
+                <div class="widget-toolbar tc_refreshBtn">
+                  <button type="button"
+                          title="Reset filters"
+                          class="btn btn-light"
+                          (click)="resetFilter()">
+                    <span [ngClass]="[icons.stack]">
+                      <i [ngClass]="[icons.filter, icons.stack2x]"></i>
+                      <i [ngClass]="[icons.destroy, icons.stack1x]"
+                          style="margin-left: 8px; margin-top: 5px;"></i>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </cd-table>
+          </div>
+        </div>
 
+        <!-- Shared devices -->
+        <fieldset>
+          <legend i18n>Shared devices</legend>
+
+          <!-- DB devices -->
+          <div class="form-group row">
+            <label i18n
+                    class="col-sm-3 col-form-label"
+                    for="dbDevices">DB devices</label>
+            <div class="col-sm-9">
+              <div class='custom-control custom-checkbox'>
+                <input type="checkbox"
+                        class="custom-control-input"
+                        id="enableDbDevices"
+                        name="enableDbDevices"
+                        formControlName="enableDbDevices">
+                <label class="custom-control-label"
+                       for="enableDbDevices">Enable</label>
+              </div>
+              <div *ngIf="osdForm.getValue('enableDbDevices')">
+                <cd-table [data]="freeDevices"
+                          [columns]="columns"
+                          identifier="uid"
+                          [forceIdentifier]="true"
+                          [autoReload]="0">
+                </cd-table>
+              </div>
+            </div>
+          </div>
+
+          <!-- DB devices button + modal -->
+          <div class="form-group row">
+            <label i18n
+                    class="col-sm-3 col-form-label"
+                    for="dbDevices">DB devices</label>
+            <div class="col-sm-9">
+              <div class="row">
+                <div class="col-12">
+                  <button type="button"
+                          class="btn btn-light"
+                          (click)="showDBDevicesModal()">
+                    <i [ngClass]="[icons.add]"></i>
+                    <ng-container i18n>Add DB devices</ng-container>
+                  </button>
+                </div>
+                <div class="col-12" *ngIf='dbDevices.length !== 0'>
+                  <cd-table [data]="dbDevices"
+                            [columns]="columns"
+                            identifier="uid"
+                            [forceIdentifier]="true"
+                            [autoReload]="0">
+                  </cd-table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DB Slots -->
+          <div class="form-group row">
+            <label i18n
+                    class="col-sm-3 col-form-label"
+                    for="dbSlots">DB slots</label>
+            <div class="col-sm-9">
+              <input class="form-control"
+                    id="dbSlots"
+                    name="dbSlots"
+                    type="number"
+                    min="0"
+                    formControlName="dbSlots">
+            </div>
+          </div>
+
+          <!-- WAL devices -->
+          <div class="form-group row">
+            <label i18n
+                    class="col-sm-3 col-form-label"
+                    for="walDevices">WAL devices</label>
+            <div class="col-sm-9">
+              <cd-select-badges id="walDevices"
+                                [customBadges]="true"
+                                [customBadgeValidators]="data.walDevices.validators"
+                                [messages]="data.walDevices.messages"
+                                [data]="data.walDevices.selected"
+                                [options]="data.walDevices.available"
+                                (selection)="walDeviceSelection()">
+              </cd-select-badges>
+            </div>
+          </div>
+
+          <!-- WAL Slots -->
+          <div class="form-group row">
+            <label i18n
+                    class="col-sm-3 col-form-label"
+                    for="walSlots">WAL slots</label>
+            <div class="col-sm-9">
+              <input class="form-control"
+                      id="walSlots"
+                      name="walSlots"
+                      type="number"
+                      min="0"
+                      formControlName="walSlots">
+            </div>
+          </div>
+        </fieldset>
+
+
+        <!-- Configuration -->
+        <fieldset>
+          <legend i18n>Configuration</legend>
+
+            <!-- Encrypted -->
+            <div class="form-group row"
+                formGroupName="features">
+              <label i18n
+                    class="col-sm-3 col-form-label"
+                    for="features">Features</label>
+              <div class="col-sm-9">
+                <div class='custom-control custom-checkbox'
+                    *ngFor="let feature of featureList">
+                  <input type="checkbox"
+                        class="custom-control-input"
+                        id="{{ feature.key }}"
+                        name="{{ feature.key }}"
+                        formControlName="{{ feature.key }}">
+                  <label class="custom-control-label"
+                        for="{{ feature.key }}">{{ feature.desc }}</label>
+                </div>
+              </div>
+            </div>
+        </fieldset>
       </div>
       <div class="card-footer">
         <div class="button-group text-right">
           <cd-submit-button (submitAction)="submit()"
                             i18n="form action button|Example: Create Pool@@formActionButton"
-                            [form]="formDir">{{ action | titlecase }} {{ resource | upperFirst }}</cd-submit-button>
+                            [form]="formDir">Preview</cd-submit-button>
           <cd-back-button></cd-back-button>
         </div>
       </div>

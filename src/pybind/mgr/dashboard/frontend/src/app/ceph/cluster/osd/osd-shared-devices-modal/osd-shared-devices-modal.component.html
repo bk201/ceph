@@ -1,0 +1,47 @@
+<div class="modal-header">
+  <h4 i18n="form title|Example: Create Pool@@formTitle"
+      class="modal-title float-left">Add {{ shareDeviceType }} devices</h4>
+
+  <button type="button"
+          class="close float-right"
+          aria-label="Close"
+          (click)="bsModalRef.hide()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<form #frm="ngForm"
+      [formGroup]="formGroup"
+      novalidate>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-sm-12">
+        <cd-table [data]="filteredDevices" [columns]="columns" identifier="uid" [forceIdentifier]="true" [autoReload]="0">
+          <div class="table-filters form-inline">
+            <div class="form-group filter" *ngFor="let filter of filters">
+              <label class="col-form-label">{{ filter.label }}: </label>
+              <select class="custom-select" [(ngModel)]="filter.value" [ngModelOptions]="{standalone: true}"
+                (ngModelChange)="onFilterChange()">
+                <option *ngFor="let opt of filter.options">{{ opt }}</option>
+              </select>
+            </div>
+            <div class="widget-toolbar tc_refreshBtn">
+              <button type="button" title="Reset filters" class="btn btn-light" (click)="resetFilter()">
+                <span [ngClass]="[icons.stack]">
+                  <i [ngClass]="[icons.filter, icons.stack2x]"></i>
+                  <i [ngClass]="[icons.destroy, icons.stack1x]" style="margin-left: 8px; margin-top: 5px;"></i>
+                </span>
+              </button>
+            </div>
+          </div>
+        </cd-table>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <cd-submit-button *ngIf="!viewing"
+                      (submitAction)="onSubmit()"
+                      i18n="form action button|Example: Create Pool@@formActionButton"
+                      [form]="formGroup">{{ action | titlecase }}</cd-submit-button>
+    <cd-back-button [back]="bsModalRef.hide"></cd-back-button>
+  </div>
+</form>
