@@ -15,6 +15,8 @@ import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe'
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { OsdSharedDevicesModalComponent } from '../osd-shared-devices-modal/osd-shared-devices-modal.component';
+import { stringLiteral } from '@babel/types';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 
 @Component({
@@ -35,7 +37,9 @@ export class OsdFormComponent implements OnInit {
   dataDevices: Device[] = [];
   freeDevices: Device[] = [];
   dbDevices: Device[] = [];
+  walDevices: Device[] = [];
   filters = [];
+  hostname = '';
   
   action: string;
   resource: string;
@@ -206,11 +210,13 @@ export class OsdFormComponent implements OnInit {
         this.updateFilterOptions(devices);
         this.allDevices = devices;
         this.dataDevices = [...devices];
+        this.updateSharedDevices();
         this.loading = false;
       },
       () => {
         this.allDevices = [];
         this.dataDevices = [];
+        this.updateSharedDevices();
         this.loading = false;
         context.error();
       }
@@ -231,13 +237,15 @@ export class OsdFormComponent implements OnInit {
       if (filter.value === filter.initValue) {
         return;
       }
+      if (filter.prop === 'hostname') {
+        this.hostname = filter.value;
+      }
       let obj = {[filter.prop]: filter.value};
       let tmp = _.partition(devices, obj);
       devices = tmp[0];
       this.freeDevices = this.freeDevices.concat(tmp[1])
     });
 
-    console.log(this.freeDevices);
     this.dataDevices = devices;
     this.updateSharedDevices();
   }
@@ -246,13 +254,31 @@ export class OsdFormComponent implements OnInit {
     this.filters.forEach((item) => {
       item.value = item.initValue;
     });
+    this.hostname = '';
     this.dataDevices = [...this.allDevices];
+    this.updateSharedDevices();
   }
 
   updateSharedDevices() {
+    // reset all selected shared devices when data device filters are changed
+    this.dbDevices = [];
+    this.walDevices = [];
+
+    // determine free devices can be used as shared devices
+    // without hostname (all host): all free devices (how about free devices are not same between hosts?) 
+    // with hostname: any free devices on that host can be used.
+    if (this.hostname !== '') {
+      this.freeDevices = this.freeDevices.filter((device: Device) => {
+        return device.hostname === this.hostname;
+      });
+    }
   }
 
-  showDBDevicesModal() {
+  updateDriveGroup() {
+
+  }
+
+  showDbDevicesModal() {
     const options: ModalOptions = {
       class: 'modal-lg',
       initialState: {
@@ -260,9 +286,13 @@ export class OsdFormComponent implements OnInit {
       }
     }
     const modalRef = this.bsModalService.show(OsdSharedDevicesModalComponent, options);
-    modalRef.content.submitAction.subscribe((devices: Device[]) => {
-      console.log(devices);
-      this.dbDevices = devices;
+    modalRef.content.submitAction.subscribe((result: any) => {
+      console.log(result);
+      this.dbDevices = result.filteredDevices;
     });
+  }
+
+  clearDbDevices() {
+    this.dbDevices = [];
   }
 }

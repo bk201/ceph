@@ -30,6 +30,7 @@ export class OsdSharedDevicesModalComponent implements OnInit {
   columns: Array<CdTableColumn> = [];
   filters = [];
   devices: Device[] = [];
+  isFiltered = false;
   filteredDevices: Device[] = [];
   freeDevices: Device[] = [];
 
@@ -140,24 +141,29 @@ export class OsdSharedDevicesModalComponent implements OnInit {
 
   onFilterChange () {
     let devices: any = [...this.devices];
+    this.isFiltered = false;
 
     this.filters.forEach((filter) => {
       if (filter.value === filter.initValue) {
         return;
       }
+      this.isFiltered = true;
       let obj = {[filter.prop]: filter.value};
       let tmp = _.partition(devices, obj);
       devices = tmp[0];
-      // this.freeDevices = this.freeDevices.concat(tmp[1])
+      this.freeDevices = this.freeDevices.concat(tmp[1])
     });
 
     // console.log(this.freeDevices);
     this.filteredDevices = devices;
-    // this.updateSharedDevices();
   }
 
   onSubmit() {
-    this.submitAction.emit([this.devices[1]]);
+    const result = {
+      filteredDevices: this.filteredDevices,
+      freeDeviecs: this.freeDevices
+    }
+    this.submitAction.emit(result);
     this.bsModalRef.hide();
   }
 }

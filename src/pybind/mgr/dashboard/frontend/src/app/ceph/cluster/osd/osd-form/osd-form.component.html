@@ -50,33 +50,7 @@
         <fieldset>
           <legend i18n>Shared devices</legend>
 
-          <!-- DB devices -->
-          <div class="form-group row">
-            <label i18n
-                    class="col-sm-3 col-form-label"
-                    for="dbDevices">DB devices</label>
-            <div class="col-sm-9">
-              <div class='custom-control custom-checkbox'>
-                <input type="checkbox"
-                        class="custom-control-input"
-                        id="enableDbDevices"
-                        name="enableDbDevices"
-                        formControlName="enableDbDevices">
-                <label class="custom-control-label"
-                       for="enableDbDevices">Enable</label>
-              </div>
-              <div *ngIf="osdForm.getValue('enableDbDevices')">
-                <cd-table [data]="freeDevices"
-                          [columns]="columns"
-                          identifier="uid"
-                          [forceIdentifier]="true"
-                          [autoReload]="0">
-                </cd-table>
-              </div>
-            </div>
-          </div>
-
-          <!-- DB devices button + modal -->
+          <!-- DB devices button -->
           <div class="form-group row">
             <label i18n
                     class="col-sm-3 col-form-label"
@@ -86,25 +60,40 @@
                 <div class="col-12">
                   <button type="button"
                           class="btn btn-light"
-                          (click)="showDBDevicesModal()">
+                          (click)="showDbDevicesModal()"
+                          [disabled]="freeDevices.length === 0">
                     <i [ngClass]="[icons.add]"></i>
-                    <ng-container i18n>Add DB devices</ng-container>
+                    <ng-container i18n>Add</ng-container>
                   </button>
-                </div>
-                <div class="col-12" *ngIf='dbDevices.length !== 0'>
-                  <cd-table [data]="dbDevices"
-                            [columns]="columns"
-                            identifier="uid"
-                            [forceIdentifier]="true"
-                            [autoReload]="0">
-                  </cd-table>
+                  <span *ngIf="dbDevices.length !== 0">
+                    <button type="button"
+                            class="btn btn-light"
+                            (click)="clearDbDevices()">
+                      <i [ngClass]="[icons.destroy]"></i>
+                      <ng-container i18n>Clear</ng-container>
+                    </button>
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- DB Slots -->
+          <!-- DB devices table -->
           <div class="form-group row">
+            <div class="offset-sm-3 col-sm-9"
+                 *ngIf="dbDevices.length !== 0">
+              <cd-table [data]="dbDevices"
+                        [columns]="columns"
+                        identifier="uid"
+                        [forceIdentifier]="true"
+                        [autoReload]="0">
+              </cd-table>
+            </div>
+          </div>
+
+          <!-- DB slots -->
+          <div class="form-group row"
+               *ngIf="dbDevices.length !== 0">
             <label i18n
                     class="col-sm-3 col-form-label"
                     for="dbSlots">DB slots</label>
@@ -118,37 +107,63 @@
             </div>
           </div>
 
-          <!-- WAL devices -->
+          <!-- WAL devices button -->
           <div class="form-group row">
             <label i18n
                     class="col-sm-3 col-form-label"
                     for="walDevices">WAL devices</label>
             <div class="col-sm-9">
-              <cd-select-badges id="walDevices"
-                                [customBadges]="true"
-                                [customBadgeValidators]="data.walDevices.validators"
-                                [messages]="data.walDevices.messages"
-                                [data]="data.walDevices.selected"
-                                [options]="data.walDevices.available"
-                                (selection)="walDeviceSelection()">
-              </cd-select-badges>
+              <div class="row">
+                <div class="col-12">
+                  <button type="button"
+                          class="btn btn-light"
+                          (click)="showWalDevicesModal()"
+                          [disabled]="freeDevices.length === 0">
+                    <i [ngClass]="[icons.add]"></i>
+                    <ng-container i18n>Add</ng-container>
+                  </button>
+                  <span *ngIf="walDevices.length !== 0">
+                    <button type="button"
+                            class="btn btn-light"
+                            (click)="clearWalDevices()">
+                      <i [ngClass]="[icons.destroy]"></i>
+                      <ng-container i18n>Clear</ng-container>
+                    </button>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- WAL Slots -->
+          <!-- WAL devices table -->
           <div class="form-group row">
+            <div class="offset-sm-3 col-sm-9"
+                 *ngIf="walDevices.length !== 0">
+              <cd-table [data]="walDevices"
+                        [columns]="columns"
+                        identifier="uid"
+                        [forceIdentifier]="true"
+                        [autoReload]="0">
+              </cd-table>
+            </div>
+          </div>
+
+          <!-- WAL slots -->
+          <div class="form-group row"
+               *ngIf="walDevices.length !== 0">
             <label i18n
                     class="col-sm-3 col-form-label"
                     for="walSlots">WAL slots</label>
             <div class="col-sm-9">
               <input class="form-control"
-                      id="walSlots"
-                      name="walSlots"
-                      type="number"
-                      min="0"
-                      formControlName="walSlots">
+                    id="walSlots"
+                    name="walSlots"
+                    type="number"
+                    min="0"
+                    formControlName="walSlots">
             </div>
           </div>
+
         </fieldset>
 
 
