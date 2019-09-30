@@ -1,6 +1,6 @@
 <div class="modal-header">
   <h4 i18n="form title|Example: Create Pool@@formTitle"
-      class="modal-title float-left">Add {{ shareDeviceType }} devices</h4>
+      class="modal-title float-left">Add {{ deviceType }} devices</h4>
 
   <button type="button"
           class="close float-right"
@@ -15,12 +15,12 @@
   <div class="modal-body">
     <div class="row">
       <div class="col-sm-12">
-        <cd-table [data]="filteredDevices" [columns]="columns" identifier="uid" [forceIdentifier]="true" [autoReload]="0">
+        <cd-table [data]="filteredDevices" [columns]="columns" identifier="uid" forceIdentifier="true" autoReload="0">
           <div class="table-filters form-inline">
             <div class="form-group filter" *ngFor="let filter of filters">
               <label class="col-form-label">{{ filter.label }}: </label>
               <select class="custom-select" [(ngModel)]="filter.value" [ngModelOptions]="{standalone: true}"
-                (ngModelChange)="onFilterChange()">
+                (ngModelChange)="onFilterChange()" [disabled]="filter.disabled">
                 <option *ngFor="let opt of filter.options">{{ opt }}</option>
               </select>
             </div>
@@ -38,11 +38,10 @@
     </div>
   </div>
   <div class="modal-footer">
-    <cd-submit-button *ngIf="!viewing"
-                      (submitAction)="onSubmit()"
+    <cd-submit-button (submitAction)="onSubmit()"
                       i18n="form action button|Example: Create Pool@@formActionButton"
                       [form]="formGroup"
-                      [disabled]="!isFiltered">{{ action | titlecase }}</cd-submit-button>
+                      [disabled]="!isFiltered || filteredDevices.length === 0">{{ action | titlecase }}</cd-submit-button>
     <cd-back-button [back]="bsModalRef.hide"></cd-back-button>
   </div>
 </form>

@@ -23,7 +23,9 @@ export class OsdSharedDevicesModalComponent implements OnInit {
 
   icons = Icons;
 
-  shareDeviceType = 'DB';
+
+  hostname = '*';
+  deviceType: string;
   formGroup: CdFormGroup;
   action: string;
 
@@ -69,6 +71,11 @@ export class OsdSharedDevicesModalComponent implements OnInit {
         flexGrow: 1
       },
       {
+        name: this.i18n('Rotates'),
+        prop: 'rotates',
+        flexGrow: 1
+      },
+      {
         name: this.i18n('Vendor'),
         prop: 'vendor',
         flexGrow: 1
@@ -96,30 +103,35 @@ export class OsdSharedDevicesModalComponent implements OnInit {
       {
         label: this.i18n('Hostname'),
         prop: 'hostname',
-        initValue: '*',
-        value: '*',
-        options: ['*']
+        initValue: this.hostname,
+        value: this.hostname,
+        options: ['*'],
+        disabled: this.hostname !== '*'
       },
       {
-        label: this.i18n('Type'),
-        prop: 'type',
+        label: this.i18n('Rotates'),
+        prop: 'rotates',
         initValue: '*',
         value: '*',
-        options: ['*']
+        options: ['*'],
+        disabled: false,
+        valueFunction: (value) => {return JSON.parse(value)}
       },
       {
         label: this.i18n('Vendor'),
         prop: 'vendor',
         initValue: '*',
         value: '*',
-        options: ['*']
+        options: ['*'],
+        disabled: false
       },
       {
         label: this.i18n('Model'),
         prop: 'model',
         initValue: '*',
         value: '*',
-        options: ['*']
+        options: ['*'],
+        disabled: false
       }
     ];
   }
@@ -141,14 +153,19 @@ export class OsdSharedDevicesModalComponent implements OnInit {
 
   onFilterChange () {
     let devices: any = [...this.devices];
+    this.freeDevices = [];
     this.isFiltered = false;
 
     this.filters.forEach((filter) => {
       if (filter.value === filter.initValue) {
         return;
       }
-      this.isFiltered = true;
-      let obj = {[filter.prop]: filter.value};
+      if (filter.prop !== 'hostname') {
+        this.isFiltered = true;
+      }
+
+      const value = filter.valueFunction ? filter.valueFunction(filter.value) : filter.value;
+      let obj = {[filter.prop]: value};
       let tmp = _.partition(devices, obj);
       devices = tmp[0];
       this.freeDevices = this.freeDevices.concat(tmp[1])
@@ -159,9 +176,20 @@ export class OsdSharedDevicesModalComponent implements OnInit {
   }
 
   onSubmit() {
+    const appledfilters = this.filters.filter((filter) => {
+      return filter.value !== filter.initValue;
+    });
+
     const result = {
+      appliedFilters: appledfilters.map((filter) => {
+        const obj = _.pick(filter, ['label', 'prop', 'value'])
+        if (filter.valueFunction) {
+          obj.value = filter.valueFunction(obj.value);
+        }
+        return obj;
+      }),
       filteredDevices: this.filteredDevices,
-      freeDeviecs: this.freeDevices
+      freeDevices: this.freeDevices
     }
     this.submitAction.emit(result);
     this.bsModalRef.hide();

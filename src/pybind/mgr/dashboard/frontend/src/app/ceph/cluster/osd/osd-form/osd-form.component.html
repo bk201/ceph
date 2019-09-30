@@ -1,4 +1,7 @@
-<div class="col-sm-12 col-lg-10">
+<cd-loading-panel *ngIf="loading"
+                  i18n>Loading...</cd-loading-panel>
+<div class="col-sm-10"
+     *ngIf="!loading">
   <form name="osdForm"
         #formDir="ngForm"
         [formGroup]="osdForm"
@@ -7,105 +10,59 @@
       <div i18n="form title|Example: Create Pool@@formTitle"
            class="card-header">{{ action | titlecase }} {{ resource | upperFirst }}</div>
       <div class="card-body">
-        <!-- Data devices -->
-        <legend i18n>Data devices</legend>
-        <div class="row">
-          <div class="col-sm-12">
-            <cd-table [data]="dataDevices"
-                      [columns]="columns"
-                      identifier="uid"
-                      [forceIdentifier]="true"
-                      [autoReload]="0"
-                      (fetchData)="getDataDevices($event)">
-              <div class="table-filters form-inline">
-                <div class="form-group filter"
-                     *ngFor="let filter of filters">
-                  <label class="col-form-label">{{ filter.label }}: </label>
-                  <select class="custom-select"
-                          [(ngModel)]="filter.value"
-                          [ngModelOptions]="{standalone: true}"
-                          (ngModelChange)="onFilterChange()"
-                          [disabled]="loading">
-                    <option *ngFor="let opt of filter.options">{{ opt }}</option>
-                  </select>
-                </div>
-                <div class="widget-toolbar tc_refreshBtn">
-                  <button type="button"
-                          title="Reset filters"
-                          class="btn btn-light"
-                          (click)="resetFilter()">
-                    <span [ngClass]="[icons.stack]">
-                      <i [ngClass]="[icons.filter, icons.stack2x]"></i>
-                      <i [ngClass]="[icons.destroy, icons.stack1x]"
-                          style="margin-left: 8px; margin-top: 5px;"></i>
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </cd-table>
-          </div>
-        </div>
-
-        <!-- Shared devices -->
         <fieldset>
-          <legend i18n>Shared devices</legend>
-
-          <!-- DB devices button -->
+          <!-- Data devices button -->
           <div class="form-group row">
             <label i18n
                     class="col-sm-3 col-form-label"
-                    for="dbDevices">DB devices</label>
+                    for="dataDevices">Data devices</label>
             <div class="col-sm-9">
-              <div class="row">
-                <div class="col-12">
-                  <button type="button"
-                          class="btn btn-light"
-                          (click)="showDbDevicesModal()"
-                          [disabled]="freeDevices.length === 0">
-                    <i [ngClass]="[icons.add]"></i>
-                    <ng-container i18n>Add</ng-container>
-                  </button>
-                  <span *ngIf="dbDevices.length !== 0">
-                    <button type="button"
-                            class="btn btn-light"
-                            (click)="clearDbDevices()">
-                      <i [ngClass]="[icons.destroy]"></i>
-                      <ng-container i18n>Clear</ng-container>
-                    </button>
-                  </span>
-                </div>
-              </div>
+              <ng-container *ngIf="dataDevices.length === 0;else blockClearDataDevices">
+                <button type="button"
+                        class="btn btn-light"
+                        (click)="showDataDevicesModal()"
+                        [disabled]="freeDevices.length === 0">
+                  <i [ngClass]="[icons.add]"></i>
+                  <ng-container i18n>Add</ng-container>
+                </button>
+              </ng-container>
+              <ng-template #blockClearDataDevices>
+                <button type="button"
+                        class="btn btn-light"
+                        (click)="clearDataDevices()">
+                  <i [ngClass]="[icons.destroy]"></i>
+                  <ng-container i18n>Clear</ng-container>
+                </button>
+              </ng-template>
             </div>
           </div>
 
-          <!-- DB devices table -->
+          <!-- Data devices table -->
           <div class="form-group row">
             <div class="offset-sm-3 col-sm-9"
-                 *ngIf="dbDevices.length !== 0">
-              <cd-table [data]="dbDevices"
+                 *ngIf="dataDevices.length !== 0">
+              <cd-table [data]="dataDevices"
                         [columns]="columns"
                         identifier="uid"
-                        [forceIdentifier]="true"
-                        [autoReload]="0">
+                        forceIdentifier="true"
+                        autoReload="0">
+                <div class="table-filters form-inline">
+                  <div class="form-group filter" *ngFor="let filter of dataDeviceFilters">
+                    <label class="col-form-label">{{ filter.label }}: </label>
+                    <select class="custom-select" disabled>
+                      <option selected>{{ filter.value }}</option>
+                    </select>
+                  </div>
+                </div>
               </cd-table>
             </div>
           </div>
 
-          <!-- DB slots -->
-          <div class="form-group row"
-               *ngIf="dbDevices.length !== 0">
-            <label i18n
-                    class="col-sm-3 col-form-label"
-                    for="dbSlots">DB slots</label>
-            <div class="col-sm-9">
-              <input class="form-control"
-                    id="dbSlots"
-                    name="dbSlots"
-                    type="number"
-                    min="0"
-                    formControlName="dbSlots">
-            </div>
-          </div>
+        </fieldset>
+
+        <!-- Shared devices -->
+        <fieldset>
+          <legend i18n>Shared devices</legend>
 
           <!-- WAL devices button -->
           <div class="form-group row">
@@ -113,25 +70,23 @@
                     class="col-sm-3 col-form-label"
                     for="walDevices">WAL devices</label>
             <div class="col-sm-9">
-              <div class="row">
-                <div class="col-12">
-                  <button type="button"
-                          class="btn btn-light"
-                          (click)="showWalDevicesModal()"
-                          [disabled]="freeDevices.length === 0">
-                    <i [ngClass]="[icons.add]"></i>
-                    <ng-container i18n>Add</ng-container>
-                  </button>
-                  <span *ngIf="walDevices.length !== 0">
-                    <button type="button"
-                            class="btn btn-light"
-                            (click)="clearWalDevices()">
-                      <i [ngClass]="[icons.destroy]"></i>
-                      <ng-container i18n>Clear</ng-container>
-                    </button>
-                  </span>
-                </div>
-              </div>
+              <ng-container *ngIf="walDevices.length === 0;else blockClearWalDevices">
+                <button type="button"
+                        class="btn btn-light"
+                        (click)="showWalDevicesModal()"
+                        [disabled]="freeDevices.length === 0 || dataDevices.length === 0">
+                  <i [ngClass]="[icons.add]"></i>
+                  <ng-container i18n>Add</ng-container>
+                </button>
+              </ng-container>
+              <ng-template #blockClearWalDevices>
+                <button type="button"
+                        class="btn btn-light"
+                        (click)="clearWalDevices()">
+                  <i [ngClass]="[icons.destroy]"></i>
+                  <ng-container i18n>Clear</ng-container>
+                </button>
+              </ng-template>
             </div>
           </div>
 
@@ -144,6 +99,14 @@
                         identifier="uid"
                         [forceIdentifier]="true"
                         [autoReload]="0">
+                <div class="table-filters form-inline">
+                  <div class="form-group filter" *ngFor="let filter of walDeviceFilters">
+                    <label class="col-form-label">{{ filter.label }}: </label>
+                    <select class="custom-select" disabled>
+                      <option selected>{{ filter.value }}</option>
+                    </select>
+                  </div>
+                </div>
               </cd-table>
             </div>
           </div>
@@ -161,6 +124,69 @@
                     type="number"
                     min="0"
                     formControlName="walSlots">
+            </div>
+          </div>
+
+          <!-- DB devices button -->
+          <div class="form-group row">
+            <label i18n
+                    class="col-sm-3 col-form-label"
+                    for="dbDevices">DB devices</label>
+            <div class="col-sm-9">
+              <ng-container *ngIf="dbDevices.length === 0;else blockClearDBDevices">
+                <button type="button"
+                        class="btn btn-light"
+                        (click)="showDbDevicesModal()"
+                        [disabled]="freeDevices.length === 0 || dataDevices.length === 0">
+                  <i [ngClass]="[icons.add]"></i>
+                  <ng-container i18n>Add</ng-container>
+                </button>
+              </ng-container>
+              <ng-template #blockClearDBDevices>
+                <button type="button"
+                        class="btn btn-light"
+                        (click)="clearDbDevices()">
+                  <i [ngClass]="[icons.destroy]"></i>
+                  <ng-container i18n>Clear</ng-container>
+                </button>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- DB devices table -->
+          <div class="form-group row">
+            <div class="offset-sm-3 col-sm-9"
+                 *ngIf="dbDevices.length !== 0">
+              <cd-table [data]="dbDevices"
+                        [columns]="columns"
+                        identifier="uid"
+                        [forceIdentifier]="true"
+                        [autoReload]="0">
+                <div class="table-filters form-inline">
+                  <div class="form-group filter" *ngFor="let filter of dbDeviceFilters">
+                    <label class="col-form-label">{{ filter.label }}: </label>
+                    <select class="custom-select" disabled>
+                      <option selected>{{ filter.value }}</option>
+                    </select>
+                  </div>
+                </div>
+              </cd-table>
+            </div>
+          </div>
+
+          <!-- DB slots -->
+          <div class="form-group row"
+               *ngIf="dbDevices.length !== 0">
+            <label i18n
+                    class="col-sm-3 col-form-label"
+                    for="dbSlots">DB slots</label>
+            <div class="col-sm-9">
+              <input class="form-control"
+                    id="dbSlots"
+                    name="dbSlots"
+                    type="number"
+                    min="0"
+                    formControlName="dbSlots">
             </div>
           </div>
 
@@ -184,22 +210,53 @@
                         class="custom-control-input"
                         id="{{ feature.key }}"
                         name="{{ feature.key }}"
-                        formControlName="{{ feature.key }}">
+                        formControlName="{{ feature.key }}"
+                        (change)="setFeatures()">
                   <label class="custom-control-label"
                         for="{{ feature.key }}">{{ feature.desc }}</label>
                 </div>
               </div>
             </div>
         </fieldset>
+
+        
+        <!-- Debug -->
+        <div *ngIf="debug2">
+          <fieldset>
+            <legend i18n>Debug</legend>
+
+            <!-- For Debug: Free devices table -->
+            <div class="form-group row">
+              <label i18n
+                    class="col-sm-3 col-form-label"
+                    for="freeDevices">Free devices</label>
+              <div class="col-sm-9">
+                <cd-table [data]="freeDevices"
+                          [columns]="columns"
+                          identifier="uid"
+                          forceIdentifier="true"
+                          autoReload="0">
+                </cd-table>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
       </div>
       <div class="card-footer">
         <div class="button-group text-right">
           <cd-submit-button (submitAction)="submit()"
                             i18n="form action button|Example: Create Pool@@formActionButton"
-                            [form]="formDir">Preview</cd-submit-button>
+                            [form]="formDir"
+                            [disabled]="dataDevices.length === 0">Preview</cd-submit-button>
           <cd-back-button></cd-back-button>
         </div>
       </div>
     </div>
   </form>
+</div>
+
+<div class="col-sm-2 dg-container" *ngIf="!loading && debug">
+  <h3>DriveGroup</h3>
+  <pre>{{ driveGroupSpec | json }}</pre>
 </div>
