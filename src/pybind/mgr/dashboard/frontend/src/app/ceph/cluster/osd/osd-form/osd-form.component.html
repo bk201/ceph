@@ -197,7 +197,7 @@
         <fieldset>
           <legend i18n>Configuration</legend>
 
-            <!-- Encrypted -->
+            <!-- Features -->
             <div class="form-group row"
                 formGroupName="features">
               <label i18n
@@ -205,13 +205,12 @@
                     for="features">Features</label>
               <div class="col-sm-9">
                 <div class='custom-control custom-checkbox'
-                    *ngFor="let feature of featureList">
+                     *ngFor="let feature of featureList">
                   <input type="checkbox"
                         class="custom-control-input"
                         id="{{ feature.key }}"
                         name="{{ feature.key }}"
-                        formControlName="{{ feature.key }}"
-                        (change)="setFeatures()">
+                        formControlName="{{ feature.key }}">
                   <label class="custom-control-label"
                         for="{{ feature.key }}">{{ feature.desc }}</label>
                 </div>

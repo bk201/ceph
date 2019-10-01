@@ -1,162 +1,139 @@
 {
-    "inventory": [
+  "inventory": [
+    {
+      "name": "node-0", 
+      "devices": [
         {
-            "name": "test-host0",
-            "devices": [
-                {
-                    "type": "hdd",
-                    "id": "/dev/sda",
-                    "size": 4398046511104,
-                    "dev_id": "JAKOBS/STRIKER",
-                    "rotates": true,
-                    "available": false
-                },
-                {
-                    "type": "hdd",
-                    "id": "/dev/sdb",
-                    "size": 4398046511104,
-                    "dev_id": "JAKOBS/STRIKER",
-                    "rotates": true,
-                    "available": true
-                },
-                {
-                    "type": "hdd",
-                    "id": "/dev/sdc",
-                    "size": 4398046511104,
-                    "dev_id": "JAKOBS/STRIKER",
-                    "rotates": true,
-                    "available": true
-                },
-                {
-                    "type": "ssd",
-                    "id": "/dev/nvme0n1",
-                    "size": 549755813888,
-                    "dev_id": "HYPERION/REAPER",
-                    "rotates": true,
-                    "available": true
-                }
-            ]
-        },
+          "available": true, 
+          "dev_id": "CCC/ccc", 
+          "rotates": false, 
+          "type": "ssd", 
+          "id": "/dev/nvme0n1", 
+          "size": 274877906944
+        }, 
         {
-            "name": "test-host1",
-            "devices": [
-                {
-                    "type": "hdd",
-                    "id": "/dev/sda",
-                    "size": 4398046511104,
-                    "dev_id": "JAKOBS/STRIKER",
-                    "rotates": true,
-                    "available": false
-                },
-                {
-                    "type": "hdd",
-                    "id": "/dev/sdb",
-                    "size": 4398046511104,
-                    "dev_id": "JAKOBS/STRIKER",
-                    "rotates": true,
-                    "available": true
-                },
-                {
-                    "type": "hdd",
-                    "id": "/dev/sdc",
-                    "size": 4398046511104,
-                    "dev_id": "JAKOBS/STRIKER",
-                    "rotates": true,
-                    "available": true
-                },
-                {
-                    "type": "ssd",
-                    "id": "/dev/nvme0n1",
-                    "size": 549755813888,
-                    "dev_id": "HYPERION/REAPER",
-                    "rotates": true,
-                    "available": true
-                }
-            ]
-        },
+          "available": false, 
+          "dev_id": "AAA/aaa", 
+          "rotates": true, 
+          "type": "hdd", 
+          "id": "/dev/sda", 
+          "size": 4398046511104
+        }, 
         {
-            "name": "test-host2",
-            "devices": [
-                {
-                    "type": "hdd",
-                    "id": "/dev/sda",
-                    "size": 4398046511104,
-                    "dev_id": "JAKOBS/STRIKER",
-                    "rotates": true,
-                    "available": false 
-                },
-                {
-                    "type": "hdd",
-                    "id": "/dev/sdb",
-                    "size": 4398046511104,
-                    "dev_id": "JAKOBS/STRIKER",
-                    "rotates": true,
-                    "available": true
-                },
-                {
-                    "type": "hdd",
-                    "id": "/dev/sdc",
-                    "size": 4398046511104,
-                    "dev_id": "JAKOBS/STRIKER",
-                    "rotates": true,
-                    "available": true
-                },
-                {
-                    "type": "ssd",
-                    "id": "/dev/nvme0n1",
-                    "size": 549755813888,
-                    "dev_id": "HYPERION/REAPER",
-                    "rotates": true,
-                    "available": true
-                }
-            ]
+          "available": true, 
+          "dev_id": "AAA/aaa", 
+          "rotates": true, 
+          "type": "hdd", 
+          "id": "/dev/sdb", 
+          "size": 4398046511104
+        }, 
+        {
+          "available": true, 
+          "dev_id": "AAA/aaa", 
+          "rotates": true, 
+          "type": "hdd", 
+          "id": "/dev/sdc", 
+          "size": 4398046511104
+        }, 
+        {
+          "available": true, 
+          "dev_id": "BBB/bbb", 
+          "rotates": false, 
+          "type": "ssd", 
+          "id": "/dev/sdd", 
+          "size": 549755813888
         }
-    ],
-    "services": [
+      ]
+    }, 
+    {
+      "name": "node-1", 
+      "devices": [
         {
-            "nodename": "test-host0",
-            "service_type": "mon",
-            "service_instance": "a"
-        },
+          "available": true, 
+          "dev_id": "CCC/ccc", 
+          "rotates": false, 
+          "type": "ssd", 
+          "id": "/dev/nvme0n1", 
+          "size": 274877906944
+        }, 
         {
-            "nodename": "test-host1",
-            "service_type": "mon",
-            "service_instance": "b"
-        },
+          "available": false, 
+          "dev_id": "AAA/aaa", 
+          "rotates": true, 
+          "type": "hdd", 
+          "id": "/dev/sda", 
+          "size": 4398046511104
+        }, 
         {
-            "nodename": "test-host2",
-            "service_type": "mon",
-            "service_instance": "c"
-        },
+          "available": true, 
+          "dev_id": "AAA/aaa", 
+          "rotates": true, 
+          "type": "hdd", 
+          "id": "/dev/sdb", 
+          "size": 4398046511104
+        }, 
         {
-            "nodename": "test-host0",
-            "service_type": "osd",
-            "service_instance": "0"
-        },
+          "available": true, 
+          "dev_id": "AAA/aaa", 
+          "rotates": true, 
+          "type": "hdd", 
+          "id": "/dev/sdc", 
+          "size": 4398046511104
+        }, 
         {
-            "nodename": "test-host0",
-            "service_type": "osd",
-            "service_instance": "1"
-        },
-        {
-            "nodename": "test-host1",
-            "service_type": "osd",
-            "service_instance": "2"
-        },
-        {
-            "nodename": "test-host1",
-            "service_type": "osd",
-            "service_instance": "3"
-        },
-        {
-            "nodename": "test-host2",
-            "service_type": "osd",
-            "service_instance": "4"
-        },
-        {
-            "nodename": "test-host2",
-            "service_type": "osd",
-            "service_instance": "5"
+          "available": true, 
+          "dev_id": "BBB/bbb", 
+          "rotates": false, 
+          "type": "ssd", 
+          "id": "/dev/sdd", 
+          "size": 549755813888
         }
-    ]
+      ]
+    }, 
+    {
+      "name": "node-2", 
+      "devices": [
+        {
+          "available": true, 
+          "dev_id": "CCC/ccc", 
+          "rotates": false, 
+          "type": "ssd", 
+          "id": "/dev/nvme0n1", 
+          "size": 274877906944
+        }, 
+        {
+          "available": false, 
+          "dev_id": "AAA/aaa", 
+          "rotates": true, 
+          "type": "hdd", 
+          "id": "/dev/sda", 
+          "size": 4398046511104
+        }, 
+        {
+          "available": true, 
+          "dev_id": "AAA/aaa", 
+          "rotates": true, 
+          "type": "hdd", 
+          "id": "/dev/sdb", 
+          "size": 4398046511104
+        }, 
+        {
+          "available": true, 
+          "dev_id": "AAA/aaa", 
+          "rotates": true, 
+          "type": "hdd", 
+          "id": "/dev/sdc", 
+          "size": 4398046511104
+        }, 
+        {
+          "available": true, 
+          "dev_id": "BBB/bbb", 
+          "rotates": false, 
+          "type": "ssd", 
+          "id": "/dev/sdd", 
+          "size": 549755813888
+        }
+      ]
+    }
+  ]
 }

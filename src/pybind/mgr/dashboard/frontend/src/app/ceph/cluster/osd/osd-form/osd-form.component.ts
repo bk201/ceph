@@ -25,7 +25,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
   styleUrls: ['./osd-form.component.scss']
 })
 export class OsdFormComponent implements OnInit {
-  debug = true;
+  debug = false;
 
   icons = Icons;
 
@@ -70,7 +70,8 @@ export class OsdFormComponent implements OnInit {
     this.action = this.actionLabels.CREATE;
     this.features = {
       encrypted: {
-        desc: 'Encrypted'
+        key: 'encrypted',
+        desc: 'Encryption'
       }
     }
     this.featureList = _.map(this.features, (o, key) => Object.assign(o, { key: key }));
@@ -119,6 +120,13 @@ export class OsdFormComponent implements OnInit {
     ];
 
     this.getDataDevices();
+
+    _.each(this.features, (feature) => {
+      this.osdForm
+        .get('features')
+        .get(feature.key)
+        .valueChanges.subscribe((value) => this.featureFormUpdate(feature.key, value));
+    });
   }
 
   createForm() {
@@ -130,7 +138,7 @@ export class OsdFormComponent implements OnInit {
         walSlots: new FormControl(0, { updateOn: 'blur' }),
         features: new CdFormGroup(
           this.featureList.reduce((acc, e) => {
-            acc[e.key] = new FormControl({ value: false, disabled: !! e.initDisabled });
+            acc[e.key] = new FormControl({ value: false, disabled: true });
             return acc;
           }, {})
         )
@@ -222,6 +230,7 @@ export class OsdFormComponent implements OnInit {
         }
       });
       this.driveGroupSpec['data_devices'] = deviceSelection;
+      this.enableFeatures();
       console.log(this.driveGroupSpec);
     });
   }
@@ -284,21 +293,45 @@ export class OsdFormComponent implements OnInit {
     this.dbDevices = [];
     this.walDevices = [];
     this.driveGroupSpec = {};
+    this.disableFeatures();
+    this.dataDeviceFilters = [];
+    this.dbDeviceFilters = [];
+    this.walDeviceFilters = [];
   }
 
   clearDbDevices() {
     this.freeDevices = this.freeDevices.concat([...this.dbDevices]);
     this.dbDevices = [];
     delete this.driveGroupSpec['db_devices'];
+    this.dbDeviceFilters = [];
   }
 
   clearWalDevices() {
     this.freeDevices = this.freeDevices.concat([...this.walDevices]);
     this.walDevices = [];
     delete this.driveGroupSpec['wal_devices'];
+    this.walDeviceFilters = [];
   }
 
-  setFeatures() {
-    console.log(this.osdForm.get('features').get('encrypted'));
+  featureFormUpdate(key: string, checked: boolean) {
+    if (checked) {
+      this.driveGroupSpec[key] = checked;
+    } else {
+      delete this.driveGroupSpec[key];
+    }
+  }
+
+  enableFeatures() {
+    this.featureList.forEach((feature) => {
+      this.osdForm.get(feature.key).enable({ emitEvent: false })
+    });
+  }
+
+  disableFeatures() {
+    this.featureList.forEach((feature) => {
+      const control = this.osdForm.get(feature.key)
+      control.disable({ emitEvent: false })
+      control.setValue(false, { emitEvent: false});
+    });
   }
 }
