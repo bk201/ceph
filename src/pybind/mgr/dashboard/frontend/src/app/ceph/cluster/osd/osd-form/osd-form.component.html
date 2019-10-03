@@ -41,23 +41,13 @@
           <div class="form-group row">
             <div class="offset-sm-3 col-sm-9"
                  *ngIf="dataDevices.length !== 0">
-              <cd-table [data]="dataDevices"
-                        [columns]="columns"
-                        identifier="uid"
-                        forceIdentifier="true"
-                        autoReload="0">
-                <div class="table-filters form-inline">
-                  <div class="form-group filter" *ngFor="let filter of dataDeviceFilters">
-                    <label class="col-form-label">{{ filter.label }}: </label>
-                    <select class="custom-select" disabled>
-                      <option selected>{{ filter.value }}</option>
-                    </select>
-                  </div>
-                </div>
-              </cd-table>
+              <cd-inventory-devices [devices]="dataDevices"
+                                    [hiddenColumns]="['available', 'osd_id']"
+                                    [filterColumns]="[]"
+                                    [preFilters]="dataDeviceFilters">
+              </cd-inventory-devices>
             </div>
           </div>
-
         </fieldset>
 
         <!-- Shared devices -->
@@ -94,20 +84,10 @@
           <div class="form-group row">
             <div class="offset-sm-3 col-sm-9"
                  *ngIf="walDevices.length !== 0">
-              <cd-table [data]="walDevices"
-                        [columns]="columns"
-                        identifier="uid"
-                        [forceIdentifier]="true"
-                        [autoReload]="0">
-                <div class="table-filters form-inline">
-                  <div class="form-group filter" *ngFor="let filter of walDeviceFilters">
-                    <label class="col-form-label">{{ filter.label }}: </label>
-                    <select class="custom-select" disabled>
-                      <option selected>{{ filter.value }}</option>
-                    </select>
-                  </div>
-                </div>
-              </cd-table>
+              <cd-inventory-devices [devices]="walDevices" [hiddenColumns]="['available', 'osd_id']"
+                                    [filterColumns]="[]"
+                                    [preFilters]="walDeviceFilters">
+              </cd-inventory-devices>
             </div>
           </div>
 
@@ -157,20 +137,10 @@
           <div class="form-group row">
             <div class="offset-sm-3 col-sm-9"
                  *ngIf="dbDevices.length !== 0">
-              <cd-table [data]="dbDevices"
-                        [columns]="columns"
-                        identifier="uid"
-                        [forceIdentifier]="true"
-                        [autoReload]="0">
-                <div class="table-filters form-inline">
-                  <div class="form-group filter" *ngFor="let filter of dbDeviceFilters">
-                    <label class="col-form-label">{{ filter.label }}: </label>
-                    <select class="custom-select" disabled>
-                      <option selected>{{ filter.value }}</option>
-                    </select>
-                  </div>
-                </div>
-              </cd-table>
+              <cd-inventory-devices [devices]="dbDevices" [hiddenColumns]="['available', 'osd_id']"
+                                    [filterColumns]="[]"
+                                    [preFilters]="dbDeviceFilters">
+              </cd-inventory-devices>
             </div>
           </div>
 
@@ -189,9 +159,7 @@
                     formControlName="dbSlots">
             </div>
           </div>
-
         </fieldset>
-
 
         <!-- Configuration -->
         <fieldset>
@@ -220,7 +188,7 @@
 
         
         <!-- Debug -->
-        <div *ngIf="debug2">
+        <div *ngIf="debug">
           <fieldset>
             <legend i18n>Debug</legend>
 
@@ -230,12 +198,9 @@
                     class="col-sm-3 col-form-label"
                     for="freeDevices">Free devices</label>
               <div class="col-sm-9">
-                <cd-table [data]="freeDevices"
-                          [columns]="columns"
-                          identifier="uid"
-                          forceIdentifier="true"
-                          autoReload="0">
-                </cd-table>
+                <cd-inventory-devices [devices]="freeDevices"
+                                      [hiddenColumns]="['available', 'osd_id']">
+                </cd-inventory-devices>
               </div>
             </div>
           </fieldset>

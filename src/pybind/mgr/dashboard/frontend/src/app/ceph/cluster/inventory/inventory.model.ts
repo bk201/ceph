@@ -19,3 +19,8 @@ export class InventoryNode {
   name: string;
   devices: Device[];
 }
+
+export interface FilterColumn {
+  prop: string;
+  value?: string;
+}

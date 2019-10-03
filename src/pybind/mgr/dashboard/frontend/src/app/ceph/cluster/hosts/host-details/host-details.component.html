@@ -3,7 +3,8 @@
        heading="Inventory"
        *ngIf="permissions.hosts.read">
     <cd-inventory
-      [hostname]="selection.first()['hostname']">
+      [hostname]="selection.first()['hostname']"
+      hideHostname="true">
     </cd-inventory>
   </tab>
   <tab i18n-heading

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DefaultIterableDiffer } from '@angular/core';
 
 import { I18n } from '@ngx-translate/i18n-polyfill';
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
@@ -6,17 +6,12 @@ import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
 import { FormControl } from '@angular/forms';
 import { OsdFeature } from './osd-feature.interface';
 import * as _ from 'lodash';
-import { OsdFormData } from './osd-form-data';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
-import { CdTableFetchDataContext } from '../../../../shared/models/cd-table-fetch-data-context';
 import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { InventoryNode, Device } from '../../inventory/inventory.model';
-import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
-import { OsdSharedDevicesModalComponent } from '../osd-shared-devices-modal/osd-shared-devices-modal.component';
-import { stringLiteral } from '@babel/types';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { OsdDevicesSelectionModalComponent } from '../osd-devices-selection-modal/osd-devices-selection-modal.component';
 
 
 @Component({
@@ -25,7 +20,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
   styleUrls: ['./osd-form.component.scss']
 })
 export class OsdFormComponent implements OnInit {
-  debug = false;
+  debug = true;
 
   icons = Icons;
 
@@ -33,18 +28,28 @@ export class OsdFormComponent implements OnInit {
   columns: Array<CdTableColumn> = [];
 
   loading = false;
-  data = new OsdFormData(this.i18n);
   allDevices: Device[] = [];
   freeDevices: Device[] = [];
   dataDevices: Device[] = [];
   dbDevices: Device[] = [];
   walDevices: Device[] = [];
-  filters = [];
   dataDeviceFilters = [];
   dbDeviceFilters = [];
   walDeviceFilters = [];
   hostname = '';
   driveGroupSpec = {};
+
+  deviceTypes = {
+    'data': {
+      devices: [],
+    },
+    'wal': {
+
+    },
+    'db': {
+
+    }
+  }
 
   filterToDriveSelectionMap = {
     vendor: 'vendor',
@@ -62,7 +67,6 @@ export class OsdFormComponent implements OnInit {
   constructor(
     public actionLabels: ActionLabelsI18n,
     private bsModalService: BsModalService,
-    private dimlessBinary: DimlessBinaryPipe,
     private i18n: I18n,
     private orchService: OrchestratorService
   ) {
@@ -79,48 +83,7 @@ export class OsdFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    // duplicated, need to reuse
-    this.columns = [
-      {
-        name: this.i18n('Hostname'),
-        prop: 'hostname',
-        flexGrow: 1
-      },
-      {
-        name: this.i18n('Device path'),
-        prop: 'id',
-        flexGrow: 1
-      },
-      {
-        name: this.i18n('Type'),
-        prop: 'type',
-        flexGrow: 1
-      },
-      {
-        name: this.i18n('Rotates'),
-        prop: 'rotates',
-        flexGrow: 1
-      },
-      {
-        name: this.i18n('Vendor'),
-        prop: 'vendor',
-        flexGrow: 1
-      },
-      {
-        name: this.i18n('Model'),
-        prop: 'model',
-        flexGrow: 1
-      },
-      {
-        name: this.i18n('Size'),
-        prop: 'size',
-        flexGrow: 1,
-        pipe: this.dimlessBinary
-      },
-    ];
-
     this.getDataDevices();
-
     _.each(this.features, (feature) => {
       this.osdForm
         .get('features')
@@ -132,10 +95,8 @@ export class OsdFormComponent implements OnInit {
   createForm() {
     this.osdForm = new CdFormGroup(
       {
-
-        enableDbDevices: new FormControl(false),
-        dbSlots: new FormControl(0, { updateOn: 'blur' }),
         walSlots: new FormControl(0, { updateOn: 'blur' }),
+        dbSlots: new FormControl(0, { updateOn: 'blur' }),
         features: new CdFormGroup(
           this.featureList.reduce((acc, e) => {
             acc[e.key] = new FormControl({ value: false, disabled: true });
@@ -181,23 +142,25 @@ export class OsdFormComponent implements OnInit {
 
   submit() {}
 
-  updateSharedDevices() {
-    // reset all selected shared devices when data device filters are changed
-    this.dbDevices = [];
-    this.walDevices = [];
-
-    // determine free devices can be used as shared devices
-    // without hostname (all host): all free devices (how about free devices are not same between hosts?) 
-    // with hostname: any free devices on that host can be used.
-    if (this.hostname !== '') {
-      this.freeDevices = this.freeDevices.filter((device: Device) => {
-        return device.hostname === this.hostname;
-      });
-    }
+  updateDriveGroup() {
   }
 
-  updateDriveGroup() {
+  showDevicesSelectionModal(type: string) {
+    const options: ModalOptions = {
+      class: 'modal-xl',
+      initialState: {
+        hostname: this.hostname,
+        deviceType: type,
+        devices: this.freeDevices
+      }
+    }
+    const modalRef = this.bsModalService.show(OsdDevicesSelectionModalComponent, options);
+    modalRef.content.submitAction.subscribe((result: any) => {
+      // this. = result.filterInDevices;
+      this.freeDevices = result.filterOutDevices;
 
+
+    });
   }
 
   showDataDevicesModal() {
@@ -208,20 +171,20 @@ export class OsdFormComponent implements OnInit {
         devices: this.freeDevices
       }
     }
-    const modalRef = this.bsModalService.show(OsdSharedDevicesModalComponent, options);
+    const modalRef = this.bsModalService.show(OsdDevicesSelectionModalComponent, options);
     modalRef.content.submitAction.subscribe((result: any) => {
       console.log(result);
-      this.dataDevices = result.filteredDevices;
-      this.freeDevices = result.freeDevices;
+      this.dataDevices = result.filterInDevices;
+      this.freeDevices = result.filterOutDevices;
       this.dbDevices = [];
       this.walDevices = [];
       this.hostname = '';
-      const hostnameFilter = _.find(result.appliedFilters, {'prop': 'hostname'})
+      const hostnameFilter = _.find(result.filters, {'prop': 'hostname'})
       if (hostnameFilter) {
         this.hostname = hostnameFilter.value;
         this.freeDevices = this.freeDevices.filter((device: Device) => {return device.hostname === this.hostname});
       }
-      this.dataDeviceFilters = result.appliedFilters;
+      this.dataDeviceFilters = result.filters;
       this.driveGroupSpec['host_pattern'] = this.hostname === '' ? '*': this.hostname;
       let deviceSelection = {}
       this.dataDeviceFilters.forEach((filter) => {
@@ -244,12 +207,12 @@ export class OsdFormComponent implements OnInit {
         devices: this.freeDevices
       }
     }
-    const modalRef = this.bsModalService.show(OsdSharedDevicesModalComponent, options);
+    const modalRef = this.bsModalService.show(OsdDevicesSelectionModalComponent, options);
     modalRef.content.submitAction.subscribe((result: any) => {
       console.log(result);
-      this.dbDevices = result.filteredDevices;
-      this.freeDevices = result.freeDevices;
-      this.dbDeviceFilters = result.appliedFilters;
+      this.dbDevices = result.filterInDevices;
+      this.freeDevices = result.filterOutDevices;
+      this.dbDeviceFilters = result.filters;
       let deviceSelection = {}
       this.dbDeviceFilters.forEach((filter) => {
         if (this.filterToDriveSelectionMap[filter.prop]) {
@@ -269,12 +232,12 @@ export class OsdFormComponent implements OnInit {
         devices: this.freeDevices
       }
     }
-    const modalRef = this.bsModalService.show(OsdSharedDevicesModalComponent, options);
+    const modalRef = this.bsModalService.show(OsdDevicesSelectionModalComponent, options);
     modalRef.content.submitAction.subscribe((result: any) => {
       console.log(result);
-      this.walDevices = result.filteredDevices;
-      this.freeDevices = result.freeDevices;
-      this.walDeviceFilters = result.appliedFilters;
+      this.walDevices = result.filterInDevices;
+      this.freeDevices = result.filterOutDevices;
+      this.walDeviceFilters = result.filters;
       let deviceSelection = {}
       this.walDeviceFilters.forEach((filter) => {
         if (this.filterToDriveSelectionMap[filter.prop]) {
@@ -286,8 +249,6 @@ export class OsdFormComponent implements OnInit {
   }
 
   clearDataDevices() {
-    console.log('abc');
-    // this.getDataDevices();
     this.freeDevices = [...this.allDevices];
     this.dataDevices = [];
     this.dbDevices = [];

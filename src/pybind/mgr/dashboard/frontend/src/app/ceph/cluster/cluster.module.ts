@@ -43,7 +43,8 @@ import { SilenceListComponent } from './prometheus/silence-list/silence-list.com
 import { SilenceMatcherModalComponent } from './prometheus/silence-matcher-modal/silence-matcher-modal.component';
 import { ServicesComponent } from './services/services.component';
 import { OsdFormComponent } from './osd/osd-form/osd-form.component';
-import { OsdSharedDevicesModalComponent } from './osd/osd-shared-devices-modal/osd-shared-devices-modal.component';
+import { InventoryDevicesComponent } from './inventory/inventory-devices/inventory-devices.component';
+import { OsdDevicesSelectionModalComponent } from './osd/osd-devices-selection-modal/osd-devices-selection-modal.component';
 
 @NgModule({
   entryComponents: [
@@ -55,7 +56,7 @@ import { OsdSharedDevicesModalComponent } from './osd/osd-shared-devices-modal/o
     OsdPgScrubModalComponent,
     OsdReweightModalComponent,
     SilenceMatcherModalComponent,
-    OsdSharedDevicesModalComponent
+    OsdDevicesSelectionModalComponent
   ],
   imports: [
     CommonModule,
@@ -105,7 +106,8 @@ import { OsdSharedDevicesModalComponent } from './osd/osd-shared-devices-modal/o
     HostFormComponent,
     OsdSmartListComponent,
     OsdFormComponent,
-    OsdSharedDevicesModalComponent
+    OsdDevicesSelectionModalComponent,
+    InventoryDevicesComponent
   ]
 })
 export class ClusterModule {}
