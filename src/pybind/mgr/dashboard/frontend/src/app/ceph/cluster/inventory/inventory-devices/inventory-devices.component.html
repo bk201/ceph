@@ -10,7 +10,7 @@
              *ngFor="let filter of preFilters">
             <label class="col-form-label">{{ filter.label }}: </label>
             <select class="custom-select">
-                <option>{{ filter.value }}</option>
+                <option>{{ filter.formatValue }}</option>
             </select>
         </div>
         <div class="form-group filter"
@@ -21,8 +21,9 @@
                     [ngModelOptions]="{standalone: true}"
                     (ngModelChange)="onFilterChange()"
                     [disabled]="filter.disabled">
-                <option *ngFor="let opt of filter.options">
-                  {{ opt }}
+                <option *ngFor="let opt of filter.options"
+                        [value]="opt.value">
+                  {{ opt.formatValue }}
                 </option>
             </select>
         </div>

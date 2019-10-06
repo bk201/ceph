@@ -2,154 +2,88 @@
                   i18n>Loading...</cd-loading-panel>
 <div class="col-sm-10"
      *ngIf="!loading">
-  <form name="osdForm"
+  <form name="form"
         #formDir="ngForm"
-        [formGroup]="osdForm"
+        [formGroup]="form"
         novalidate>
     <div class="card">
-      <div i18n="form title|Example: Create Pool@@formTitle"
+      <div i18n
            class="card-header">{{ action | titlecase }} {{ resource | upperFirst }}</div>
       <div class="card-body">
         <fieldset>
-          <!-- Data devices button -->
-          <div class="form-group row">
-            <label i18n
-                    class="col-sm-3 col-form-label"
-                    for="dataDevices">Data devices</label>
-            <div class="col-sm-9">
-              <ng-container *ngIf="dataDevices.length === 0;else blockClearDataDevices">
-                <button type="button"
-                        class="btn btn-light"
-                        (click)="showDataDevicesModal()"
-                        [disabled]="freeDevices.length === 0">
-                  <i [ngClass]="[icons.add]"></i>
-                  <ng-container i18n>Add</ng-container>
-                </button>
-              </ng-container>
-              <ng-template #blockClearDataDevices>
-                <button type="button"
-                        class="btn btn-light"
-                        (click)="clearDataDevices()">
-                  <i [ngClass]="[icons.destroy]"></i>
-                  <ng-container i18n>Clear</ng-container>
-                </button>
-              </ng-template>
-            </div>
-          </div>
-
-          <!-- Data devices table -->
-          <div class="form-group row">
-            <div class="offset-sm-3 col-sm-9"
-                 *ngIf="dataDevices.length !== 0">
-              <cd-inventory-devices [devices]="dataDevices"
-                                    [hiddenColumns]="['available', 'osd_id']"
-                                    [filterColumns]="[]"
-                                    [preFilters]="dataDeviceFilters">
-              </cd-inventory-devices>
-            </div>
-          </div>
+          <cd-osd-device-selection-groups #dataDeviceSelectionGroups
+                                         name="Primary"
+                                         type="data"
+                                         [availDevices]="availDevices"
+                                         [canSelect]="availDevices.length !== 0"
+                                         (selected)="onDevicesSelected($event)"
+                                         (cleared)="onDevicesCleared($event)">
+          </cd-osd-device-selection-groups>
         </fieldset>
 
         <!-- Shared devices -->
         <fieldset>
           <legend i18n>Shared devices</legend>
 
-          <!-- WAL devices button -->
-          <div class="form-group row">
-            <label i18n
-                    class="col-sm-3 col-form-label"
-                    for="walDevices">WAL devices</label>
-            <div class="col-sm-9">
-              <ng-container *ngIf="walDevices.length === 0;else blockClearWalDevices">
-                <button type="button"
-                        class="btn btn-light"
-                        (click)="showWalDevicesModal()"
-                        [disabled]="freeDevices.length === 0 || dataDevices.length === 0">
-                  <i [ngClass]="[icons.add]"></i>
-                  <ng-container i18n>Add</ng-container>
-                </button>
-              </ng-container>
-              <ng-template #blockClearWalDevices>
-                <button type="button"
-                        class="btn btn-light"
-                        (click)="clearWalDevices()">
-                  <i [ngClass]="[icons.destroy]"></i>
-                  <ng-container i18n>Clear</ng-container>
-                </button>
-              </ng-template>
-            </div>
-          </div>
-
-          <!-- WAL devices table -->
-          <div class="form-group row">
-            <div class="offset-sm-3 col-sm-9"
-                 *ngIf="walDevices.length !== 0">
-              <cd-inventory-devices [devices]="walDevices" [hiddenColumns]="['available', 'osd_id']"
-                                    [filterColumns]="[]"
-                                    [preFilters]="walDeviceFilters">
-              </cd-inventory-devices>
-            </div>
-          </div>
+          <!-- WAL devices button and table -->
+          <cd-osd-device-selection-groups #walDeviceSelectionGroups
+                                         name="WAL"
+                                         type="wal"
+                                         [availDevices]="availDevices"
+                                         [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
+                                         (selected)="onDevicesSelected($event)"
+                                         (cleared)="onDevicesCleared($event)">
+          </cd-osd-device-selection-groups>
 
           <!-- WAL slots -->
           <div class="form-group row"
-               *ngIf="walDevices.length !== 0">
+               *ngIf="walDeviceSelectionGroups.devices.length !== 0">
             <label i18n
-                    class="col-sm-3 col-form-label"
-                    for="walSlots">WAL slots</label>
+                   class="col-sm-3 col-form-label"
+                   for="walSlots">
+              <ng-container i18n>WAL Slots</ng-container>
+              <cd-helper>
+                <span i18n>How many OSDs per WAL device.</span>
+                <br>
+                <span i18n>Specify 0 to let Orchestrator backend decide it.</span>
+              </cd-helper>
+            </label>
             <div class="col-sm-9">
               <input class="form-control"
-                    id="walSlots"
-                    name="walSlots"
-                    type="number"
-                    min="0"
-                    formControlName="walSlots">
+                     id="walSlots"
+                     name="walSlots"
+                     type="number"
+                     min="0"
+                     formControlName="walSlots">
+              <span class="invalid-feedback"
+                    *ngIf="form.showError('walSlots', formDir, 'min')"
+                    i18n>Value should be greater than or equal to 0</span>
             </div>
           </div>
 
-          <!-- DB devices button -->
-          <div class="form-group row">
-            <label i18n
-                    class="col-sm-3 col-form-label"
-                    for="dbDevices">DB devices</label>
-            <div class="col-sm-9">
-              <ng-container *ngIf="dbDevices.length === 0;else blockClearDBDevices">
-                <button type="button"
-                        class="btn btn-light"
-                        (click)="showDbDevicesModal()"
-                        [disabled]="freeDevices.length === 0 || dataDevices.length === 0">
-                  <i [ngClass]="[icons.add]"></i>
-                  <ng-container i18n>Add</ng-container>
-                </button>
-              </ng-container>
-              <ng-template #blockClearDBDevices>
-                <button type="button"
-                        class="btn btn-light"
-                        (click)="clearDbDevices()">
-                  <i [ngClass]="[icons.destroy]"></i>
-                  <ng-container i18n>Clear</ng-container>
-                </button>
-              </ng-template>
-            </div>
-          </div>
-
-          <!-- DB devices table -->
-          <div class="form-group row">
-            <div class="offset-sm-3 col-sm-9"
-                 *ngIf="dbDevices.length !== 0">
-              <cd-inventory-devices [devices]="dbDevices" [hiddenColumns]="['available', 'osd_id']"
-                                    [filterColumns]="[]"
-                                    [preFilters]="dbDeviceFilters">
-              </cd-inventory-devices>
-            </div>
-          </div>
+          <!-- DB devices button and table -->
+          <cd-osd-device-selection-groups #dbDeviceSelectionGroups
+                                         name="DB"
+                                         type="db"
+                                         [availDevices]="availDevices"
+                                         [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
+                                         (selected)="onDevicesSelected($event)"
+                                         (cleared)="onDevicesCleared($event)">
+          </cd-osd-device-selection-groups>
 
           <!-- DB slots -->
           <div class="form-group row"
-               *ngIf="dbDevices.length !== 0">
+               *ngIf="dbDeviceSelectionGroups.devices.length !== 0">
             <label i18n
-                    class="col-sm-3 col-form-label"
-                    for="dbSlots">DB slots</label>
+                   class="col-sm-3 col-form-label"
+                   for="dbSlots">
+              <ng-container i18n>DB Slots</ng-container>
+              <cd-helper>
+                <span i18n>How many OSDs per DB device.</span>
+                <br>
+                <span i18n>Specify 0 to let Orchestrator backend decide it.</span>
+              </cd-helper>
+            </label>
             <div class="col-sm-9">
               <input class="form-control"
                     id="dbSlots"
@@ -157,6 +91,9 @@
                     type="number"
                     min="0"
                     formControlName="dbSlots">
+              <span class="invalid-feedback"
+                    *ngIf="form.showError('dbSlots', formDir, 'min')"
+                    i18n>Value should be greater than or equal to 0</span>
             </div>
           </div>
         </fieldset>
@@ -165,25 +102,25 @@
         <fieldset>
           <legend i18n>Configuration</legend>
 
-            <!-- Features -->
-            <div class="form-group row"
-                formGroupName="features">
-              <label i18n
-                    class="col-sm-3 col-form-label"
-                    for="features">Features</label>
-              <div class="col-sm-9">
-                <div class='custom-control custom-checkbox'
-                     *ngFor="let feature of featureList">
-                  <input type="checkbox"
-                        class="custom-control-input"
-                        id="{{ feature.key }}"
-                        name="{{ feature.key }}"
-                        formControlName="{{ feature.key }}">
-                  <label class="custom-control-label"
+          <!-- Features -->
+          <div class="form-group row"
+              formGroupName="features">
+            <label i18n
+                  class="col-sm-3 col-form-label"
+                  for="features">Features</label>
+            <div class="col-sm-9">
+              <div class='custom-control custom-checkbox'
+                    *ngFor="let feature of featureList">
+                <input type="checkbox"
+                      class="custom-control-input"
+                      id="{{ feature.key }}"
+                      name="{{ feature.key }}"
+                      formControlName="{{ feature.key }}">
+                <label class="custom-control-label"
                         for="{{ feature.key }}">{{ feature.desc }}</label>
-                </div>
               </div>
             </div>
+          </div>
         </fieldset>
 
         
@@ -196,9 +133,9 @@
             <div class="form-group row">
               <label i18n
                     class="col-sm-3 col-form-label"
-                    for="freeDevices">Free devices</label>
+                    for="availDevices">Available devices</label>
               <div class="col-sm-9">
-                <cd-inventory-devices [devices]="freeDevices"
+                <cd-inventory-devices [devices]="availDevices"
                                       [hiddenColumns]="['available', 'osd_id']">
                 </cd-inventory-devices>
               </div>
@@ -210,9 +147,9 @@
       <div class="card-footer">
         <div class="button-group text-right">
           <cd-submit-button (submitAction)="submit()"
-                            i18n="form action button|Example: Create Pool@@formActionButton"
+                            i18n
                             [form]="formDir"
-                            [disabled]="dataDevices.length === 0">Preview</cd-submit-button>
+                            [disabled]="dataDeviceSelectionGroups.devices.length === 0">Preview</cd-submit-button>
           <cd-back-button></cd-back-button>
         </div>
       </div>
@@ -222,5 +159,5 @@
 
 <div class="col-sm-2 dg-container" *ngIf="!loading && debug">
   <h3>DriveGroup</h3>
-  <pre>{{ driveGroupSpec | json }}</pre>
+  <pre>{{ driveGroup.spec | json }}</pre>
 </div>

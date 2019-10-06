@@ -1,15 +1,12 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
-import { I18n } from '@ngx-translate/i18n-polyfill';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
 import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
 import { CdFormBuilder } from '../../../../shared/forms/cd-form-builder';
-import { CdTableColumn } from '../../../../shared/models/cd-table-column';
-import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
-import { Device } from '../../inventory/inventory.model';
 import * as _ from 'lodash';
 import { Icons } from '../../../../shared/enum/icons.enum';
+import { InventoryDevice } from '../../inventory/inventory-devices/inventory-devices.model';
 
 
 @Component({
@@ -22,25 +19,23 @@ export class OsdDevicesSelectionModalComponent implements OnInit {
   submitAction = new EventEmitter();
 
   icons = Icons;
-  filterColumns = ['hostname', 'rotates', 'vendor', 'model'];
+  filterColumns: string[];
 
   hostname: string;
   deviceType: string;
   formGroup: CdFormGroup;
   action: string;
 
-  columns: Array<CdTableColumn> = [];
-  devices: Device[] = [];
-  filters = {};
-  filterInDevices: Device[] = [];
-  filterOutDevices: Device[] = [];
+  devices: InventoryDevice[] = [];
+  canSubmit = false;
+  filters = [];
+  filterInDevices: InventoryDevice[] = [];
+  filterOutDevices: InventoryDevice[] = [];
 
   isFiltered = false;
 
   constructor(
     private formBuilder: CdFormBuilder,
-    private dimlessBinary: DimlessBinaryPipe,
-    private i18n: I18n,
     public bsModalRef: BsModalRef,
     public actionLabels: ActionLabelsI18n
   ) { 
@@ -57,15 +52,19 @@ export class OsdDevicesSelectionModalComponent implements OnInit {
   }
 
   onFilterChange(event) {
-    console.log(`filter change: ${event}`);
-    console.log(event);
-
+    this.canSubmit = false;
     this.filters = event.filters;
     if (_.isEmpty(event.filters)) {
       // filters are cleared
       this.filterInDevices = [];
       this.filterOutDevices = [];
     } else {
+      // at least one filter is required (except hostname)
+      const filters = this.filters.filter((filter) => {
+        return filter.prop !== 'hostname';
+      });
+      this.canSubmit = !_.isEmpty(filters);
+
       this.filterInDevices = event.filterInDevices;
       this.filterOutDevices = event.filterOutDevices;
     }

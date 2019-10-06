@@ -1,10 +1,11 @@
 import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
-import { Device } from '../inventory.model';
+import { InventoryDevice } from './inventory-devices.model';
 import { I18n } from '@ngx-translate/i18n-polyfill';
 import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import * as _ from 'lodash';
+import { InventoryDeviceFilter, InventoryDeviceFiltersChangeEvent } from './inventory-devices.interface'
 
 
 @Component({
@@ -14,28 +15,27 @@ import * as _ from 'lodash';
 })
 export class InventoryDevicesComponent implements OnInit, OnChanges {
   // Devices
-  @Input() devices: Device[] = [];
+  @Input() devices: InventoryDevice[] = [];
 
   // Do not display these columns
   @Input() hiddenColumns: string[] = [];
 
-  // Show filter select menu for these columns, specify empty array to disable
-  // filters
-  @Input() filterColumns = ['hostname', 'type', 'rotates', 'available', 'vendor', 'model'];
+  // Show filters for these columns, specify empty array to disable
+  @Input() filterColumns = ['hostname', 'type', 'rotates', 'available', 'vendor', 'model', 'size'];
 
   // This is merely used to tell users that some filters are already applied on initial data.
   // These filters has no effect at all.
   // Each item -> { label: 'i18n label of filter', value: 'value' }
   @Input() preFilters = [];
 
-  @Output() filterChange = new EventEmitter();
+  @Output() filterChange = new EventEmitter<InventoryDeviceFiltersChangeEvent>();
 
-  filterInDevices: Device[] = [];
-  filterOutDevices: Device[] = [];
+  filterInDevices: InventoryDevice[] = [];
+  filterOutDevices: InventoryDevice[] = [];
 
   icons = Icons;
   columns: Array<CdTableColumn> = [];
-  filters = [];
+  filters: InventoryDeviceFilter[] = [];
 
 
   constructor(
@@ -106,7 +106,8 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
         prop: col.prop,
         initValue: '*',
         value: '*',
-        options: ['*']
+        options: [{ value: '*', formatValue: '*'}],
+        pipe: col.pipe
       }
     });
 
@@ -120,11 +121,17 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
     // TODO: apply filter, columns changes, filter changes
   }
 
-  updateFilterOptions(devices: Device[]) {
+  updateFilterOptions(devices: InventoryDevice[]) {
     // update filter options to all possible values in a column, might be time-consuming
     this.filters.forEach((filter) => {
-      let options = _.sortedUniq(_.map(devices, filter.prop).sort());
-      filter.options = ['*'].concat(options);
+      const values = _.sortedUniq(_.map(devices, filter.prop).sort());
+      const options = values.map((v: string) => {
+        return {
+          value: v,
+          formatValue: filter.pipe ? filter.pipe.transform(v) : v
+        }
+      });
+      filter.options = [{ value: '*', formatValue: '*'}, ...options];
     })
   }
 
@@ -136,10 +143,11 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
       if (filter.value === filter.initValue) {
         return;
       }
-      appliedFilters = appliedFilters.concat({ 
+      appliedFilters.push({ 
         label: filter.label,
         prop: filter.prop,
-        value: filter.value
+        value: filter.value,
+        formatValue: filter.pipe ? filter.pipe.transform(filter.value) : filter.value
       });
       // Separate devices to filter-in and filter-out parts.
       // Cast column value to string type because options are always string.
@@ -147,7 +155,7 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
         return `${row[filter.prop]}` === filter.value;
       })
       devices = parts[0];
-      this.filterOutDevices = this.filterOutDevices.concat(parts[1])
+      this.filterOutDevices = [...this.filterOutDevices, ...parts[1]]
     });
     this.filterInDevices = devices;
     this.filterChange.emit({

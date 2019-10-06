@@ -4,9 +4,10 @@ import { I18n } from '@ngx-translate/i18n-polyfill';
 import { OrchestratorService } from '../../../shared/api/orchestrator.service';
 import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pipe';
 import { SummaryService } from '../../../shared/services/summary.service';
-import { Device, InventoryNode } from './inventory.model';
+import { InventoryNode } from './inventory.model';
 import { Icons } from '../../../shared/enum/icons.enum';
 import * as _ from 'lodash';
+import { InventoryDevice } from './inventory-devices/inventory-devices.model';
 
 @Component({
   selector: 'cd-inventory',
@@ -24,7 +25,7 @@ export class InventoryComponent implements OnChanges, OnInit {
   orchestratorExist = false;
   docsUrl: string;
 
-  devices: Array<Device> = [];
+  devices: Array<InventoryDevice> = [];
   isLoadingDevices = false;
 
   constructor(
@@ -78,9 +79,9 @@ export class InventoryComponent implements OnChanges, OnInit {
     }
     this.orchService.inventoryList(this.hostname).subscribe(
       (data: InventoryNode[]) => {
-        const devices: Device[] = [];
+        const devices: InventoryDevice[] = [];
         data.forEach((node: InventoryNode) => {
-          node.devices.forEach((device: Device) => {
+          node.devices.forEach((device: InventoryDevice) => {
             device.hostname = node.name;
             device.uid = `${node.name}-${device.id}`;
             if (device.dev_id) {

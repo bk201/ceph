@@ -45,6 +45,7 @@ import { ServicesComponent } from './services/services.component';
 import { OsdFormComponent } from './osd/osd-form/osd-form.component';
 import { InventoryDevicesComponent } from './inventory/inventory-devices/inventory-devices.component';
 import { OsdDevicesSelectionModalComponent } from './osd/osd-devices-selection-modal/osd-devices-selection-modal.component';
+import { OsdDeviceSelectionGroupsComponent } from './osd/osd-device-selection-groups/osd-device-selection-groups.component';
 
 @NgModule({
   entryComponents: [
@@ -107,7 +108,8 @@ import { OsdDevicesSelectionModalComponent } from './osd/osd-devices-selection-m
     OsdSmartListComponent,
     OsdFormComponent,
     OsdDevicesSelectionModalComponent,
-    InventoryDevicesComponent
+    InventoryDevicesComponent,
+    OsdDeviceSelectionGroupsComponent
   ]
 })
 export class ClusterModule {}
