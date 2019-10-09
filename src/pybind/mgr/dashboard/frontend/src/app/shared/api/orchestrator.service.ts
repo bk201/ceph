@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ApiModule } from './api.module';
-import { InventoryNode } from '../../ceph/cluster/inventory/inventory.model';
+import { InventoryNode } from '../../ceph/cluster/inventory/inventory-node.model';
 import { Observable } from 'rxjs';
 import * as _ from 'lodash';
 

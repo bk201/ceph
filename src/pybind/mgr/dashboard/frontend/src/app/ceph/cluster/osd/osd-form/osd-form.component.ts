@@ -8,7 +8,7 @@ import { OsdFeature } from './osd-feature.interface';
 import * as _ from 'lodash';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
 import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
-import { InventoryNode } from '../../inventory/inventory.model';
+import { InventoryNode } from '../../inventory/inventory-node.model';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { OsdDeviceSelectionGroupsComponent } from '../osd-device-selection-groups/osd-device-selection-groups.component';

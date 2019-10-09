@@ -5,9 +5,10 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { configureTestBed, i18nProviders } from '../../../../testing/unit-test-helper';
 import { OrchestratorService } from '../../../shared/api/orchestrator.service';
-import { CdTableFetchDataContext } from '../../../shared/models/cd-table-fetch-data-context';
 import { SharedModule } from '../../../shared/shared.module';
 import { InventoryComponent } from './inventory.component';
+import { InventoryDevicesComponent } from './inventory-devices/inventory-devices.component';
+import { FormsModule } from '@angular/forms';
 
 describe('InventoryComponent', () => {
   let component: InventoryComponent;
@@ -40,9 +41,9 @@ describe('InventoryComponent', () => {
   };
 
   configureTestBed({
-    imports: [SharedModule, HttpClientTestingModule, RouterTestingModule],
+    imports: [FormsModule, SharedModule, HttpClientTestingModule, RouterTestingModule],
     providers: [i18nProviders],
-    declarations: [InventoryComponent]
+    declarations: [InventoryComponent, InventoryDevicesComponent]
   });
 
   beforeEach(() => {
@@ -59,18 +60,14 @@ describe('InventoryComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have columns that are sortable', () => {
-    expect(component.columns.every((column) => Boolean(column.prop))).toBeTruthy();
-  });
-
   it('should return all devices', () => {
-    component.getInventory(new CdTableFetchDataContext(() => {}));
+    component.getInventory();
     expect(component.devices.length).toBe(2);
   });
 
   it('should return devices on a host', () => {
     reqHostname = 'host0';
-    component.getInventory(new CdTableFetchDataContext(() => {}));
+    component.getInventory();
     expect(component.devices.length).toBe(1);
     expect(component.devices[0].hostname).toBe(reqHostname);
   });

@@ -1,10 +1,8 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { I18n } from '@ngx-translate/i18n-polyfill';
-
 import { OrchestratorService } from '../../../shared/api/orchestrator.service';
 import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pipe';
 import { SummaryService } from '../../../shared/services/summary.service';
-import { InventoryNode } from './inventory.model';
+import { InventoryNode } from './inventory-node.model';
 import { Icons } from '../../../shared/enum/icons.enum';
 import * as _ from 'lodash';
 import { InventoryDevice } from './inventory-devices/inventory-devices.model';
@@ -30,7 +28,6 @@ export class InventoryComponent implements OnChanges, OnInit {
 
   constructor(
     private cephReleaseNamePipe: CephReleaseNamePipe,
-    private i18n: I18n,
     private orchService: OrchestratorService,
     private summaryService: SummaryService
   ) {}
