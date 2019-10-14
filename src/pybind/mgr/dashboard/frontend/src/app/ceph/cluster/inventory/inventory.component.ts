@@ -1,11 +1,11 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import * as _ from 'lodash';
 import { OrchestratorService } from '../../../shared/api/orchestrator.service';
+import { Icons } from '../../../shared/enum/icons.enum';
 import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pipe';
 import { SummaryService } from '../../../shared/services/summary.service';
-import { InventoryNode } from './inventory-node.model';
-import { Icons } from '../../../shared/enum/icons.enum';
-import * as _ from 'lodash';
 import { InventoryDevice } from './inventory-devices/inventory-devices.model';
+import { InventoryNode } from './inventory-node.model';
 
 @Component({
   selector: 'cd-inventory',
@@ -13,7 +13,6 @@ import { InventoryDevice } from './inventory-devices/inventory-devices.model';
   styleUrls: ['./inventory.component.scss']
 })
 export class InventoryComponent implements OnChanges, OnInit {
-
   // Display inventory page only for this hostname, ignore to display all.
   @Input() hostname?: string;
 
@@ -33,7 +32,6 @@ export class InventoryComponent implements OnChanges, OnInit {
   ) {}
 
   ngOnInit() {
-
     // duplicated code with grafana
     const subs = this.summaryService.subscribe((summary: any) => {
       if (!summary) {

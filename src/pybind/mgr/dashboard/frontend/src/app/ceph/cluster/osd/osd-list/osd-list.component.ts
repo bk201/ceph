@@ -18,12 +18,12 @@ import { CdTableSelection } from '../../../../shared/models/cd-table-selection';
 import { Permissions } from '../../../../shared/models/permissions';
 import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
 import { AuthStorageService } from '../../../../shared/services/auth-storage.service';
+import { URLBuilderService } from '../../../../shared/services/url-builder.service';
 import { OsdFlagsModalComponent } from '../osd-flags-modal/osd-flags-modal.component';
 import { OsdPgScrubModalComponent } from '../osd-pg-scrub-modal/osd-pg-scrub-modal.component';
 import { OsdRecvSpeedModalComponent } from '../osd-recv-speed-modal/osd-recv-speed-modal.component';
 import { OsdReweightModalComponent } from '../osd-reweight-modal/osd-reweight-modal.component';
 import { OsdScrubModalComponent } from '../osd-scrub-modal/osd-scrub-modal.component';
-import { URLBuilderService } from '../../../../shared/services/url-builder.service';
 
 const BASE_URL = 'osd';
 
@@ -31,9 +31,7 @@ const BASE_URL = 'osd';
   selector: 'cd-osd-list',
   templateUrl: './osd-list.component.html',
   styleUrls: ['./osd-list.component.scss'],
-  providers:[
-    { provide: URLBuilderService, useValue: new URLBuilderService(BASE_URL) }
-  ]
+  providers: [{ provide: URLBuilderService, useValue: new URLBuilderService(BASE_URL) }]
 })
 export class OsdListComponent implements OnInit {
   @ViewChild('statusColor', { static: true })
@@ -132,7 +130,7 @@ export class OsdListComponent implements OnInit {
         permission: 'update',
         click: () => this.showConfirmationModal(this.i18n('down'), this.osdService.markDown),
         disable: () => this.isNotSelectedOrInState('down'),
-        icon: Icons.down,
+        icon: Icons.down
       },
       {
         name: this.actionLabels.MARK_LOST,

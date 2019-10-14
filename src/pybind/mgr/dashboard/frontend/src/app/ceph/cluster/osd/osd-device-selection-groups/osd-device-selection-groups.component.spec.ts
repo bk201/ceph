@@ -1,9 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OsdDeviceSelectionGroupsComponent } from './osd-device-selection-groups.component';
-import { InventoryDevicesComponent } from '../../inventory/inventory-devices/inventory-devices.component';
-import { SharedModule } from '../../../../shared/shared.module';
 import { FormsModule } from '@angular/forms';
+import { SharedModule } from '../../../../shared/shared.module';
+import { InventoryDevicesComponent } from '../../inventory/inventory-devices/inventory-devices.component';
+import { OsdDeviceSelectionGroupsComponent } from './osd-device-selection-groups.component';
 
 describe('OsdDeviceSelectionGroupsComponent', () => {
   let component: OsdDeviceSelectionGroupsComponent;
@@ -11,13 +11,9 @@ describe('OsdDeviceSelectionGroupsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [
-        FormsModule,
-        SharedModule,
-      ],
-      declarations: [ OsdDeviceSelectionGroupsComponent, InventoryDevicesComponent ]
-    })
-    .compileComponents();
+      imports: [FormsModule, SharedModule],
+      declarations: [OsdDeviceSelectionGroupsComponent, InventoryDevicesComponent]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

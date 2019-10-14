@@ -1,9 +1,9 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Icons } from '../../../../shared/enum/icons.enum';
-import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
-import { OsdDevicesSelectionModalComponent } from '../osd-devices-selection-modal/osd-devices-selection-modal.component';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as _ from 'lodash';
+import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
+import { Icons } from '../../../../shared/enum/icons.enum';
 import { InventoryDevice } from '../../inventory/inventory-devices/inventory-devices.model';
+import { OsdDevicesSelectionModalComponent } from '../osd-devices-selection-modal/osd-devices-selection-modal.component';
 
 @Component({
   selector: 'cd-osd-device-selection-groups',
@@ -11,7 +11,6 @@ import { InventoryDevice } from '../../inventory/inventory-devices/inventory-dev
   styleUrls: ['./osd-device-selection-groups.component.scss']
 })
 export class OsdDeviceSelectionGroupsComponent implements OnInit {
-
   // data, wal, db
   @Input() type: string;
 
@@ -36,8 +35,7 @@ export class OsdDeviceSelectionGroupsComponent implements OnInit {
 
   constructor(private bsModalService: BsModalService) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   showSelectionModal() {
     let filterColumns = ['rotates', 'vendor', 'model', 'size'];
@@ -52,7 +50,7 @@ export class OsdDeviceSelectionGroupsComponent implements OnInit {
         devices: this.availDevices,
         filterColumns: filterColumns
       }
-    }
+    };
     const modalRef = this.bsModalService.show(OsdDevicesSelectionModalComponent, options);
     modalRef.content.submitAction.subscribe((result: any) => {
       this.devices = result.filterInDevices;
@@ -61,14 +59,13 @@ export class OsdDeviceSelectionGroupsComponent implements OnInit {
       result['type'] = this.type;
       this.selected.emit(result);
     });
-
   }
 
   clearDevices() {
     const result = {
       type: this.type,
       clearedDevices: [...this.devices]
-    }
+    };
     this.devices = [];
     this.cleared.emit(result);
   }

@@ -1,9 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { InventoryDevicesComponent } from './inventory-devices.component';
-import { SharedModule } from '../../../../shared/shared.module';
 import { FormsModule } from '@angular/forms';
 import { i18nProviders } from '../../../../../testing/unit-test-helper';
+import { SharedModule } from '../../../../shared/shared.module';
+import { InventoryDevicesComponent } from './inventory-devices.component';
 
 describe('InventoryDevicesComponent', () => {
   let component: InventoryDevicesComponent;
@@ -13,9 +13,8 @@ describe('InventoryDevicesComponent', () => {
     TestBed.configureTestingModule({
       imports: [FormsModule, SharedModule],
       providers: [i18nProviders],
-      declarations: [ InventoryDevicesComponent ]
-    })
-    .compileComponents();
+      declarations: [InventoryDevicesComponent]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

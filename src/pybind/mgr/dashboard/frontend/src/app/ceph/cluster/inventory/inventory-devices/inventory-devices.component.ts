@@ -1,12 +1,14 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
-import { InventoryDevice } from './inventory-devices.model';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { I18n } from '@ngx-translate/i18n-polyfill';
-import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
-import { CdTableColumn } from '../../../../shared/models/cd-table-column';
-import { Icons } from '../../../../shared/enum/icons.enum';
 import * as _ from 'lodash';
-import { InventoryDeviceFilter, InventoryDeviceFiltersChangeEvent } from './inventory-devices.interface'
-
+import { Icons } from '../../../../shared/enum/icons.enum';
+import { CdTableColumn } from '../../../../shared/models/cd-table-column';
+import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
+import {
+  InventoryDeviceFilter,
+  InventoryDeviceFiltersChangeEvent
+} from './inventory-devices.interface';
+import { InventoryDevice } from './inventory-devices.model';
 
 @Component({
   selector: 'cd-inventory-devices',
@@ -37,11 +39,7 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
   columns: Array<CdTableColumn> = [];
   filters: InventoryDeviceFilter[] = [];
 
-
-  constructor(
-    private dimlessBinary: DimlessBinaryPipe,
-    private i18n: I18n
-  ) { }
+  constructor(private dimlessBinary: DimlessBinaryPipe, private i18n: I18n) {}
 
   ngOnInit() {
     const columns = [
@@ -94,22 +92,24 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
     ];
 
     this.columns = columns.filter((col: any) => {
-      return !this.hiddenColumns.includes(col.prop)
+      return !this.hiddenColumns.includes(col.prop);
     });
 
     // init filters
-    this.filters = this.columns.filter((col: any) => {
-      return this.filterColumns.includes(col.prop)
-    }).map((col: any) => {
-      return {
-        label: col.name,
-        prop: col.prop,
-        initValue: '*',
-        value: '*',
-        options: [{ value: '*', formatValue: '*'}],
-        pipe: col.pipe
-      }
-    });
+    this.filters = this.columns
+      .filter((col: any) => {
+        return this.filterColumns.includes(col.prop);
+      })
+      .map((col: any) => {
+        return {
+          label: col.name,
+          prop: col.prop,
+          initValue: '*',
+          value: '*',
+          options: [{ value: '*', formatValue: '*' }],
+          pipe: col.pipe
+        };
+      });
 
     this.filterInDevices = [...this.devices];
     this.updateFilterOptions(this.devices);
@@ -129,21 +129,21 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
         return {
           value: v,
           formatValue: filter.pipe ? filter.pipe.transform(v) : v
-        }
+        };
       });
-      filter.options = [{ value: '*', formatValue: '*'}, ...options];
-    })
+      filter.options = [{ value: '*', formatValue: '*' }, ...options];
+    });
   }
 
   doFilter() {
     this.filterOutDevices = [];
-    let appliedFilters = [];
+    const appliedFilters = [];
     let devices: any = [...this.devices];
     this.filters.forEach((filter) => {
       if (filter.value === filter.initValue) {
         return;
       }
-      appliedFilters.push({ 
+      appliedFilters.push({
         label: filter.label,
         prop: filter.prop,
         value: filter.value,
@@ -151,11 +151,11 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
       });
       // Separate devices to filter-in and filter-out parts.
       // Cast column value to string type because options are always string.
-      let parts = _.partition(devices, (row)=> {
+      const parts = _.partition(devices, (row) => {
         return `${row[filter.prop]}` === filter.value;
-      })
+      });
       devices = parts[0];
-      this.filterOutDevices = [...this.filterOutDevices, ...parts[1]]
+      this.filterOutDevices = [...this.filterOutDevices, ...parts[1]];
     });
     this.filterInDevices = devices;
     this.filterChange.emit({

@@ -1,13 +1,12 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
+import * as _ from 'lodash';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
-import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
-import { CdFormBuilder } from '../../../../shared/forms/cd-form-builder';
-import * as _ from 'lodash';
 import { Icons } from '../../../../shared/enum/icons.enum';
+import { CdFormBuilder } from '../../../../shared/forms/cd-form-builder';
+import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
 import { InventoryDevice } from '../../inventory/inventory-devices/inventory-devices.model';
-
 
 @Component({
   selector: 'cd-osd-devices-selection-modal',
@@ -38,18 +37,16 @@ export class OsdDevicesSelectionModalComponent implements OnInit {
     private formBuilder: CdFormBuilder,
     public bsModalRef: BsModalRef,
     public actionLabels: ActionLabelsI18n
-  ) { 
+  ) {
     this.action = actionLabels.ADD;
     this.createForm();
   }
 
   createForm() {
-    this.formGroup = this.formBuilder.group({
-    });
+    this.formGroup = this.formBuilder.group({});
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   onFilterChange(event) {
     this.canSubmit = false;
@@ -74,7 +71,7 @@ export class OsdDevicesSelectionModalComponent implements OnInit {
     this.submitAction.emit({
       filters: this.filters,
       filterInDevices: this.filterInDevices,
-      filterOutDevices: this.filterOutDevices,
+      filterOutDevices: this.filterOutDevices
     });
     this.bsModalRef.hide();
   }

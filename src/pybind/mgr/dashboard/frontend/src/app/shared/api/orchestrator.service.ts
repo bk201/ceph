@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApiModule } from './api.module';
-import { InventoryNode } from '../../ceph/cluster/inventory/inventory-node.model';
-import { Observable } from 'rxjs';
 import * as _ from 'lodash';
+import { Observable } from 'rxjs';
+import { InventoryNode } from '../../ceph/cluster/inventory/inventory-node.model';
+import { ApiModule } from './api.module';
 
 @Injectable({
   providedIn: ApiModule
@@ -12,7 +12,7 @@ export class OrchestratorService {
   statusURL = 'api/orchestrator/status';
   inventoryURL = 'api/orchestrator/inventory';
   serviceURL = 'api/orchestrator/service';
-  osdURL = 'api/orchestrator/osd'
+  osdURL = 'api/orchestrator/osd';
 
   constructor(private http: HttpClient) {}
 
@@ -31,9 +31,9 @@ export class OrchestratorService {
   }
 
   osdCreate(driveGroup: {}, all_hosts: string[]) {
-    let request = {
+    const request = {
       drive_group: driveGroup
-    }
+    };
     if (!_.isEmpty(all_hosts)) {
       request['all_hosts'] = all_hosts;
     }

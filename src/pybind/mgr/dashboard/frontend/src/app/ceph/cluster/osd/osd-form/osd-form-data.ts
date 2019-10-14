@@ -1,9 +1,6 @@
 import * as _ from 'lodash';
-import { InventoryDeviceAppliedFilters } from '../../inventory/inventory-devices/inventory-devices.interface';
 import { FormatterService } from '../../../../shared/services/formatter.service';
-import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
-import { format } from 'path';
-
+import { InventoryDeviceAppliedFilters } from '../../inventory/inventory-devices/inventory-devices.interface';
 
 export class DriveGroup {
   // DriveGroupSpec object.
@@ -12,9 +9,9 @@ export class DriveGroup {
   // Map from filter column prop to device selection attribute name
   private deviceSelectionAttrs: {
     [key: string]: {
-      attr: string,
-      formatter?: Function
-    }
+      attr: string;
+      formatter?: Function;
+    };
   };
 
   private formatterService: FormatterService;
@@ -37,17 +34,12 @@ export class DriveGroup {
       size: {
         attr: 'size',
         formatter: (value: string) => {
-          return this.formatterService.format_number(value, 1024, [
-            'B',
-            'KB',
-            'MB',
-            'GB',
-            'TB',
-            'PB'
-          ]).replace(' ', '');
+          return this.formatterService
+            .format_number(value, 1024, ['B', 'KB', 'MB', 'GB', 'TB', 'PB'])
+            .replace(' ', '');
         }
       }
-    }
+    };
   }
 
   reset() {
@@ -56,10 +48,6 @@ export class DriveGroup {
 
   setHostPattern(pattern: string) {
     this.spec['host_pattern'] = pattern;
-  }
-
-  clearHostPattern(pattern: string) {
-    delete this.spec['host_pattern'];
   }
 
   setDeviceSelection(type: string, appliedFilters: InventoryDeviceAppliedFilters[]) {
@@ -81,7 +69,7 @@ export class DriveGroup {
 
   setSlots(type: string, slots: number) {
     const key = `${type}_slots`;
-    if (slots === 0){ 
+    if (slots === 0) {
       delete this.spec[key];
     } else {
       this.spec[key] = slots;

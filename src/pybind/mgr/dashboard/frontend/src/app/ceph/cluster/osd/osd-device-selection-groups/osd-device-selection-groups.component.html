@@ -12,21 +12,21 @@
   </label>
   <div class="col-sm-9">
     <ng-container *ngIf="devices.length === 0; else blockClearDevices">
-    <button type="button"
-            class="btn btn-light"
-            (click)="showSelectionModal()"
-            [disabled]="availDevices.length === 0 || !canSelect">
+      <button type="button"
+              class="btn btn-light"
+              (click)="showSelectionModal()"
+              [disabled]="availDevices.length === 0 || !canSelect">
         <i [ngClass]="[icons.add]"></i>
         <ng-container i18n>Add</ng-container>
-    </button>
+      </button>
     </ng-container>
     <ng-template #blockClearDevices>
-    <button type="button"
-            class="btn btn-light"
-            (click)="clearDevices()">
+      <button type="button"
+              class="btn btn-light"
+              (click)="clearDevices()">
         <i [ngClass]="[icons.destroy]"></i>
         <ng-container i18n>Clear</ng-container>
-    </button>
+      </button>
     </ng-template>
   </div>
 </div>

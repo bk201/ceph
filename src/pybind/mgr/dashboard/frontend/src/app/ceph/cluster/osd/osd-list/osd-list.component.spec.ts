@@ -267,7 +267,10 @@ describe('OsdListComponent', () => {
           no: 'Create'
         }
       },
-      create: { actions: ['Create'], primary: { multiple: 'Create', executing: 'Create', single: 'Create', no: 'Create' } },
+      create: {
+        actions: ['Create'],
+        primary: { multiple: 'Create', executing: 'Create', single: 'Create', no: 'Create' }
+      },
       'update,delete': {
         actions: [
           'Scrub',

@@ -12,12 +12,12 @@
       <div class="card-body">
         <fieldset>
           <cd-osd-device-selection-groups #dataDeviceSelectionGroups
-                                         name="Primary"
-                                         type="data"
-                                         [availDevices]="availDevices"
-                                         [canSelect]="availDevices.length !== 0"
-                                         (selected)="onDevicesSelected($event)"
-                                         (cleared)="onDevicesCleared($event)">
+                                          name="Primary"
+                                          type="data"
+                                          [availDevices]="availDevices"
+                                          [canSelect]="availDevices.length !== 0"
+                                          (selected)="onDevicesSelected($event)"
+                                          (cleared)="onDevicesCleared($event)">
           </cd-osd-device-selection-groups>
         </fieldset>
 
@@ -27,12 +27,12 @@
 
           <!-- WAL devices button and table -->
           <cd-osd-device-selection-groups #walDeviceSelectionGroups
-                                         name="WAL"
-                                         type="wal"
-                                         [availDevices]="availDevices"
-                                         [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
-                                         (selected)="onDevicesSelected($event)"
-                                         (cleared)="onDevicesCleared($event)">
+                                          name="WAL"
+                                          type="wal"
+                                          [availDevices]="availDevices"
+                                          [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
+                                          (selected)="onDevicesSelected($event)"
+                                          (cleared)="onDevicesCleared($event)">
           </cd-osd-device-selection-groups>
 
           <!-- WAL slots -->
@@ -63,12 +63,12 @@
 
           <!-- DB devices button and table -->
           <cd-osd-device-selection-groups #dbDeviceSelectionGroups
-                                         name="DB"
-                                         type="db"
-                                         [availDevices]="availDevices"
-                                         [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
-                                         (selected)="onDevicesSelected($event)"
-                                         (cleared)="onDevicesCleared($event)">
+                                          name="DB"
+                                          type="db"
+                                          [availDevices]="availDevices"
+                                          [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
+                                          (selected)="onDevicesSelected($event)"
+                                          (cleared)="onDevicesCleared($event)">
           </cd-osd-device-selection-groups>
 
           <!-- DB slots -->
@@ -86,11 +86,11 @@
             </label>
             <div class="col-sm-9">
               <input class="form-control"
-                    id="dbSlots"
-                    name="dbSlots"
-                    type="number"
-                    min="0"
-                    formControlName="dbSlots">
+                     id="dbSlots"
+                     name="dbSlots"
+                     type="number"
+                     min="0"
+                     formControlName="dbSlots">
               <span class="invalid-feedback"
                     *ngIf="form.showError('dbSlots', formDir, 'min')"
                     i18n>Value should be greater than or equal to 0</span>
@@ -104,20 +104,20 @@
 
           <!-- Features -->
           <div class="form-group row"
-              formGroupName="features">
+               formGroupName="features">
             <label i18n
-                  class="col-sm-3 col-form-label"
-                  for="features">Features</label>
+                   class="col-sm-3 col-form-label"
+                   for="features">Features</label>
             <div class="col-sm-9">
-              <div class='custom-control custom-checkbox'
-                    *ngFor="let feature of featureList">
+              <div class="custom-control custom-checkbox"
+                   *ngFor="let feature of featureList">
                 <input type="checkbox"
-                      class="custom-control-input"
-                      id="{{ feature.key }}"
-                      name="{{ feature.key }}"
-                      formControlName="{{ feature.key }}">
+                       class="custom-control-input"
+                       id="{{ feature.key }}"
+                       name="{{ feature.key }}"
+                       formControlName="{{ feature.key }}">
                 <label class="custom-control-label"
-                        for="{{ feature.key }}">{{ feature.desc }}</label>
+                       for="{{ feature.key }}">{{ feature.desc }}</label>
               </div>
             </div>
           </div>
@@ -132,8 +132,8 @@
             <!-- For Debug: Free devices table -->
             <div class="form-group row">
               <label i18n
-                    class="col-sm-3 col-form-label"
-                    for="availDevices">Available devices</label>
+                     class="col-sm-3 col-form-label"
+                     for="availDevices">Available devices</label>
               <div class="col-sm-9">
                 <cd-inventory-devices [devices]="availDevices"
                                       [hiddenColumns]="['available', 'osd_id']">
