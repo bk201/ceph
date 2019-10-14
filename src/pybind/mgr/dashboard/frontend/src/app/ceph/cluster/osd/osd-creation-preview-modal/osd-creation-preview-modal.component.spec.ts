@@ -6,7 +6,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { i18nProviders } from '../../../../../testing/unit-test-helper';
 import { SharedModule } from '../../../../shared/shared.module';
-import { DriveGroup } from '../osd-form/osd-form-data';
+import { DriveGroup } from '../osd-form/drive-group.model';
 import { OsdCreationPreviewModalComponent } from './osd-creation-preview-modal.component';
 
 describe('OsdCreationPreviewModalComponent', () => {

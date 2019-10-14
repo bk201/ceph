@@ -5,7 +5,7 @@ import { OrchestratorService } from '../../../../shared/api/orchestrator.service
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
 import { CdFormBuilder } from '../../../../shared/forms/cd-form-builder';
 import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
-import { DriveGroup } from '../osd-form/osd-form-data';
+import { DriveGroup } from '../osd-form/drive-group.model';
 
 @Component({
   selector: 'cd-osd-creation-preview-modal',

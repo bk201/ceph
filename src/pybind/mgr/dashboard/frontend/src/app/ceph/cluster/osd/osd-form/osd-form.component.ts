@@ -17,8 +17,8 @@ import { InventoryDevice } from '../../inventory/inventory-devices/inventory-dev
 import { InventoryNode } from '../../inventory/inventory-node.model';
 import { OsdCreationPreviewModalComponent } from '../osd-creation-preview-modal/osd-creation-preview-modal.component';
 import { OsdDevicesSelectionGroupsComponent } from '../osd-devices-selection-groups/osd-devices-selection-groups.component';
+import { DriveGroup } from './drive-group.model';
 import { OsdFeature } from './osd-feature.interface';
-import { DriveGroup } from './osd-form-data';
 
 @Component({
   selector: 'cd-osd-form',
