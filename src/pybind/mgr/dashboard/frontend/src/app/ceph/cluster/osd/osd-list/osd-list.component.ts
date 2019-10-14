@@ -89,14 +89,16 @@ export class OsdListComponent implements OnInit {
         permission: 'create',
         icon: Icons.add,
         routerLink: () => this.urlBuilder.getCreate(),
-        disable: () => { return false }
+        disable: () => { return false },
+        canBePrimary: (selection: CdTableSelection) => !selection.hasSelection
       },
       {
         name: this.actionLabels.SCRUB,
         permission: 'update',
         icon: Icons.analyse,
         click: () => this.scrubAction(false),
-        disable: () => !this.hasOsdSelected
+        disable: () => !this.hasOsdSelected,
+        canBePrimary: (selection: CdTableSelection) => selection.hasSelection
       },
       {
         name: this.actionLabels.DEEP_SCRUB,
@@ -131,7 +133,7 @@ export class OsdListComponent implements OnInit {
         permission: 'update',
         click: () => this.showConfirmationModal(this.i18n('down'), this.osdService.markDown),
         disable: () => this.isNotSelectedOrInState('down'),
-        icon: Icons.down
+        icon: Icons.down,
       },
       {
         name: this.actionLabels.MARK_LOST,

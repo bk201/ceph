@@ -16,6 +16,8 @@ import { InventoryComponent } from '../inventory/inventory.component';
 import { ServicesComponent } from '../services/services.component';
 import { HostDetailsComponent } from './host-details/host-details.component';
 import { HostsComponent } from './hosts.component';
+import { InventoryDevicesComponent } from '../inventory/inventory-devices/inventory-devices.component';
+import { FormsModule } from '@angular/forms';
 
 describe('HostsComponent', () => {
   let component: HostsComponent;
@@ -35,10 +37,11 @@ describe('HostsComponent', () => {
       TabsModule.forRoot(),
       BsDropdownModule.forRoot(),
       RouterTestingModule,
-      ToastrModule.forRoot()
+      ToastrModule.forRoot(),
+      FormsModule
     ],
     providers: [{ provide: AuthStorageService, useValue: fakeAuthStorageService }, i18nProviders],
-    declarations: [HostsComponent, HostDetailsComponent, InventoryComponent, ServicesComponent]
+    declarations: [HostsComponent, HostDetailsComponent, InventoryComponent, InventoryDevicesComponent, ServicesComponent]
   });
 
   beforeEach(() => {

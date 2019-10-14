@@ -14,6 +14,8 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { InventoryComponent } from '../../inventory/inventory.component';
 import { ServicesComponent } from '../../services/services.component';
 import { HostDetailsComponent } from './host-details.component';
+import { InventoryDevicesComponent } from '../../inventory/inventory-devices/inventory-devices.component';
+import { FormsModule } from '@angular/forms';
 
 describe('HostDetailsComponent', () => {
   let component: HostDetailsComponent;
@@ -25,9 +27,10 @@ describe('HostDetailsComponent', () => {
       TabsModule.forRoot(),
       BsDropdownModule.forRoot(),
       RouterTestingModule,
-      SharedModule
+      SharedModule,
+      FormsModule
     ],
-    declarations: [HostDetailsComponent, InventoryComponent, ServicesComponent],
+    declarations: [HostDetailsComponent, InventoryComponent, InventoryDevicesComponent, ServicesComponent],
     providers: [i18nProviders]
   });
 

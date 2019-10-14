@@ -20,7 +20,7 @@ export class OsdDeviceSelectionGroupsComponent implements OnInit {
 
   @Input() hostname: string;
 
-  @Input() availDevices: InventoryDevice[];
+  @Input() availDevices: InventoryDevice[] = [];
 
   @Input() canSelect: boolean;
 
@@ -34,9 +34,7 @@ export class OsdDeviceSelectionGroupsComponent implements OnInit {
   devices: InventoryDevice[] = [];
   appliedFilters = [];
 
-  constructor(private bsModalService: BsModalService) {
-
-  }
+  constructor(private bsModalService: BsModalService) {}
 
   ngOnInit() {
   }

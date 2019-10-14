@@ -9,8 +9,5 @@ if (environment.production) {
 }
 
 platformBrowserDynamic()
-  .bootstrapModule(AppModule, {
-    missingTranslation: MissingTranslationStrategy.Ignore,
-    providers: i18nProviders
-  })
+  .bootstrapModule(AppModule)
   .catch((err) => console.log(err));

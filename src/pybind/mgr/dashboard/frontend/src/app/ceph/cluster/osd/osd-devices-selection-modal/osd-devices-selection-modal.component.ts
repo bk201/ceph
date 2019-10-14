@@ -19,7 +19,7 @@ export class OsdDevicesSelectionModalComponent implements OnInit {
   submitAction = new EventEmitter();
 
   icons = Icons;
-  filterColumns: string[];
+  filterColumns: string[] = [];
 
   hostname: string;
   deviceType: string;
