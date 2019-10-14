@@ -1,7 +1,13 @@
 <cd-loading-panel *ngIf="loading"
                   i18n>Loading...</cd-loading-panel>
+<cd-alert-panel type="info"
+                *ngIf="!orchestratorExist && !checkingOrchestrator"
+                i18n>Please consult the
+  <a href="{{ docsUrl }}"
+     target="_blank">documentation</a> on how to
+  configure and enable the orchestrator functionality.</cd-alert-panel>
 <div class="col-sm-10"
-     *ngIf="!loading">
+     *ngIf="!loading && orchestratorExist">
   <form name="form"
         #formDir="ngForm"
         [formGroup]="form"
@@ -12,12 +18,12 @@
       <div class="card-body">
         <fieldset>
           <cd-osd-devices-selection-groups #dataDeviceSelectionGroups
-                                          name="Primary"
-                                          type="data"
-                                          [availDevices]="availDevices"
-                                          [canSelect]="availDevices.length !== 0"
-                                          (selected)="onDevicesSelected($event)"
-                                          (cleared)="onDevicesCleared($event)">
+                                           name="Primary"
+                                           type="data"
+                                           [availDevices]="availDevices"
+                                           [canSelect]="availDevices.length !== 0"
+                                           (selected)="onDevicesSelected($event)"
+                                           (cleared)="onDevicesCleared($event)">
           </cd-osd-devices-selection-groups>
         </fieldset>
 
@@ -27,12 +33,12 @@
 
           <!-- WAL devices button and table -->
           <cd-osd-devices-selection-groups #walDeviceSelectionGroups
-                                          name="WAL"
-                                          type="wal"
-                                          [availDevices]="availDevices"
-                                          [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
-                                          (selected)="onDevicesSelected($event)"
-                                          (cleared)="onDevicesCleared($event)">
+                                           name="WAL"
+                                           type="wal"
+                                           [availDevices]="availDevices"
+                                           [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
+                                           (selected)="onDevicesSelected($event)"
+                                           (cleared)="onDevicesCleared($event)">
           </cd-osd-devices-selection-groups>
 
           <!-- WAL slots -->
@@ -62,12 +68,12 @@
 
           <!-- DB devices button and table -->
           <cd-osd-devices-selection-groups #dbDeviceSelectionGroups
-                                          name="DB"
-                                          type="db"
-                                          [availDevices]="availDevices"
-                                          [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
-                                          (selected)="onDevicesSelected($event)"
-                                          (cleared)="onDevicesCleared($event)">
+                                           name="DB"
+                                           type="db"
+                                           [availDevices]="availDevices"
+                                           [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
+                                           (selected)="onDevicesSelected($event)"
+                                           (cleared)="onDevicesCleared($event)">
           </cd-osd-devices-selection-groups>
 
           <!-- DB slots -->

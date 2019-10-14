@@ -11,6 +11,8 @@ import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
+import { CephReleaseNamePipe } from '../../../../shared/pipes/ceph-release-name.pipe';
+import { SummaryService } from '../../../../shared/services/summary.service';
 import { InventoryDevice } from '../../inventory/inventory-devices/inventory-devices.model';
 import { InventoryNode } from '../../inventory/inventory-node.model';
 import { OsdCreationPreviewModalComponent } from '../osd-creation-preview-modal/osd-creation-preview-modal.component';
@@ -57,12 +59,18 @@ export class OsdFormComponent implements OnInit {
   features: { [key: string]: OsdFeature };
   featureList: OsdFeature[] = [];
 
+  checkingOrchestrator = true;
+  orchestratorExist = false;
+  docsUrl: string;
+
   constructor(
     public actionLabels: ActionLabelsI18n,
     private i18n: I18n,
     private orchService: OrchestratorService,
     private router: Router,
-    private bsModalService: BsModalService
+    private bsModalService: BsModalService,
+    private summaryService: SummaryService,
+    private cephReleaseNamePipe: CephReleaseNamePipe
   ) {
     this.resource = this.i18n('OSDs');
     this.action = this.actionLabels.CREATE;
@@ -77,7 +85,27 @@ export class OsdFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getDataDevices();
+    const subs = this.summaryService.subscribe((summary: any) => {
+      if (!summary) {
+        return;
+      }
+
+      const releaseName = this.cephReleaseNamePipe.transform(summary.version);
+      this.docsUrl = `http://docs.ceph.com/docs/${releaseName}/mgr/orchestrator_cli/`;
+
+      setTimeout(() => {
+        subs.unsubscribe();
+      }, 0);
+    });
+
+    this.orchService.status().subscribe((data: { available: boolean }) => {
+      this.orchestratorExist = data.available;
+      this.checkingOrchestrator = false;
+      if (this.orchestratorExist) {
+        this.getDataDevices();
+      }
+    });
+
     this.form.get('walSlots').valueChanges.subscribe((value) => this.setSlots('wal', value));
     this.form.get('dbSlots').valueChanges.subscribe((value) => this.setSlots('db', value));
     _.each(this.features, (feature) => {

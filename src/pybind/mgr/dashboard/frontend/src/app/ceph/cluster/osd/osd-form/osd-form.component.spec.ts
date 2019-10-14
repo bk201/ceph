@@ -23,7 +23,11 @@ describe('OsdFormComponent', () => {
         ReactiveFormsModule
       ],
       providers: [i18nProviders],
-      declarations: [OsdFormComponent, OsdDevicesSelectionGroupsComponent, InventoryDevicesComponent]
+      declarations: [
+        OsdFormComponent,
+        OsdDevicesSelectionGroupsComponent,
+        InventoryDevicesComponent
+      ]
     }).compileComponents();
   }));
 
