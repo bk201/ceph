@@ -57,7 +57,6 @@ export class OsdFormComponent implements OnInit {
 
   constructor(
     public actionLabels: ActionLabelsI18n,
-    private bsModalService: BsModalService,
     private i18n: I18n,
     private orchService: OrchestratorService,
     private router: Router,

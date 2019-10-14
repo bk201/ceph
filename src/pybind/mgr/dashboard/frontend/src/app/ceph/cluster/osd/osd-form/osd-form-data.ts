@@ -1,15 +1,53 @@
 import * as _ from 'lodash';
 import { InventoryDeviceAppliedFilters } from '../../inventory/inventory-devices/inventory-devices.interface';
+import { FormatterService } from '../../../../shared/services/formatter.service';
+import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
+import { format } from 'path';
 
 
 export class DriveGroup {
+  // DriveGroupSpec object.
   spec = {};
 
-  static filterDGMap = {
-    vendor: 'vendor',
-    model: 'id_model',
-    rotates: 'rotates',
-    size: 'size'
+  // Map from filter column prop to device selection attribute name
+  private deviceSelectionAttrs: {
+    [key: string]: {
+      attr: string,
+      formatter?: Function
+    }
+  };
+
+  private formatterService: FormatterService;
+
+  constructor() {
+    this.formatterService = new FormatterService();
+    this.deviceSelectionAttrs = {
+      vendor: {
+        attr: 'vendor'
+      },
+      model: {
+        attr: 'id_model'
+      },
+      rotates: {
+        attr: 'rotates',
+        formatter: (value: string) => {
+          return JSON.parse(value);
+        }
+      },
+      size: {
+        attr: 'size',
+        formatter: (value: string) => {
+          return this.formatterService.format_number(value, 1024, [
+            'B',
+            'KB',
+            'MB',
+            'GB',
+            'TB',
+            'PB'
+          ]).replace(' ', '');
+        }
+      }
+    }
   }
 
   reset() {
@@ -28,9 +66,10 @@ export class DriveGroup {
     const key = `${type}_devices`;
     this.spec[key] = {};
     appliedFilters.forEach((filter) => {
-      const attr = DriveGroup.filterDGMap[filter.prop];
+      const attr = this.deviceSelectionAttrs[filter.prop].attr;
+      const formatter = this.deviceSelectionAttrs[filter.prop].formatter;
       if (attr) {
-        this.spec[key][attr] = filter.value;
+        this.spec[key][attr] = formatter ? formatter(filter.value) : filter.value;
       }
     });
   }

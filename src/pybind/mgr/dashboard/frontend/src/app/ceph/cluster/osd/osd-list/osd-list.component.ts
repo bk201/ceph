@@ -89,7 +89,6 @@ export class OsdListComponent implements OnInit {
         permission: 'create',
         icon: Icons.add,
         routerLink: () => this.urlBuilder.getCreate(),
-        disable: () => { return false },
         canBePrimary: (selection: CdTableSelection) => !selection.hasSelection
       },
       {
