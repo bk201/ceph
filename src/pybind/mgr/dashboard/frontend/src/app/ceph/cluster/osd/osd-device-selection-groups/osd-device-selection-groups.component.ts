@@ -19,7 +19,7 @@ export class OsdDeviceSelectionGroupsComponent implements OnInit {
 
   @Input() hostname: string;
 
-  @Input() availDevices: InventoryDevice[] = [];
+  @Input() availDevices: InventoryDevice[];
 
   @Input() canSelect: boolean;
 

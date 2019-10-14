@@ -19,6 +19,7 @@ describe('OsdDeviceSelectionGroupsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(OsdDeviceSelectionGroupsComponent);
     component = fixture.componentInstance;
+    component.availDevices = [];
     fixture.detectChanges();
   });
 
