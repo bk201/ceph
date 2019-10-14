@@ -4,7 +4,7 @@ import { OrchestratorService } from '../../../shared/api/orchestrator.service';
 import { Icons } from '../../../shared/enum/icons.enum';
 import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pipe';
 import { SummaryService } from '../../../shared/services/summary.service';
-import { InventoryDevice } from './inventory-devices/inventory-devices.model';
+import { InventoryDevice } from './inventory-devices/inventory-device.model';
 import { InventoryNode } from './inventory-node.model';
 
 @Component({

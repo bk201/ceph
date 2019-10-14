@@ -4,11 +4,9 @@ import * as _ from 'lodash';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
 import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
-import {
-  InventoryDeviceFilter,
-  InventoryDeviceFiltersChangeEvent
-} from './inventory-devices.interface';
-import { InventoryDevice } from './inventory-devices.model';
+import { InventoryDeviceFiltersChangeEvent } from './inventory-device-filters-change-event.interface';
+import { InventoryDevice } from './inventory-device.model';
+import { InventoryDeviceFilter } from './inventory-device-filter.interface';
 
 @Component({
   selector: 'cd-inventory-devices',

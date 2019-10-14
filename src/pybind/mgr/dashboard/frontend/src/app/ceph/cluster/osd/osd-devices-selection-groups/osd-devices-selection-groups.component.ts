@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as _ from 'lodash';
 import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { Icons } from '../../../../shared/enum/icons.enum';
-import { InventoryDevice } from '../../inventory/inventory-devices/inventory-devices.model';
+import { InventoryDevice } from '../../inventory/inventory-devices/inventory-device.model';
 import { OsdDevicesSelectionModalComponent } from '../osd-devices-selection-modal/osd-devices-selection-modal.component';
 
 @Component({

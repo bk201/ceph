@@ -13,7 +13,7 @@ import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
 import { CephReleaseNamePipe } from '../../../../shared/pipes/ceph-release-name.pipe';
 import { SummaryService } from '../../../../shared/services/summary.service';
-import { InventoryDevice } from '../../inventory/inventory-devices/inventory-devices.model';
+import { InventoryDevice } from '../../inventory/inventory-devices/inventory-device.model';
 import { InventoryNode } from '../../inventory/inventory-node.model';
 import { OsdCreationPreviewModalComponent } from '../osd-creation-preview-modal/osd-creation-preview-modal.component';
 import { OsdDevicesSelectionGroupsComponent } from '../osd-devices-selection-groups/osd-devices-selection-groups.component';

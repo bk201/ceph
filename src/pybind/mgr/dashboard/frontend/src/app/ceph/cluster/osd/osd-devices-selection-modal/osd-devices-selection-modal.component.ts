@@ -6,7 +6,7 @@ import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { CdFormBuilder } from '../../../../shared/forms/cd-form-builder';
 import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
-import { InventoryDevice } from '../../inventory/inventory-devices/inventory-devices.model';
+import { InventoryDevice } from '../../inventory/inventory-devices/inventory-device.model';
 
 @Component({
   selector: 'cd-osd-devices-selection-modal',

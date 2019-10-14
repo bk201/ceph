@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { FormatterService } from '../../../../shared/services/formatter.service';
-import { InventoryDeviceAppliedFilters } from '../../inventory/inventory-devices/inventory-devices.interface';
+import { InventoryDeviceAppliedFilter } from '../../inventory/inventory-devices/inventory-device-applied-filters.interface';
 
 export class DriveGroup {
   // DriveGroupSpec object.
@@ -50,7 +50,7 @@ export class DriveGroup {
     this.spec['host_pattern'] = pattern;
   }
 
-  setDeviceSelection(type: string, appliedFilters: InventoryDeviceAppliedFilters[]) {
+  setDeviceSelection(type: string, appliedFilters: InventoryDeviceAppliedFilter[]) {
     const key = `${type}_devices`;
     this.spec[key] = {};
     appliedFilters.forEach((filter) => {
