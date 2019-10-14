@@ -10,7 +10,7 @@
         <div class="col-sm-12">
           <cd-inventory-devices [devices]="devices"
                                 [filterColumns]="filterColumns"
-                                [hiddenColumns]="['available']"
+                                [hiddenColumns]="['available', 'osd_id']"
                                 (filterChange)="onFilterChange($event)">
           </cd-inventory-devices>
         </div>

@@ -120,27 +120,6 @@
             </div>
           </div>
         </fieldset>
-
-        
-        <!-- Debug -->
-        <div *ngIf="debug">
-          <fieldset>
-            <legend i18n>Debug</legend>
-
-            <!-- For Debug: Free devices table -->
-            <div class="form-group row">
-              <label i18n
-                     class="col-sm-3 col-form-label"
-                     for="availDevices">Available devices</label>
-              <div class="col-sm-9">
-                <cd-inventory-devices [devices]="availDevices"
-                                      [hiddenColumns]="['available', 'osd_id']">
-                </cd-inventory-devices>
-              </div>
-            </div>
-          </fieldset>
-        </div>
-
       </div>
       <div class="card-footer">
         <div class="button-group text-right">
@@ -153,9 +132,4 @@
       </div>
     </div>
   </form>
-</div>
-
-<div class="col-sm-2 dg-container" *ngIf="!loading && debug">
-  <h3>DriveGroup</h3>
-  <pre>{{ driveGroup.spec | json }}</pre>
 </div>
