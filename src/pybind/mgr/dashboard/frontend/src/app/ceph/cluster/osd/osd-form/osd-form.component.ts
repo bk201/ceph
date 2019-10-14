@@ -4,13 +4,16 @@ import { FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { I18n } from '@ngx-translate/i18n-polyfill';
 import * as _ from 'lodash';
+import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
+import { SubmitButtonComponent } from '../../../../shared/components/submit-button/submit-button.component';
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
 import { InventoryDevice } from '../../inventory/inventory-devices/inventory-devices.model';
 import { InventoryNode } from '../../inventory/inventory-node.model';
+import { OsdCreationPreviewModalComponent } from '../osd-creation-preview-modal/osd-creation-preview-modal.component';
 import { OsdDeviceSelectionGroupsComponent } from '../osd-device-selection-groups/osd-device-selection-groups.component';
 import { OsdFeature } from './osd-feature.interface';
 import { DriveGroup } from './osd-form-data';
@@ -30,7 +33,8 @@ export class OsdFormComponent implements OnInit {
   @ViewChild('dbDeviceSelectionGroups', { static: false })
   dbDeviceSelectionGroups: OsdDeviceSelectionGroupsComponent;
 
-  debug = true;
+  @ViewChild('previewButton', { static: false })
+  previewButton: SubmitButtonComponent;
 
   icons = Icons;
 
@@ -57,7 +61,8 @@ export class OsdFormComponent implements OnInit {
     public actionLabels: ActionLabelsI18n,
     private i18n: I18n,
     private orchService: OrchestratorService,
-    private router: Router
+    private router: Router,
+    private bsModalService: BsModalService
   ) {
     this.resource = this.i18n('OSDs');
     this.action = this.actionLabels.CREATE;
@@ -209,14 +214,16 @@ export class OsdFormComponent implements OnInit {
     } else {
       allHosts = [this.hostname];
     }
-    this.orchService.osdCreate(this.driveGroup.spec, allHosts).subscribe(
-      undefined,
-      () => {
-        this.form.setErrors({ cdSubmitButton: true });
-      },
-      () => {
-        this.router.navigate(['/osd']);
+    const options: ModalOptions = {
+      initialState: {
+        driveGroup: this.driveGroup,
+        allHosts: allHosts
       }
-    );
+    };
+    const modalRef = this.bsModalService.show(OsdCreationPreviewModalComponent, options);
+    modalRef.content.submitAction.subscribe(() => {
+      this.router.navigate(['/osd']);
+    });
+    this.previewButton.loading = false;
   }
 }

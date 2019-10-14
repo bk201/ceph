@@ -123,7 +123,8 @@
       </div>
       <div class="card-footer">
         <div class="button-group text-right">
-          <cd-submit-button (submitAction)="submit()"
+          <cd-submit-button #previewButton
+                            (submitAction)="submit()"
                             i18n
                             [form]="formDir"
                             [disabled]="dataDeviceSelectionGroups.devices.length === 0">Preview</cd-submit-button>

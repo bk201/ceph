@@ -28,6 +28,7 @@ import { InventoryComponent } from './inventory/inventory.component';
 import { LogsComponent } from './logs/logs.component';
 import { MgrModulesModule } from './mgr-modules/mgr-modules.module';
 import { MonitorComponent } from './monitor/monitor.component';
+import { OsdCreationPreviewModalComponent } from './osd/osd-creation-preview-modal/osd-creation-preview-modal.component';
 import { OsdDetailsComponent } from './osd/osd-details/osd-details.component';
 import { OsdDeviceSelectionGroupsComponent } from './osd/osd-device-selection-groups/osd-device-selection-groups.component';
 import { OsdDevicesSelectionModalComponent } from './osd/osd-devices-selection-modal/osd-devices-selection-modal.component';
@@ -57,7 +58,8 @@ import { ServicesComponent } from './services/services.component';
     OsdPgScrubModalComponent,
     OsdReweightModalComponent,
     SilenceMatcherModalComponent,
-    OsdDevicesSelectionModalComponent
+    OsdDevicesSelectionModalComponent,
+    OsdCreationPreviewModalComponent
   ],
   imports: [
     CommonModule,
@@ -109,7 +111,8 @@ import { ServicesComponent } from './services/services.component';
     OsdFormComponent,
     OsdDevicesSelectionModalComponent,
     InventoryDevicesComponent,
-    OsdDeviceSelectionGroupsComponent
+    OsdDeviceSelectionGroupsComponent,
+    OsdCreationPreviewModalComponent
   ]
 })
 export class ClusterModule {}
