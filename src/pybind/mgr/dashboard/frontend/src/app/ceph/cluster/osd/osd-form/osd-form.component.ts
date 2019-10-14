@@ -14,7 +14,7 @@ import { CdTableColumn } from '../../../../shared/models/cd-table-column';
 import { InventoryDevice } from '../../inventory/inventory-devices/inventory-devices.model';
 import { InventoryNode } from '../../inventory/inventory-node.model';
 import { OsdCreationPreviewModalComponent } from '../osd-creation-preview-modal/osd-creation-preview-modal.component';
-import { OsdDeviceSelectionGroupsComponent } from '../osd-device-selection-groups/osd-device-selection-groups.component';
+import { OsdDevicesSelectionGroupsComponent } from '../osd-devices-selection-groups/osd-devices-selection-groups.component';
 import { OsdFeature } from './osd-feature.interface';
 import { DriveGroup } from './osd-form-data';
 
@@ -25,13 +25,13 @@ import { DriveGroup } from './osd-form-data';
 })
 export class OsdFormComponent implements OnInit {
   @ViewChild('dataDeviceSelectionGroups', { static: false })
-  dataDeviceSelectionGroups: OsdDeviceSelectionGroupsComponent;
+  dataDeviceSelectionGroups: OsdDevicesSelectionGroupsComponent;
 
   @ViewChild('walDeviceSelectionGroups', { static: false })
-  walDeviceSelectionGroups: OsdDeviceSelectionGroupsComponent;
+  walDeviceSelectionGroups: OsdDevicesSelectionGroupsComponent;
 
   @ViewChild('dbDeviceSelectionGroups', { static: false })
-  dbDeviceSelectionGroups: OsdDeviceSelectionGroupsComponent;
+  dbDeviceSelectionGroups: OsdDevicesSelectionGroupsComponent;
 
   @ViewChild('previewButton', { static: false })
   previewButton: SubmitButtonComponent;

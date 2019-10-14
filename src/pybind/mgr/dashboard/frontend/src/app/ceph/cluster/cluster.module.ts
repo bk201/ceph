@@ -30,7 +30,7 @@ import { MgrModulesModule } from './mgr-modules/mgr-modules.module';
 import { MonitorComponent } from './monitor/monitor.component';
 import { OsdCreationPreviewModalComponent } from './osd/osd-creation-preview-modal/osd-creation-preview-modal.component';
 import { OsdDetailsComponent } from './osd/osd-details/osd-details.component';
-import { OsdDeviceSelectionGroupsComponent } from './osd/osd-device-selection-groups/osd-device-selection-groups.component';
+import { OsdDevicesSelectionGroupsComponent } from './osd/osd-devices-selection-groups/osd-devices-selection-groups.component';
 import { OsdDevicesSelectionModalComponent } from './osd/osd-devices-selection-modal/osd-devices-selection-modal.component';
 import { OsdFlagsModalComponent } from './osd/osd-flags-modal/osd-flags-modal.component';
 import { OsdFormComponent } from './osd/osd-form/osd-form.component';
@@ -111,7 +111,7 @@ import { ServicesComponent } from './services/services.component';
     OsdFormComponent,
     OsdDevicesSelectionModalComponent,
     InventoryDevicesComponent,
-    OsdDeviceSelectionGroupsComponent,
+    OsdDevicesSelectionGroupsComponent,
     OsdCreationPreviewModalComponent
   ]
 })

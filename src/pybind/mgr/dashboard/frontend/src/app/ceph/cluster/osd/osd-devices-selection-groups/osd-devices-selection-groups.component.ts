@@ -6,11 +6,11 @@ import { InventoryDevice } from '../../inventory/inventory-devices/inventory-dev
 import { OsdDevicesSelectionModalComponent } from '../osd-devices-selection-modal/osd-devices-selection-modal.component';
 
 @Component({
-  selector: 'cd-osd-device-selection-groups',
-  templateUrl: './osd-device-selection-groups.component.html',
-  styleUrls: ['./osd-device-selection-groups.component.scss']
+  selector: 'cd-osd-devices-selection-groups',
+  templateUrl: './osd-devices-selection-groups.component.html',
+  styleUrls: ['./osd-devices-selection-groups.component.scss']
 })
-export class OsdDeviceSelectionGroupsComponent implements OnInit {
+export class OsdDevicesSelectionGroupsComponent implements OnInit {
   // data, wal, db
   @Input() type: string;
 

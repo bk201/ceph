@@ -6,7 +6,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { i18nProviders } from '../../../../../testing/unit-test-helper';
 import { SharedModule } from '../../../../shared/shared.module';
 import { InventoryDevicesComponent } from '../../inventory/inventory-devices/inventory-devices.component';
-import { OsdDeviceSelectionGroupsComponent } from '../osd-device-selection-groups/osd-device-selection-groups.component';
+import { OsdDevicesSelectionGroupsComponent } from '../osd-devices-selection-groups/osd-devices-selection-groups.component';
 import { OsdFormComponent } from './osd-form.component';
 
 describe('OsdFormComponent', () => {
@@ -23,7 +23,7 @@ describe('OsdFormComponent', () => {
         ReactiveFormsModule
       ],
       providers: [i18nProviders],
-      declarations: [OsdFormComponent, OsdDeviceSelectionGroupsComponent, InventoryDevicesComponent]
+      declarations: [OsdFormComponent, OsdDevicesSelectionGroupsComponent, InventoryDevicesComponent]
     }).compileComponents();
   }));
 

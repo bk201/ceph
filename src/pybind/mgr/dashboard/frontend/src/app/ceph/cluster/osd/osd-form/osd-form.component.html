@@ -11,14 +11,14 @@
            class="card-header">{{ action | titlecase }} {{ resource | upperFirst }}</div>
       <div class="card-body">
         <fieldset>
-          <cd-osd-device-selection-groups #dataDeviceSelectionGroups
+          <cd-osd-devices-selection-groups #dataDeviceSelectionGroups
                                           name="Primary"
                                           type="data"
                                           [availDevices]="availDevices"
                                           [canSelect]="availDevices.length !== 0"
                                           (selected)="onDevicesSelected($event)"
                                           (cleared)="onDevicesCleared($event)">
-          </cd-osd-device-selection-groups>
+          </cd-osd-devices-selection-groups>
         </fieldset>
 
         <!-- Shared devices -->
@@ -26,14 +26,14 @@
           <legend i18n>Shared devices</legend>
 
           <!-- WAL devices button and table -->
-          <cd-osd-device-selection-groups #walDeviceSelectionGroups
+          <cd-osd-devices-selection-groups #walDeviceSelectionGroups
                                           name="WAL"
                                           type="wal"
                                           [availDevices]="availDevices"
                                           [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
                                           (selected)="onDevicesSelected($event)"
                                           (cleared)="onDevicesCleared($event)">
-          </cd-osd-device-selection-groups>
+          </cd-osd-devices-selection-groups>
 
           <!-- WAL slots -->
           <div class="form-group row"
@@ -61,14 +61,14 @@
           </div>
 
           <!-- DB devices button and table -->
-          <cd-osd-device-selection-groups #dbDeviceSelectionGroups
+          <cd-osd-devices-selection-groups #dbDeviceSelectionGroups
                                           name="DB"
                                           type="db"
                                           [availDevices]="availDevices"
                                           [canSelect]="dataDeviceSelectionGroups.devices.length !== 0"
                                           (selected)="onDevicesSelected($event)"
                                           (cleared)="onDevicesCleared($event)">
-          </cd-osd-device-selection-groups>
+          </cd-osd-devices-selection-groups>
 
           <!-- DB slots -->
           <div class="form-group row"
