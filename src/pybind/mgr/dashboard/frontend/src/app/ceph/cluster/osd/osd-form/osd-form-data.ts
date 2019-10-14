@@ -9,7 +9,7 @@ export class DriveGroup {
   // Map from filter column prop to device selection attribute name
   private deviceSelectionAttrs: {
     [key: string]: {
-      attr: string;
+      name: string;
       formatter?: Function;
     };
   };
@@ -20,19 +20,19 @@ export class DriveGroup {
     this.formatterService = new FormatterService();
     this.deviceSelectionAttrs = {
       vendor: {
-        attr: 'vendor'
+        name: 'vendor'
       },
       model: {
-        attr: 'id_model'
+        name: 'id_model'
       },
       rotates: {
-        attr: 'rotates',
+        name: 'rotates',
         formatter: (value: string) => {
           return JSON.parse(value);
         }
       },
       size: {
-        attr: 'size',
+        name: 'size',
         formatter: (value: string) => {
           return this.formatterService
             .format_number(value, 1024, ['B', 'KB', 'MB', 'GB', 'TB', 'PB'])
@@ -54,10 +54,10 @@ export class DriveGroup {
     const key = `${type}_devices`;
     this.spec[key] = {};
     appliedFilters.forEach((filter) => {
-      const attr = this.deviceSelectionAttrs[filter.prop].attr;
-      const formatter = this.deviceSelectionAttrs[filter.prop].formatter;
+      const attr = this.deviceSelectionAttrs[filter.prop];
       if (attr) {
-        this.spec[key][attr] = formatter ? formatter(filter.value) : filter.value;
+        const name = attr.name;
+        this.spec[key][name] = attr.formatter ? attr.formatter(filter.value) : filter.value;
       }
     });
   }
