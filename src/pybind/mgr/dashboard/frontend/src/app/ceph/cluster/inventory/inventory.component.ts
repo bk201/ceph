@@ -6,6 +6,7 @@ import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pip
 import { SummaryService } from '../../../shared/services/summary.service';
 import { InventoryDevice } from './inventory-devices/inventory-device.model';
 import { InventoryNode } from './inventory-node.model';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'cd-inventory',
@@ -32,26 +33,17 @@ export class InventoryComponent implements OnChanges, OnInit {
   ) {}
 
   ngOnInit() {
-    // duplicated code with grafana
-    const subs = this.summaryService.subscribe((summary: any) => {
-      if (!summary) {
-        return;
-      }
-
-      const releaseName = this.cephReleaseNamePipe.transform(summary.version);
-      this.docsUrl = `http://docs.ceph.com/docs/${releaseName}/mgr/orchestrator_cli/`;
-
-      setTimeout(() => {
-        subs.unsubscribe();
-      }, 0);
-    });
-
-    this.orchService.status().subscribe((data: { available: boolean }) => {
-      this.orchestratorExist = data.available;
-      this.checkingOrchestrator = false;
-
-      if (this.orchestratorExist) {
-        this.getInventory();
+    const observables = [this.orchService.status(), this.summaryService];
+    forkJoin(observables).subscribe({
+      next: (resp: object) => {
+        this.orchestratorExist = resp[0].available;
+        this.checkingOrchestrator = false;
+        if (this.orchestratorExist) {
+          this.getInventory();
+        } else {
+          const releaseName = this.cephReleaseNamePipe.transform(resp[1].version);
+          this.docsUrl = `http://docs.ceph.com/docs/${releaseName}/mgr/orchestrator_cli/`;
+        }
       }
     });
   }
