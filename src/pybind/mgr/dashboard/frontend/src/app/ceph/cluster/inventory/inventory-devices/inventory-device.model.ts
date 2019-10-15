@@ -1,4 +1,4 @@
-export class Device {
+export class InventoryDevice {
   hostname: string;
   uid: string;
 
@@ -10,9 +10,6 @@ export class Device {
   available: boolean;
   dev_id: string;
   extended: any;
-}
-
-export class InventoryNode {
-  name: string;
-  devices: Device[];
+  vendor: string;
+  model: string;
 }

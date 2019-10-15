@@ -48,7 +48,7 @@ describe('OSDs page', () => {
 
     it('should verify that buttons exist', async () => {
       await osds.navigateTo();
-      await expect(element(by.cssContainingText('button', 'Scrub')).isPresent()).toBe(true);
+      await expect(element(by.cssContainingText('button', 'Create')).isPresent()).toBe(true);
       await expect(
         element(by.cssContainingText('button', 'Cluster-wide configuration')).isPresent()
       ).toBe(true);

@@ -5,6 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 
+import { FormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { configureTestBed, i18nProviders } from '../../../../testing/unit-test-helper';
@@ -12,6 +13,7 @@ import { HostService } from '../../../shared/api/host.service';
 import { Permissions } from '../../../shared/models/permissions';
 import { AuthStorageService } from '../../../shared/services/auth-storage.service';
 import { SharedModule } from '../../../shared/shared.module';
+import { InventoryDevicesComponent } from '../inventory/inventory-devices/inventory-devices.component';
 import { InventoryComponent } from '../inventory/inventory.component';
 import { ServicesComponent } from '../services/services.component';
 import { HostDetailsComponent } from './host-details/host-details.component';
@@ -35,10 +37,17 @@ describe('HostsComponent', () => {
       TabsModule.forRoot(),
       BsDropdownModule.forRoot(),
       RouterTestingModule,
-      ToastrModule.forRoot()
+      ToastrModule.forRoot(),
+      FormsModule
     ],
     providers: [{ provide: AuthStorageService, useValue: fakeAuthStorageService }, i18nProviders],
-    declarations: [HostsComponent, HostDetailsComponent, InventoryComponent, ServicesComponent]
+    declarations: [
+      HostsComponent,
+      HostDetailsComponent,
+      InventoryComponent,
+      InventoryDevicesComponent,
+      ServicesComponent
+    ]
   });
 
   beforeEach(() => {
