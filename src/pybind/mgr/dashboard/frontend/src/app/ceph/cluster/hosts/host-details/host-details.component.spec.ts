@@ -5,12 +5,14 @@ import { of } from 'rxjs';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TabsetComponent, TabsModule } from 'ngx-bootstrap/tabs';
 
+import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { configureTestBed, i18nProviders } from '../../../../../testing/unit-test-helper';
 import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { CdTableSelection } from '../../../../shared/models/cd-table-selection';
 import { Permissions } from '../../../../shared/models/permissions';
 import { SharedModule } from '../../../../shared/shared.module';
+import { InventoryDevicesComponent } from '../../inventory/inventory-devices/inventory-devices.component';
 import { InventoryComponent } from '../../inventory/inventory.component';
 import { ServicesComponent } from '../../services/services.component';
 import { HostDetailsComponent } from './host-details.component';
@@ -25,9 +27,15 @@ describe('HostDetailsComponent', () => {
       TabsModule.forRoot(),
       BsDropdownModule.forRoot(),
       RouterTestingModule,
-      SharedModule
+      SharedModule,
+      FormsModule
     ],
-    declarations: [HostDetailsComponent, InventoryComponent, ServicesComponent],
+    declarations: [
+      HostDetailsComponent,
+      InventoryComponent,
+      InventoryDevicesComponent,
+      ServicesComponent
+    ],
     providers: [i18nProviders]
   });
 
