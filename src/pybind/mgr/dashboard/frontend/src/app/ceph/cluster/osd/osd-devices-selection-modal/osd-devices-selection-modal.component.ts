@@ -62,7 +62,6 @@ export class OsdDevicesSelectionModalComponent implements OnInit {
         return filter.prop !== 'hostname';
       });
       this.canSubmit = !_.isEmpty(filters);
-
       this.filterInDevices = event.filterInDevices;
       this.filterOutDevices = event.filterOutDevices;
     }
