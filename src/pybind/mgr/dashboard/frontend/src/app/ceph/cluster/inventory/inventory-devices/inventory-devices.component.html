@@ -6,26 +6,24 @@
           [autoReload]="false">
   <div class="table-filters form-inline"
        *ngIf="preFilters.length !== 0 || filters.length !== 0">
-    <div class="form-group filter"
+    <div class="form-group filter tc_preFilter"
          *ngFor="let filter of preFilters">
-      <label class="col-form-label">{{ filter.label }}: </label>
+      <label class="col-form-label"><span>{{ filter.label }}</span><span>: </span></label>
       <select class="custom-select">
         <option>{{ filter.formatValue }}</option>
       </select>
     </div>
-    <div class="form-group filter"
+    <div class="form-group filter tc_filter"
          *ngFor="let filter of filters">
-    <label class="col-form-label">{{ filter.label }}: </label>
-    <select class="custom-select"
-            [(ngModel)]="filter.value"
-            [ngModelOptions]="{standalone: true}"
-            (ngModelChange)="onFilterChange()"
-            [disabled]="filter.disabled">
-      <option *ngFor="let opt of filter.options"
-              [value]="opt.value">
-        {{ opt.formatValue }}
-      </option>
-    </select>
+      <label class="col-form-label"><span>{{ filter.label }}</span><span>: </span></label>
+      <select class="custom-select"
+              [(ngModel)]="filter.value"
+              [ngModelOptions]="{standalone: true}"
+              (ngModelChange)="onFilterChange()"
+              [disabled]="filter.disabled">
+        <option *ngFor="let opt of filter.options"
+                [value]="opt.value">{{ opt.formatValue }}</option>
+      </select>
     </div>
     <div class="widget-toolbar tc_refreshBtn"
          *ngIf="filters.length !== 0">
