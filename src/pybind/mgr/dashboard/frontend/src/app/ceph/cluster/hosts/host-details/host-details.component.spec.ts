@@ -53,7 +53,7 @@ describe('HostDetailsComponent', () => {
     });
     const orchService = TestBed.get(OrchestratorService);
     spyOn(orchService, 'status').and.returnValue(of({ available: true }));
-    spyOn(orchService, 'inventoryList').and.returnValue(of([]));
+    spyOn(orchService, 'inventoryDeviceList').and.returnValue(of([]));
     spyOn(orchService, 'serviceList').and.returnValue(of([]));
     fixture.detectChanges();
   });

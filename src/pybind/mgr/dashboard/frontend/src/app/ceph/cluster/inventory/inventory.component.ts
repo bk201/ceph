@@ -5,7 +5,6 @@ import { Icons } from '../../../shared/enum/icons.enum';
 import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pipe';
 import { SummaryService } from '../../../shared/services/summary.service';
 import { InventoryDevice } from './inventory-devices/inventory-device.model';
-import { InventoryNode } from './inventory-node.model';
 
 @Component({
   selector: 'cd-inventory',
@@ -72,22 +71,14 @@ export class InventoryComponent implements OnChanges, OnInit {
       this.isLoadingDevices = false;
       return;
     }
-    this.orchService.inventoryList(this.hostname).subscribe(
-      (data: InventoryNode[]) => {
-        const devices: InventoryDevice[] = [];
-        data.forEach((node: InventoryNode) => {
-          node.devices.forEach((device: InventoryDevice) => {
-            device.hostname = node.name;
-            device.uid = `${node.name}-${device.device_id}`;
-            devices.push(device);
-          });
-        });
+    this.orchService.inventoryDeviceList(this.hostname).subscribe(
+      (devices: InventoryDevice[]) => {
         this.devices = devices;
         this.isLoadingDevices = false;
       },
       () => {
-        this.isLoadingDevices = false;
         this.devices = [];
+        this.isLoadingDevices = false;
       }
     );
   }
