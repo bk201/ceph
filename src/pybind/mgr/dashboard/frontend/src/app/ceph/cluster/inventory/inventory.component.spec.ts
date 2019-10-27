@@ -26,7 +26,7 @@ describe('InventoryComponent', () => {
     component = fixture.componentInstance;
     orchService = TestBed.get(OrchestratorService);
     spyOn(orchService, 'status').and.returnValue(of({ available: true }));
-    spyOn(orchService, 'inventoryList').and.callThrough();
+    spyOn(orchService, 'inventoryDeviceList').and.callThrough();
   });
 
   it('should create', () => {
@@ -36,13 +36,13 @@ describe('InventoryComponent', () => {
   describe('after ngOnInit', () => {
     it('should load devices', () => {
       fixture.detectChanges();
-      expect(orchService.inventoryList).toHaveBeenCalledWith(undefined);
+      expect(orchService.inventoryDeviceList).toHaveBeenCalledWith(undefined);
     });
 
     it('should load devices for a host', () => {
       component.hostname = 'host0';
       fixture.detectChanges();
-      expect(orchService.inventoryList).toHaveBeenCalledWith('host0');
+      expect(orchService.inventoryDeviceList).toHaveBeenCalledWith('host0');
     });
   });
 });

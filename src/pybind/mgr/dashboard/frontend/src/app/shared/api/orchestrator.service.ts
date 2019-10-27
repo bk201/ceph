@@ -1,7 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
-import { Observable } from 'rxjs';
+import { Observable, of as observableOf } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { InventoryDevice } from '../../ceph/cluster/inventory/inventory-devices/inventory-device.model';
 import { InventoryNode } from '../../ceph/cluster/inventory/inventory-node.model';
 import { ApiModule } from './api.module';
 
@@ -23,6 +25,25 @@ export class OrchestratorService {
   inventoryList(hostname?: string): Observable<InventoryNode[]> {
     const options = hostname ? { params: new HttpParams().set('hostname', hostname) } : {};
     return this.http.get<InventoryNode[]>(this.inventoryURL, options);
+  }
+
+  inventoryDeviceList(hostname?: string): Observable<InventoryDevice[]> {
+    return this.inventoryList(hostname).pipe(
+      mergeMap((nodes: InventoryNode[]) => {
+        const devices = _.flatMap(nodes, (node) => {
+          return node.devices.map((device) => {
+            device.hostname = node.name;
+            device.uid = `${node.name}-${device.id}`;
+            if (device.dev_id) {
+              device.vendor = device.dev_id.split('/')[0];
+              device.model = device.dev_id.split('/')[1];
+            }
+            return device;
+          });
+        });
+        return observableOf(devices);
+      })
+    );
   }
 
   serviceList(hostname?: string) {

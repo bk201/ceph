@@ -14,7 +14,6 @@ import { CdTableColumn } from '../../../../shared/models/cd-table-column';
 import { CephReleaseNamePipe } from '../../../../shared/pipes/ceph-release-name.pipe';
 import { SummaryService } from '../../../../shared/services/summary.service';
 import { InventoryDevice } from '../../inventory/inventory-devices/inventory-device.model';
-import { InventoryNode } from '../../inventory/inventory-node.model';
 import { OsdCreationPreviewModalComponent } from '../osd-creation-preview-modal/osd-creation-preview-modal.component';
 import { DevicesSelectionChangeEvent } from '../osd-devices-selection-groups/devices-selection-change-event.interface';
 import { DevicesSelectionClearEvent } from '../osd-devices-selection-groups/devices-selection-clear-event.interface';
@@ -143,23 +142,9 @@ export class OsdFormComponent implements OnInit {
       return;
     }
     this.loading = true;
-    this.orchService.inventoryList().subscribe(
-      (data: InventoryNode[]) => {
-        const devices: InventoryDevice[] = [];
-        data.forEach((node: InventoryNode) => {
-          node.devices.forEach((device: InventoryDevice) => {
-            device.hostname = node.name;
-            device.uid = `${node.name}-${device.id}`;
-            if (device.dev_id) {
-              device.vendor = device.dev_id.split('/')[0];
-              device.model = device.dev_id.split('/')[1];
-            }
-            if (device.available) {
-              devices.push(device);
-            }
-          });
-        });
-        this.allDevices = devices;
+    this.orchService.inventoryDeviceList().subscribe(
+      (devices: InventoryDevice[]) => {
+        this.allDevices = _.filter(devices, 'available');
         this.availDevices = [...devices];
         this.loading = false;
       },

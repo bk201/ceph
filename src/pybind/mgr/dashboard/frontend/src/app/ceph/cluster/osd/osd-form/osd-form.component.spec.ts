@@ -118,7 +118,7 @@ describe('OsdFormComponent', () => {
   describe('without orchestrator', () => {
     beforeEach(() => {
       spyOn(orchService, 'status').and.returnValue(of({ available: false }));
-      spyOn(orchService, 'inventoryList').and.callThrough();
+      spyOn(orchService, 'inventoryDeviceList').and.callThrough();
       fixture.detectChanges();
     });
 
@@ -127,15 +127,15 @@ describe('OsdFormComponent', () => {
       fixtureHelper.expectElementVisible('.col-sm-10 form', false);
     });
 
-    it('should not call inventoryList', () => {
-      expect(orchService.inventoryList).not.toHaveBeenCalled();
+    it('should not call inventoryDeviceList', () => {
+      expect(orchService.inventoryDeviceList).not.toHaveBeenCalled();
     });
   });
 
   describe('with orchestrator', () => {
     beforeEach(() => {
       spyOn(orchService, 'status').and.returnValue(of({ available: true }));
-      spyOn(orchService, 'inventoryList').and.returnValue(of([]));
+      spyOn(orchService, 'inventoryDeviceList').and.returnValue(of([]));
       fixture.detectChanges();
     });
 
