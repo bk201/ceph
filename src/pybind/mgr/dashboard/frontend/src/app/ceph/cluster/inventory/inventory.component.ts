@@ -69,6 +69,11 @@ export class InventoryComponent implements OnChanges, OnInit {
         name: this.i18n('Model'),
         prop: 'model',
         flexGrow: 1
+      },
+      {
+        name: this.i18n('OSD ID'),
+        prop: 'osd_id',
+        flexGrow: 1
       }
     ];
 
