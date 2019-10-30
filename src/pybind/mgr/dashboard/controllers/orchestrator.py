@@ -5,7 +5,7 @@ import cherrypy
 
 from . import ApiController, Endpoint, ReadPermission
 from . import RESTController, Task
-from .. import mgr
+from .. import mgr, logger
 from ..security import Scope
 from ..services.orchestrator import OrchClient
 from ..tools import wraps
@@ -14,8 +14,18 @@ from ..tools import wraps
 def get_device_osd_map():
     """Get mappings from inventory devices to OSD IDs.
 
-    :return: Returns a dictionary containing mappings.
-        e.g. {'node1': {'vdc': 2, 'vdb': 1}, 'node2': {'vdc': 0}}
+    :return: Returns a dictionary containing mappings. Note one device might
+        shared between multiple OSDs.
+        e.g. {
+                 'node1': {
+                     'nvme0n1': [0, 1],
+                     'vdc': [0],
+                     'vdb': [1]
+                 },
+                 'node2': {
+                     'vdc': [2]
+                 }
+             }
     :rtype: dict
     """
     device_osd_map = {}
@@ -28,7 +38,11 @@ def get_device_osd_map():
             device_osd_map[hostname] = {}
         # for OSD contains multiple devices, devices is in `sda,sdb`
         for device in devices.split(','):
-            device_osd_map[hostname][device] = int(osd_id)
+            device_osds = device_osd_map[hostname].get(device)
+            if device_osds:
+                device_osds.append(int(osd_id))
+            else:
+                device_osd_map[hostname][device] = [int(osd_id)]
     return device_osd_map
 
 
@@ -60,17 +74,19 @@ class OrchestratorInventory(RESTController):
 
     @raise_if_no_orchestrator
     def list(self, hostname=None):
+        import pprint
+        logger.info('kf: %s', pprint.pformat(mgr.get('osd_map')))
         orch = OrchClient.instance()
         hosts = [hostname] if hostname else None
         inventory_nodes = [node.to_json() for node in orch.inventory.list(hosts)]
         device_osd_map = get_device_osd_map()
         for inventory_node in inventory_nodes:
-            osds = device_osd_map.get(inventory_node['name'])
+            node_osds = device_osd_map.get(inventory_node['name'])
             for device in inventory_node['devices']:
-                if osds:
-                    device['osd_id'] = osds.get(device['id'])
+                if node_osds:
+                    device['osd_ids'] = sorted(node_osds.get(device['id'], []))
                 else:
-                    device['osd_id'] = None
+                    device['osd_ids'] = []
         return inventory_nodes
 
 

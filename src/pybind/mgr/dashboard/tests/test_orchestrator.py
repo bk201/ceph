@@ -54,25 +54,28 @@ class OrchestratorControllerTest(ControllerTestCase):
     def test_inventory_list(self, instance, get_dev_osd_map):
         get_dev_osd_map.return_value = {
             'host-0': {
-                'sda': 0,
-                'sdb': 1
+                'nvme0n1': [1, 2],
+                'sdb': [1],
+                'sdc': [2]
             },
             'host-1': {
-                'sdc': 2
+                'sdb': [3]
             }
         }
         inventory = [
             {
                 'name': 'host-0',
                 'devices': [
-                    {'id': 'sda'},
+                    {'id': 'nvme0n1'},
                     {'id': 'sdb'},
+                    {'id': 'sdc'},
                 ]
             },
             {
                 'name': 'host-1',
                 'devices': [
-                    {'id': 'sdc'},
+                    {'id': 'sda'},
+                    {'id': 'sdb'},
                 ]
             }
         ]
@@ -86,10 +89,15 @@ class OrchestratorControllerTest(ControllerTestCase):
         self.assertStatus(200)
         resp = self.json_body()
         self.assertEqual(len(resp), 2)
-        osd_ids = [dev['osd_id'] for dev in resp[0]['devices']]
-        self.assertEqual(osd_ids, [0, 1])
-        osd_ids = [dev['osd_id'] for dev in resp[1]['devices']]
-        self.assertEqual(osd_ids, [2])
+
+        # check host-0 OSD IDs
+        self.assertEqual(resp[0]['devices'][0]['osd_ids'], [1, 2])
+        self.assertEqual(resp[0]['devices'][1]['osd_ids'], [1])
+        self.assertEqual(resp[0]['devices'][2]['osd_ids'], [2])
+
+        # check host-1 OSD IDs
+        self.assertEqual(resp[1]['devices'][0]['osd_ids'], [])
+        self.assertEqual(resp[1]['devices'][1]['osd_ids'], [3])
 
         # list with existent hostname
         self._get('{}?hostname=host-0'.format(self.URL_INVENTORY))
@@ -164,26 +172,32 @@ class TestOrchestrator(unittest.TestCase):
             'osd_metadata': {
                 '0': {
                     'hostname': 'node0',
-                    'devices': 'sda',
+                    'devices': 'nvme0n1,sdb',
                 },
                 '1': {
-                    'hostname': 'node1',
-                    'devices': 'sdb,sdc',
+                    'hostname': 'node0',
+                    'devices': 'nvme0n1,sdc',
                 },
                 '2': {
                     'hostname': 'node1',
+                    'devices': 'sda',
+                },
+                '3': {
+                    'hostname': 'node2',
                     'devices': '',
                 }
             }
         }[key]
         osd_map = get_device_osd_map()
         mgr.get.assert_called_with('osd_metadata')
+        # FIXME: the list are not sorted
         self.assertDictEqual(osd_map, {
             'node0': {
-                'sda': 0
+                'nvme0n1': [0, 1],
+                'sdb': [0],
+                'sdc': [1],
             },
             'node1': {
-                'sdb': 1,
-                'sdc': 1,
+                'sda': [2]
             }
         })

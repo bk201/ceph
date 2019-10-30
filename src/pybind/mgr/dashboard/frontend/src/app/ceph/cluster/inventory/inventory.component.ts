@@ -9,6 +9,7 @@ import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pip
 import { DimlessBinaryPipe } from '../../../shared/pipes/dimless-binary.pipe';
 import { SummaryService } from '../../../shared/services/summary.service';
 import { Device, InventoryNode } from './inventory.model';
+import { ListPipe } from '../../../shared/pipes/list.pipe';
 
 @Component({
   selector: 'cd-inventory',
@@ -33,6 +34,7 @@ export class InventoryComponent implements OnChanges, OnInit {
     private cephReleaseNamePipe: CephReleaseNamePipe,
     private dimlessBinary: DimlessBinaryPipe,
     private i18n: I18n,
+    private listPipe: ListPipe,
     private orchService: OrchestratorService,
     private summaryService: SummaryService
   ) {}
@@ -71,9 +73,10 @@ export class InventoryComponent implements OnChanges, OnInit {
         flexGrow: 1
       },
       {
-        name: this.i18n('OSD ID'),
-        prop: 'osd_id',
-        flexGrow: 1
+        name: this.i18n('OSD IDs'),
+        prop: 'osd_ids',
+        flexGrow: 1,
+        pipe: this.listPipe
       }
     ];
 
