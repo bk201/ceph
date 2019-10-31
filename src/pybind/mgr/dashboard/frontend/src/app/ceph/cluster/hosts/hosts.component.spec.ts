@@ -1,13 +1,13 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TabsModule } from 'ngx-bootstrap/tabs';
-
-import { FormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
+
 import { configureTestBed, i18nProviders } from '../../../../testing/unit-test-helper';
 import { CoreModule } from '../../../core/core.module';
 import { HostService } from '../../../shared/api/host.service';

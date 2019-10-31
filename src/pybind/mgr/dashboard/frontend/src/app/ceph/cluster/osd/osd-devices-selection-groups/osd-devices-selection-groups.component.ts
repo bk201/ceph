@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+
 import * as _ from 'lodash';
+
 import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { InventoryDeviceFiltersChangeEvent } from '../../inventory/inventory-devices/inventory-device-filters-change-event.interface';
@@ -13,7 +15,7 @@ import { DevicesSelectionClearEvent } from './devices-selection-clear-event.inte
   templateUrl: './osd-devices-selection-groups.component.html',
   styleUrls: ['./osd-devices-selection-groups.component.scss']
 })
-export class OsdDevicesSelectionGroupsComponent implements OnInit {
+export class OsdDevicesSelectionGroupsComponent {
   // data, wal, db
   @Input() type: string;
 
@@ -37,8 +39,6 @@ export class OsdDevicesSelectionGroupsComponent implements OnInit {
   appliedFilters = [];
 
   constructor(private bsModalService: BsModalService) {}
-
-  ngOnInit() {}
 
   showSelectionModal() {
     let filterColumns = ['type', 'vendor', 'model', 'size'];

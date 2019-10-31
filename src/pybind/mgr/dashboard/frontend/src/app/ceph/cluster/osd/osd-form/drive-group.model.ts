@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { FormatterService } from '../../../../shared/services/formatter.service';
 import { InventoryDeviceAppliedFilter } from '../../inventory/inventory-devices/inventory-device-applied-filters.interface';
 

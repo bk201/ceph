@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { FormsModule } from '@angular/forms';
+
 import * as _ from 'lodash';
+
 import {
   configureTestBed,
   FixtureHelper,
@@ -99,7 +100,7 @@ describe('InventoryDevicesComponent', () => {
       }
     });
 
-    it('should filter a sinle column', () => {
+    it('should filter a single column', () => {
       spyOn(component.filterChange, 'emit');
       fixtureHelper.selectElement('.tc_filter:nth-child(1) select', 'node1');
       expect(component.filterInDevices.length).toBe(1);

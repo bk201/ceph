@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
+
 import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
 import { CdFormBuilder } from '../../../../shared/forms/cd-form-builder';

@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild, TemplateRef } from '@angular/core';
 import { I18n } from '@ngx-translate/i18n-polyfill';
+
 import * as _ from 'lodash';
+
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
 import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';

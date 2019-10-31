@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-
 import { FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import { I18n } from '@ngx-translate/i18n-polyfill';
 import * as _ from 'lodash';
 import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
+
 import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { SubmitButtonComponent } from '../../../../shared/components/submit-button/submit-button.component';
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
