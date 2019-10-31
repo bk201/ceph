@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import * as _ from 'lodash';
+
 import { OrchestratorService } from '../../../shared/api/orchestrator.service';
 import { Icons } from '../../../shared/enum/icons.enum';
 import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pipe';

@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
+
 import { BsModalRef } from 'ngx-bootstrap/modal';
+
 import { configureTestBed, i18nProviders } from '../../../../../testing/unit-test-helper';
 import { SharedModule } from '../../../../shared/shared.module';
 import { InventoryDeviceFiltersChangeEvent } from '../../inventory/inventory-devices/inventory-device-filters-change-event.interface';

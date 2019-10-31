@@ -1,7 +1,8 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 import * as _ from 'lodash';
 import { BsModalRef } from 'ngx-bootstrap/modal';
+
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { CdFormBuilder } from '../../../../shared/forms/cd-form-builder';
@@ -14,7 +15,7 @@ import { InventoryDevice } from '../../inventory/inventory-devices/inventory-dev
   templateUrl: './osd-devices-selection-modal.component.html',
   styleUrls: ['./osd-devices-selection-modal.component.scss']
 })
-export class OsdDevicesSelectionModalComponent implements OnInit {
+export class OsdDevicesSelectionModalComponent {
   @Output()
   submitAction = new EventEmitter<InventoryDeviceFiltersChangeEvent>();
 
@@ -46,8 +47,6 @@ export class OsdDevicesSelectionModalComponent implements OnInit {
   createForm() {
     this.formGroup = this.formBuilder.group({});
   }
-
-  ngOnInit() {}
 
   onFilterChange(event: InventoryDeviceFiltersChangeEvent) {
     this.canSubmit = false;
