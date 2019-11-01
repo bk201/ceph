@@ -5,14 +5,7 @@
           columnMode="flex"
           [autoReload]="false">
   <div class="table-filters form-inline"
-       *ngIf="preFilters.length !== 0 || filters.length !== 0">
-    <div class="form-group filter tc_preFilter"
-         *ngFor="let filter of preFilters">
-      <label class="col-form-label"><span>{{ filter.label }}</span><span>: </span></label>
-      <select class="custom-select">
-        <option>{{ filter.formatValue }}</option>
-      </select>
-    </div>
+       *ngIf="filters.length !== 0">
     <div class="form-group filter tc_filter"
          *ngFor="let filter of filters">
       <label class="col-form-label"><span>{{ filter.label }}</span><span>: </span></label>

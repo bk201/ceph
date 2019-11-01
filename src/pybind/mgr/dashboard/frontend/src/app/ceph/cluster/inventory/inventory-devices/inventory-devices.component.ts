@@ -28,11 +28,6 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
   // Show filters for these columns, specify empty array to disable
   @Input() filterColumns = ['hostname', 'type', 'available', 'vendor', 'model', 'size'];
 
-  // This is merely used to tell users that some filters are already applied on initial data.
-  // These filters has no effect at all.
-  // Each item -> { label: 'i18n label of filter', value: 'value' }
-  @Input() preFilters = [];
-
   @Output() filterChange = new EventEmitter<InventoryDeviceFiltersChangeEvent>();
 
   filterInDevices: InventoryDevice[] = [];

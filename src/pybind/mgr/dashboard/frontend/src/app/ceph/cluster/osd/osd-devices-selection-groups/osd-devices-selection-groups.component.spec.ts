@@ -36,6 +36,11 @@ describe('OsdDevicesSelectionGroupsComponent', () => {
     const debugElement = fixtureHelper.getElementByCss(buttonSelector);
     return debugElement.nativeElement;
   };
+  const clearTextSelector = '.tc_clearSelections';
+  const getClearText = () => {
+    const debugElement = fixtureHelper.getElementByCss(clearTextSelector);
+    return debugElement.nativeElement;
+  };
 
   configureTestBed({
     imports: [FormsModule, SharedModule],
@@ -101,20 +106,19 @@ describe('OsdDevicesSelectionGroupsComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should display Clear button', () => {
-      const button = getButton();
-      expect(button).toBeTruthy();
-      expect(button.disabled).toBe(false);
-      expect(button.textContent).toBe('Clear');
+    it('should display clear link', () => {
+      const text = getClearText();
+      expect(text).toBeTruthy();
+      expect(text.textContent).toBe('Clear');
     });
 
     it('should display devices table', () => {
       fixtureHelper.expectElementVisible('cd-inventory-devices', true);
     });
 
-    it('should clear devices by clicking Clear button', () => {
+    it('should clear devices by clicking Clear link', () => {
       spyOn(component.cleared, 'emit');
-      fixtureHelper.clickElement(buttonSelector);
+      fixtureHelper.clickElement(clearTextSelector);
       fixtureHelper.expectElementVisible('cd-inventory-devices', false);
       const event = {
         type: undefined,
