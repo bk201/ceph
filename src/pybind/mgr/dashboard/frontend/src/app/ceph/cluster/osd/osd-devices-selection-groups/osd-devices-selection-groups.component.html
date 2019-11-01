@@ -20,24 +20,21 @@
       </button>
     </ng-container>
     <ng-template #blockClearDevices>
-      <button type="button"
-              class="btn btn-light"
-              (click)="clearDevices()">
-        <i [ngClass]="[icons.destroy]"></i>
-        <ng-container i18n>Clear</ng-container>
-      </button>
+      <div class="pb-2 my-2 border-bottom">
+        <span *ngFor="let filter of appliedFilters">
+          <span class="badge badge-dark mr-2">{{ filter.label }}: {{ filter.formatValue }}</span>
+        </span>
+        <a class="tc_clearSelections"
+           href=""
+           (click)="clearDevices(); false"
+           i18n>Clear</a>
+      </div>
+      <div>
+        <cd-inventory-devices [devices]="devices"
+                              [hiddenColumns]="['available']"
+                              [filterColumns]="[]">
+        </cd-inventory-devices>
+      </div>
     </ng-template>
-  </div>
-</div>
-
-<!-- Device Table -->
-<div class="form-group row">
-  <div class="offset-sm-3 col-sm-9"
-       *ngIf="devices.length !== 0">
-    <cd-inventory-devices [devices]="devices"
-                          [hiddenColumns]="['available']"
-                          [filterColumns]="[]"
-                          [preFilters]="appliedFilters">
-    </cd-inventory-devices>
   </div>
 </div>
