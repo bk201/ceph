@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
@@ -31,14 +31,15 @@ describe('HostDetailsComponent', () => {
       RouterTestingModule,
       CephModule,
       CoreModule,
-      SharedModule,
-      FormsModule
+      ReactiveFormsModule,
+      // SharedModule,
+      // FormsModule
     ],
     declarations: [
-      HostDetailsComponent,
-      InventoryComponent,
-      InventoryDevicesComponent,
-      ServicesComponent
+      // HostDetailsComponent,
+      // InventoryComponent,
+      // InventoryDevicesComponent,
+      // ServicesComponent
     ],
     providers: [i18nProviders]
   });

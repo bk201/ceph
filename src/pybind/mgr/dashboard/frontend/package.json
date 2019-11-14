@@ -30,6 +30,7 @@
     "i18n:merge": "npx i18ntool merge -c i18n.config.json",
     "i18n:token": "npx i18ntool config token",
     "test": "npm run test:config && jest --watch",
+    "test2": "npm run test:config && jest",
     "test:ci": "npm run test:config && JEST_SILENT_REPORTER_DOTS=true jest --coverage --reporters jest-silent-reporter",
     "test:config": "if [ ! -e 'src/unit-test-configuration.ts' ]; then cp 'src/unit-test-configuration.ts.sample' 'src/unit-test-configuration.ts'; fi",
     "e2e": "npm run env_build && npm run e2e:update && ng e2e --webdriverUpdate=false",

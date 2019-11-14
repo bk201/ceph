@@ -35,11 +35,7 @@ export class OrchestratorService {
         const devices = _.flatMap(nodes, (node) => {
           return node.devices.map((device) => {
             device.hostname = node.name;
-            device.uid = `${node.name}-${device.id}`;
-            if (device.dev_id) {
-              device.vendor = device.dev_id.split('/')[0];
-              device.model = device.dev_id.split('/')[1];
-            }
+            device.uid = device.device_id ? device.device_id : `${device.hostname}-${device.path}`;
             return device;
           });
         });

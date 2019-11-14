@@ -20,6 +20,7 @@ import { DevicesSelectionChangeEvent } from '../osd-devices-selection-groups/dev
 import { DevicesSelectionClearEvent } from '../osd-devices-selection-groups/devices-selection-clear-event.interface';
 import { OsdDevicesSelectionGroupsComponent } from '../osd-devices-selection-groups/osd-devices-selection-groups.component';
 import { OsdFormComponent } from './osd-form.component';
+import { InventoryDevice } from '../../inventory/inventory-devices/inventory-device.model';
 
 describe('OsdFormComponent', () => {
   let form: CdFormGroup;
@@ -29,20 +30,24 @@ describe('OsdFormComponent', () => {
   let fixtureHelper: FixtureHelper;
   let orchService: OrchestratorService;
   let summaryService: SummaryService;
-  const devices = [
+  const devices: InventoryDevice[] = [
     {
       hostname: 'node0',
       uid: '1',
-      blank: false,
-      type: 'SSD',
-      id: '/dev/sda',
-      size: 1024,
-      rotates: false,
+
+      path: '/dev/sda',
+      sys_api: {
+        vendor: 'VENDOR',
+        model: 'MODEL',
+        size: 1024,
+        rotational: 'false',
+        human_readable_size: '1 KB'
+      },
       available: true,
-      dev_id: '',
-      extended: undefined,
-      vendor: 'AAA',
-      model: 'aaa'
+      rejected_reasons: [''],
+      device_id: 'VENDOR-MODEL-ID',
+      human_readable_type: 'nvme/ssd',
+      osd_ids: [],
     }
   ];
 

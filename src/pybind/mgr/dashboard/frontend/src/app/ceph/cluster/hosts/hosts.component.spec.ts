@@ -9,7 +9,6 @@ import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
 
 import { configureTestBed, i18nProviders } from '../../../../testing/unit-test-helper';
-import { CoreModule } from '../../../core/core.module';
 import { HostService } from '../../../shared/api/host.service';
 import { Permissions } from '../../../shared/models/permissions';
 import { AuthStorageService } from '../../../shared/services/auth-storage.service';
@@ -40,8 +39,7 @@ describe('HostsComponent', () => {
       BsDropdownModule.forRoot(),
       RouterTestingModule,
       ToastrModule.forRoot(),
-      CephModule,
-      CoreModule
+      CephModule
     ],
     providers: [{ provide: AuthStorageService, useValue: fakeAuthStorageService }, i18nProviders],
     declarations: [

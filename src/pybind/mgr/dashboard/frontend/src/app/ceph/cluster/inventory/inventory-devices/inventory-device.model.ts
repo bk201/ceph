@@ -9,7 +9,6 @@ export class SysAPI {
 export class InventoryDevice {
   hostname: string;
   uid: string;
-  osd_ids: number[];
 
   path: string;
   sys_api: SysAPI;
@@ -17,4 +16,5 @@ export class InventoryDevice {
   rejected_reasons: string[];
   device_id: string;
   human_readable_type: string;
+  osd_ids: number[];
 }

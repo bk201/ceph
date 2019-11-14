@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild, T
 import { I18n } from '@ngx-translate/i18n-polyfill';
 
 import * as _ from 'lodash';
+import { getterForProp } from '@swimlane/ngx-datatable/release/utils';
 
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
@@ -26,7 +27,7 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
   @Input() hiddenColumns: string[] = [];
 
   // Show filters for these columns, specify empty array to disable
-  @Input() filterColumns = ['hostname', 'type', 'available', 'vendor', 'model', 'size'];
+  @Input() filterColumns = ['hostname', 'human_readable_type', 'available', 'sys_api.vendor', 'sys_api.model', 'sys_api.size'];
 
   @Output() filterChange = new EventEmitter<InventoryDeviceFiltersChangeEvent>();
 
@@ -48,12 +49,12 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
       },
       {
         name: this.i18n('Device path'),
-        prop: 'id',
+        prop: 'path',
         flexGrow: 1
       },
       {
         name: this.i18n('Type'),
-        prop: 'type',
+        prop: 'human_readable_type',
         flexGrow: 1
       },
       {
@@ -63,17 +64,17 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
       },
       {
         name: this.i18n('Vendor'),
-        prop: 'vendor',
+        prop: 'sys_api.vendor',
         flexGrow: 1
       },
       {
         name: this.i18n('Model'),
-        prop: 'model',
+        prop: 'sys_api.model',
         flexGrow: 1
       },
       {
         name: this.i18n('Size'),
-        prop: 'size',
+        prop: 'sys_api.size',
         flexGrow: 1,
         pipe: this.dimlessBinary
       },
@@ -146,7 +147,9 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
       // Separate devices to filter-in and filter-out parts.
       // Cast column value to string type because options are always string.
       const parts = _.partition(devices, (row) => {
-        return `${row[filter.prop]}` === filter.value;
+        // use getter from ngx-datatable for props like 'sys_api.size'
+        const valueGetter = getterForProp(filter.prop);
+        return `${valueGetter(row, filter.prop)}` === filter.value;
       });
       devices = parts[0];
       this.filterOutDevices = [...this.filterOutDevices, ...parts[1]];

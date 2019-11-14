@@ -16,32 +16,76 @@ describe('InventoryDevicesComponent', () => {
   let component: InventoryDevicesComponent;
   let fixture: ComponentFixture<InventoryDevicesComponent>;
   let fixtureHelper: FixtureHelper;
-  let devices: InventoryDevice[];
-  const data = [
-    ['node0', '1', false, 'SSD', 'sda', 1024, false, false, undefined, '', 'AAA', 'aaa'],
-    ['node0', '2', false, 'SSD', 'sdb', 1024, false, true, undefined, '', 'AAA', 'aaa'],
-    ['node0', '3', false, 'HDD', 'sdc', 2048, false, true, undefined, '', 'BBB', 'bbb'],
-    ['node1', '4', false, 'HDD', 'sda', 1024, false, false, undefined, '', 'CCC', 'ccc']
+  let devices: InventoryDevice[] = [
+    {
+      hostname: 'node0',
+      uid: '1',
+      path: 'sda',
+      sys_api: {
+        vendor: 'AAA',
+        model: 'aaa',
+        size: 1024,
+        rotational: 'false',
+        human_readable_size: '1 KB'
+      },
+      available: false,
+      rejected_reasons: [''],
+      device_id: 'AAA-aaa-id0',
+      human_readable_type: 'nvme/ssd',
+      osd_ids: [],
+    },
+    {
+      hostname: 'node0',
+      uid: '2',
+      path: 'sdb',
+      sys_api: {
+        vendor: 'AAA',
+        model: 'aaa',
+        size: 1024,
+        rotational: 'false',
+        human_readable_size: '1 KB'
+      },
+      available: true,
+      rejected_reasons: [''],
+      device_id: 'AAA-aaa-id1',
+      human_readable_type: 'nvme/ssd',
+      osd_ids: [],
+    },
+    {
+      hostname: 'node0',
+      uid: '3',
+      path: 'sdc',
+      sys_api: {
+        vendor: 'BBB',
+        model: 'bbb',
+        size: 2048,
+        rotational: 'true',
+        human_readable_size: '2 KB'
+      },
+      available: true,
+      rejected_reasons: [''],
+      device_id: 'BBB-bbbb-id0',
+      human_readable_type: 'hdd',
+      osd_ids: [],
+    },
+    {
+      hostname: 'node1',
+      uid: '4',
+      path: 'sda',
+      sys_api: {
+        vendor: 'CCC',
+        model: 'ccc',
+        size: 1024,
+        rotational: 'true',
+        human_readable_size: '1 KB'
+      },
+      available: false,
+      rejected_reasons: [''],
+      device_id: 'CCC-cccc-id0',
+      human_readable_type: 'hdd',
+      osd_ids: [],
+    },
   ];
-  const initDevices = () => {
-    devices = data.map((datum: object) => {
-      return {
-        hostname: datum[0],
-        uid: datum[1],
-        blank: datum[2],
-        type: datum[3],
-        id: datum[4],
-        size: datum[5],
-        rotates: datum[6],
-        available: datum[7],
-        dev_id: datum[8],
-        extended: datum[9],
-        vendor: datum[10],
-        model: datum[11]
-      };
-    });
-    component.devices = devices;
-  };
 
   configureTestBed({
     imports: [FormsModule, SharedModule],
@@ -80,7 +124,7 @@ describe('InventoryDevicesComponent', () => {
 
   describe('with device data', () => {
     beforeEach(() => {
-      initDevices();
+      component.devices = devices;
       fixture.detectChanges();
     });
 

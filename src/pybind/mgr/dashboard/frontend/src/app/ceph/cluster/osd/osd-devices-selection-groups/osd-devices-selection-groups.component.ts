@@ -41,7 +41,7 @@ export class OsdDevicesSelectionGroupsComponent {
   constructor(private bsModalService: BsModalService) {}
 
   showSelectionModal() {
-    let filterColumns = ['type', 'vendor', 'model', 'size'];
+    let filterColumns = ['human_readable_type', 'sys_api.vendor', 'sys_api.model', 'sys_api.size'];
     if (this.type === 'data') {
       filterColumns = ['hostname', ...filterColumns];
     }

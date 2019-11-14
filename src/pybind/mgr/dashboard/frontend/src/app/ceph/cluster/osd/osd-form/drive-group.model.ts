@@ -18,19 +18,22 @@ export class DriveGroup {
   constructor() {
     this.formatterService = new FormatterService();
     this.deviceSelectionAttrs = {
-      vendor: {
+      'sys_api.vendor': {
         name: 'vendor'
       },
-      model: {
-        name: 'id_model'
+      'sys_api.model': {
+        name: 'model'
       },
-      type: {
-        name: 'rotates',
+      'device_id': {
+        name: 'device_id'
+      },
+      'human_readable_type': {
+        name: 'rotational',
         formatter: (value: string) => {
           return value.toLowerCase() === 'hdd';
         }
       },
-      size: {
+      'sys_api.size': {
         name: 'size',
         formatter: (value: string) => {
           return this.formatterService

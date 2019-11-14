@@ -18,16 +18,19 @@ describe('OsdDevicesSelectionModalComponent', () => {
     {
       hostname: 'node0',
       uid: '1',
-      blank: false,
-      type: 'SSD',
-      id: '/dev/sda',
-      size: 1024,
-      rotates: false,
-      available: true,
-      dev_id: '',
-      extended: undefined,
-      vendor: 'AAA',
-      model: 'aaa'
+      path: 'sda',
+      sys_api: {
+        vendor: 'AAA',
+        model: 'aaa',
+        size: 1024,
+        rotational: 'false',
+        human_readable_size: '1 KB'
+      },
+      available: false,
+      rejected_reasons: [''],
+      device_id: 'AAA-aaa-id0',
+      human_readable_type: 'nvme/ssd',
+      osd_ids: [],
     }
   ];
 
