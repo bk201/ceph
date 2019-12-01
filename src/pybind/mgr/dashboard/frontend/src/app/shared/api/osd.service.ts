@@ -246,12 +246,24 @@ export class OsdService {
     return this.http.post(`${this.path}/${id}/destroy`, null);
   }
 
+  remove(ids: number[]) {
+    return this.http.post(`${this.path}/remove_osds`, { osd_ids: ids });
+  }
+
   safeToDestroy(ids: string) {
     interface SafeToDestroyResponse {
-      'safe-to-destroy': boolean;
+      is_safe_to_destroy: boolean;
       message?: string;
     }
     return this.http.get<SafeToDestroyResponse>(`${this.path}/safe_to_destroy?ids=${ids}`);
+  }
+
+  safeToRemove(ids: string) {
+    interface SafeToRemoveResponse {
+      is_safe_to_remove: boolean;
+      message?: string;
+    }
+    return this.http.get<SafeToRemoveResponse>(`${this.path}/safe_to_remove?ids=${ids}`);
   }
 
   getDevices(osdId: number) {

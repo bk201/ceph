@@ -2,11 +2,14 @@
 from __future__ import absolute_import
 import json
 import logging
-from . import ApiController, RESTController, Endpoint, ReadPermission, UpdatePermission
+from . import ApiController, RESTController, Endpoint
+from . import ReadPermission, UpdatePermission, DeletePermission
+from . import health
 from .. import mgr
 from ..security import Scope
 from ..services.ceph_service import CephService, SendCommandError
-from ..services.exception import handle_send_command_error
+from ..services.exception import handle_send_command_error, handle_orchestrator_error
+from ..services.orchestrator import OrchClient
 from ..tools import str_to_bool
 try:
     from typing import Dict, List, Any, Union  # noqa: F401 pylint: disable=unused-import
@@ -211,6 +214,33 @@ class Osd(RESTController):
                 'message': str(e),
                 'is_safe_to_destroy': False,
             }
+
+    @Endpoint('GET', query_params=['ids'])
+    @ReadPermission
+    def safe_to_remove(self, ids):
+        """
+        :type ids: int|[int]
+        """
+        # Unused now, might be useful for individual OSD checks in the future
+        _ = ids
+
+        # Check if there are any OSDs exceeds nearfull or full threshold.
+        all_health = health.HealthData(self._has_permissions, minimal=True).all_health()
+        checks = {c['type'] for c in all_health['health']['checks']}
+        unsafe_checks = set(['OSD_FULL', 'OSD_BACKFILLFULL', 'OSD_NEARFULL'])
+        failed_checks = checks & unsafe_checks
+        return {
+            'is_safe_to_remove': not bool(failed_checks),
+            'message': 'Removing OSD(s) is not recommended with these health checks: {}.'.
+                       format(', '.join(failed_checks)) if failed_checks else ''
+        }
+
+    @Endpoint('POST')
+    @DeletePermission
+    @handle_orchestrator_error('osd')
+    def remove_osds(self, osd_ids):
+        orch = OrchClient.instance()
+        orch.osds.remove(osd_ids)
 
     @RESTController.Resource('GET')
     def devices(self, svc_id):

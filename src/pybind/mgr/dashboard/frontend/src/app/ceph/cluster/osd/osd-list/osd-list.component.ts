@@ -138,6 +138,10 @@ export class OsdListComponent implements OnInit {
             this.i18n('Mark'),
             this.i18n('OSD lost'),
             this.i18n('marked lost'),
+            (ids: number[]) => {
+              return this.osdService.safeToDestroy(JSON.stringify(ids));
+            },
+            'is_safe_to_destroy',
             this.osdService.markLost
           ),
         disable: () => this.isNotSelectedOrInState('up'),
@@ -151,7 +155,11 @@ export class OsdListComponent implements OnInit {
             this.i18n('Purge'),
             this.i18n('OSD'),
             this.i18n('purged'),
-            (id) => {
+            (ids: number[]) => {
+              return this.osdService.safeToDestroy(JSON.stringify(ids));
+            },
+            'is_safe_to_destroy',
+            (id: number) => {
               this.selection = new CdTableSelection();
               return this.osdService.purge(id);
             }
@@ -167,12 +175,37 @@ export class OsdListComponent implements OnInit {
             this.i18n('destroy'),
             this.i18n('OSD'),
             this.i18n('destroyed'),
-            (id) => {
+            (ids: number[]) => {
+              return this.osdService.safeToDestroy(JSON.stringify(ids));
+            },
+            'is_safe_to_destroy',
+            (id: number) => {
               this.selection = new CdTableSelection();
               return this.osdService.destroy(id);
             }
           ),
         disable: () => this.isNotSelectedOrInState('up'),
+        icon: Icons.destroy
+      },
+      {
+        name: this.actionLabels.REMOVE,
+        permission: 'delete',
+        click: () =>
+          this.showCriticalConfirmationModal(
+            this.i18n('remove'),
+            this.i18n('OSD'),
+            this.i18n('removed'),
+            (ids: number[]) => {
+              return this.osdService.safeToRemove(JSON.stringify(ids));
+            },
+            'is_safe_to_remove',
+            (ids: number[]) => {
+              this.selection = new CdTableSelection();
+              return this.osdService.remove(ids);
+            },
+            true
+          ),
+        disable: () => !this.hasOsdSelected,
         icon: Icons.destroy
       }
     ];
@@ -347,26 +380,48 @@ export class OsdListComponent implements OnInit {
     });
   }
 
+  /**
+   * Perform check first and display a critical confirmation modal.
+   * @param {string} actionDescription name of the action.
+   * @param {string} itemDescription the item's name that the action operates on.
+   * @param {string} templateItemDescription the action name to be displayed in modal template.
+   * @param {Function} check the function is called to check if the action is safe.
+   * @param {string} checkKey the safe indicator's key in the check response.
+   * @param {Function} action the action function.
+   * @param {boolean} oneshot if true, action function is called with all items as parameter.
+   *   Otherwise, multiple action functions with individual items are sent.
+   */
   showCriticalConfirmationModal(
     actionDescription: string,
     itemDescription: string,
     templateItemDescription: string,
-    action: (id: number) => Observable<any>
+    check: (ids: number[]) => Observable<any>,
+    checkKey: string,
+    action: (id: number | number[]) => Observable<any>,
+    oneshot?: boolean
   ): void {
-    this.osdService.safeToDestroy(JSON.stringify(this.getSelectedOsdIds())).subscribe((result) => {
+    check(this.getSelectedOsdIds()).subscribe((result) => {
       const modalRef = this.modalService.show(CriticalConfirmationModalComponent, {
         initialState: {
           actionDescription: actionDescription,
           itemDescription: itemDescription,
           bodyTemplate: this.criticalConfirmationTpl,
           bodyContext: {
-            result: result,
+            safeToPerform: result[checkKey],
+            message: result.message,
             actionDescription: templateItemDescription
           },
           submitAction: () => {
-            observableForkJoin(
-              this.getSelectedOsdIds().map((osd: any) => action.call(this.osdService, osd))
-            ).subscribe(
+            let observable: Observable<any>;
+            const osdIds = this.getSelectedOsdIds();
+            if (oneshot) {
+              observable = action(osdIds);
+            } else {
+              observable = observableForkJoin(
+                osdIds.map((osd: any) => action.call(this.osdService, osd))
+              );
+            }
+            observable.subscribe(
               () => {
                 this.getOsdList();
                 modalRef.hide();

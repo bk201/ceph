@@ -247,7 +247,8 @@ describe('OsdListComponent', () => {
           'Mark Down',
           'Mark Lost',
           'Purge',
-          'Destroy'
+          'Destroy',
+          'Remove'
         ],
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Create' }
       },
@@ -256,7 +257,7 @@ describe('OsdListComponent', () => {
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Create' }
       },
       'create,delete': {
-        actions: ['Create', 'Mark Lost', 'Purge', 'Destroy'],
+        actions: ['Create', 'Mark Lost', 'Purge', 'Destroy', 'Remove'],
         primary: {
           multiple: 'Create',
           executing: 'Mark Lost',
@@ -278,7 +279,8 @@ describe('OsdListComponent', () => {
           'Mark Down',
           'Mark Lost',
           'Purge',
-          'Destroy'
+          'Destroy',
+          'Remove'
         ],
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Scrub' }
       },
@@ -287,7 +289,7 @@ describe('OsdListComponent', () => {
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Scrub' }
       },
       delete: {
-        actions: ['Mark Lost', 'Purge', 'Destroy'],
+        actions: ['Mark Lost', 'Purge', 'Destroy', 'Remove'],
         primary: {
           multiple: 'Mark Lost',
           executing: 'Mark Lost',
