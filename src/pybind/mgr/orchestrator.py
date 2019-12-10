@@ -18,6 +18,7 @@ import copy
 import re
 import six
 import errno
+import json
 
 from ceph.deployment import inventory
 
@@ -888,6 +889,31 @@ class Orchestrator(object):
         """
         raise NotImplementedError()
 
+    def check_remove_osds(self, osd_ids):
+        # type: (List[str]) -> TypedDict('OrchCheck', {'safe': bool, 'message'?: str})
+        """
+        Check if it's safe to remove OSD(s).
+
+        The implementation in the base class provides a general check, individual
+        backend implementaions can have their own checks.
+
+        :param osd_ids: list of OSD IDs
+        :return: a dictionary contains the following attributes:
+            `safe`: bool, indicate if it's safe to remove OSDs.
+            `message`: str, help message if it's not safe to remove OSDs.
+        """
+        _ = osd_ids
+        health_data = self.get('health')
+        health = json.loads(health_data['json'])
+        checks = health['checks'].keys()
+        unsafe_checks = set(['OSD_FULL', 'OSD_BACKFILLFULL', 'OSD_NEARFULL'])
+        failed_checks = checks & unsafe_checks
+        return {
+            'safe': not bool(failed_checks),
+            'message': 'Deleting OSD(s) is not recommended because of these health check(s): {}.'.
+                       format(', '.join(failed_checks)) if failed_checks else ''
+        }
+
     def blink_device_light(self, ident_fault, on, locations):
         # type: (str, bool, List[DeviceLightLoc]) -> Completion
         """
@@ -1463,6 +1489,10 @@ class OrchestratorClientMixin(Orchestrator):
                 time.sleep(1)
             else:
                 break
+
+    def _orchestrator_apply(self, completions):
+        while any(not c.has_result for c in completions):
+            self.process(completions)
 
 
 class OutdatableData(object):

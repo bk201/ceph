@@ -8,7 +8,7 @@ import { forkJoin as observableForkJoin, Observable } from 'rxjs';
 import { OsdService } from '../../../../shared/api/osd.service';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { CriticalConfirmationModalComponent } from '../../../../shared/components/critical-confirmation-modal/critical-confirmation-modal.component';
-import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
+import { ActionLabelsI18n, URLVerbs } from '../../../../shared/constants/app.constants';
 import { TableComponent } from '../../../../shared/datatable/table/table.component';
 import { CellTemplate } from '../../../../shared/enum/cell-template.enum';
 import { Icons } from '../../../../shared/enum/icons.enum';
@@ -181,31 +181,30 @@ export class OsdListComponent implements OnInit {
             'is_safe_to_destroy',
             (id: number) => {
               this.selection = new CdTableSelection();
-              return this.osdService.destroy(id);
+              return this.osdService.delete(id, true);
             }
           ),
         disable: () => this.isNotSelectedOrInState('up'),
         icon: Icons.destroy
       },
       {
-        name: this.actionLabels.REMOVE,
+        name: this.actionLabels.DELETE,
         permission: 'delete',
         click: () =>
           this.showCriticalConfirmationModal(
-            this.i18n('remove'),
+            this.i18n('delete'),
             this.i18n('OSD'),
-            this.i18n('removed'),
+            this.i18n('deleted'),
             (ids: number[]) => {
-              return this.osdService.safeToRemove(JSON.stringify(ids));
+              return this.osdService.safeToDelete(JSON.stringify(ids));
             },
-            'is_safe_to_remove',
-            (ids: number[]) => {
+            'is_safe_to_delete',
+            (id: number) => {
               this.selection = new CdTableSelection();
-              return this.osdService.remove(ids);
-            },
-            true
+              return this.osdService.delete(id, true);
+            }
           ),
-        disable: () => !this.hasOsdSelected,
+        disable: () => !this.hasOsdSelected || !this.selection.hasSingleSelection,
         icon: Icons.destroy
       }
     ];
@@ -398,7 +397,6 @@ export class OsdListComponent implements OnInit {
     check: (ids: number[]) => Observable<any>,
     checkKey: string,
     action: (id: number | number[]) => Observable<any>,
-    oneshot?: boolean
   ): void {
     check(this.getSelectedOsdIds()).subscribe((result) => {
       const modalRef = this.modalService.show(CriticalConfirmationModalComponent, {
@@ -412,16 +410,9 @@ export class OsdListComponent implements OnInit {
             actionDescription: templateItemDescription
           },
           submitAction: () => {
-            let observable: Observable<any>;
-            const osdIds = this.getSelectedOsdIds();
-            if (oneshot) {
-              observable = action(osdIds);
-            } else {
-              observable = observableForkJoin(
-                osdIds.map((osd: any) => action.call(this.osdService, osd))
-              );
-            }
-            observable.subscribe(
+            observableForkJoin(
+              this.getSelectedOsdIds().map((osd: any) => action.call(this.osdService, osd))
+            ).subscribe(
               () => {
                 this.getOsdList();
                 modalRef.hide();

@@ -4,8 +4,10 @@ import json
 import logging
 from . import ApiController, RESTController, Endpoint
 from . import ReadPermission, UpdatePermission, DeletePermission
-from . import health
+from . import Task
+from .orchestrator import raise_if_no_orchestrator
 from .. import mgr
+from ..exceptions import DashboardException
 from ..security import Scope
 from ..services.ceph_service import CephService, SendCommandError
 from ..services.exception import handle_send_command_error, handle_orchestrator_error
@@ -18,6 +20,10 @@ except ImportError:
 
 
 logger = logging.getLogger('controllers.osd')
+
+
+def osd_task(name, metadata, wait_for=2.0):
+    return Task("osd/{}".format(name), metadata, wait_for)
 
 
 @ApiController('/osd', Scope.OSD)
@@ -105,6 +111,19 @@ class Osd(RESTController):
             'osd_metadata': mgr.get_metadata('osd', svc_id),
             'histogram': histogram,
         }
+
+    # @osd_task('delete', ['{svc_id}'])
+    @DeletePermission
+    @raise_if_no_orchestrator
+    @handle_orchestrator_error('osd')
+    def delete(self, svc_id, force=None):
+        logger.error('kf: remove osd: %s, force: %s', svc_id, force)
+        orch = OrchClient.instance()
+        if not force:
+            check = orch.osds.check_remove([svc_id])
+            if not check['safe']:
+                raise DashboardException(component='osd', msg=check['message'])
+        orch.osds.remove([svc_id])
 
     @RESTController.Resource('POST', query_params=['deep'])
     @UpdatePermission
@@ -215,32 +234,20 @@ class Osd(RESTController):
                 'is_safe_to_destroy': False,
             }
 
-    @Endpoint('GET', query_params=['ids'])
+    @Endpoint('GET', query_params=['svc_ids'])
     @ReadPermission
-    def safe_to_remove(self, ids):
+    @raise_if_no_orchestrator
+    @handle_orchestrator_error('osd')
+    def safe_to_delete(self, svc_ids):
         """
         :type ids: int|[int]
         """
-        # Unused now, might be useful for individual OSD checks in the future
-        _ = ids
-
-        # Check if there are any OSDs exceeds nearfull or full threshold.
-        all_health = health.HealthData(self._has_permissions, minimal=True).all_health()
-        checks = {c['type'] for c in all_health['health']['checks']}
-        unsafe_checks = set(['OSD_FULL', 'OSD_BACKFILLFULL', 'OSD_NEARFULL'])
-        failed_checks = checks & unsafe_checks
-        return {
-            'is_safe_to_remove': not bool(failed_checks),
-            'message': 'Removing OSD(s) is not recommended with these health checks: {}.'.
-                       format(', '.join(failed_checks)) if failed_checks else ''
-        }
-
-    @Endpoint('POST')
-    @DeletePermission
-    @handle_orchestrator_error('osd')
-    def remove_osds(self, osd_ids):
         orch = OrchClient.instance()
-        orch.osds.remove(osd_ids)
+        check = orch.osds.check_remove([svc_ids])
+        return {
+            'is_safe_to_delete': check.get('safe', False),
+            'message': check.get('message', '')
+        }
 
     @RESTController.Resource('GET')
     def devices(self, svc_id):

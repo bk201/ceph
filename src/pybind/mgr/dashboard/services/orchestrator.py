@@ -30,6 +30,9 @@ class OrchestratorAPI(OrchestratorClientMixin):
     def orchestrator_wait(self, completions):
         return self._orchestrator_wait(completions)
 
+    def orchestrator_apply(self, completions):
+        return self._orchestrator_apply(completions)
+
 
 def wait_api_result(method):
     @wraps(method)
@@ -38,6 +41,14 @@ def wait_api_result(method):
         self.api.orchestrator_wait([completion])
         raise_if_exception(completion)
         return completion.result
+    return inner
+
+
+def apply_api(method):
+    @wraps(method)
+    def inner(self, *args, **kwargs):
+        completion = method(self, *args, **kwargs)
+        self.api.orchestrator_apply([completion])
     return inner
 
 
@@ -97,9 +108,12 @@ class OsdManager(ResourceManager):
     def create(self, drive_group):
         return self.api.create_osds(drive_group)
 
-    @wait_api_result
+    @apply_api
     def remove(self, osd_ids):
         return self.api.remove_osds(osd_ids)
+
+    def check_remove(self, osd_ids):
+        return self.api.check_remove_osds(osd_ids)
 
 
 class OrchClient(object):
