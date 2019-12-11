@@ -69,7 +69,13 @@ describe('OsdListComponent', () => {
    */
   const mockSafeToDestroy = () => {
     spyOn(TestBed.get(OsdService), 'safeToDestroy').and.callFake(() =>
-      of({ 'safe-to-destroy': true })
+      of({ is_safe_to_destroy: true })
+    );
+  };
+
+  const mockSafeToDelete = () => {
+    spyOn(TestBed.get(OsdService), 'safeToDelete').and.callFake(() =>
+      of({ is_safe_to_delete: true })
     );
   };
 
@@ -247,7 +253,8 @@ describe('OsdListComponent', () => {
           'Mark Down',
           'Mark Lost',
           'Purge',
-          'Destroy'
+          'Destroy',
+          'Delete'
         ],
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Create' }
       },
@@ -256,7 +263,7 @@ describe('OsdListComponent', () => {
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Create' }
       },
       'create,delete': {
-        actions: ['Create', 'Mark Lost', 'Purge', 'Destroy'],
+        actions: ['Create', 'Mark Lost', 'Purge', 'Destroy', 'Delete'],
         primary: {
           multiple: 'Create',
           executing: 'Mark Lost',
@@ -278,7 +285,8 @@ describe('OsdListComponent', () => {
           'Mark Down',
           'Mark Lost',
           'Purge',
-          'Destroy'
+          'Destroy',
+          'Delete'
         ],
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Scrub' }
       },
@@ -287,7 +295,7 @@ describe('OsdListComponent', () => {
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Scrub' }
       },
       delete: {
-        actions: ['Mark Lost', 'Purge', 'Destroy'],
+        actions: ['Mark Lost', 'Purge', 'Destroy', 'Delete'],
         primary: {
           multiple: 'Mark Lost',
           executing: 'Mark Lost',
@@ -363,13 +371,22 @@ describe('OsdListComponent', () => {
       expectOpensModal('Mark Lost', modalClass);
       expectOpensModal('Purge', modalClass);
       expectOpensModal('Destroy', modalClass);
+      mockSafeToDelete();
+      expectOpensModal('Delete', modalClass);
     });
   });
 
   describe('tests if the correct methods are called on confirmation', () => {
     const expectOsdServiceMethodCalled = (
       actionName: string,
-      osdServiceMethodName: 'markOut' | 'markIn' | 'markDown' | 'markLost' | 'purge' | 'destroy'
+      osdServiceMethodName:
+        | 'markOut'
+        | 'markIn'
+        | 'markDown'
+        | 'markLost'
+        | 'purge'
+        | 'destroy'
+        | 'delete'
     ): void => {
       const osdServiceSpy = spyOn(osdService, osdServiceMethodName).and.callFake(() => EMPTY);
       openActionModal(actionName);
@@ -396,6 +413,8 @@ describe('OsdListComponent', () => {
       expectOsdServiceMethodCalled('Mark Lost', 'markLost');
       expectOsdServiceMethodCalled('Purge', 'purge');
       expectOsdServiceMethodCalled('Destroy', 'destroy');
+      mockSafeToDelete();
+      expectOsdServiceMethodCalled('Delete', 'delete');
     });
   });
 });
