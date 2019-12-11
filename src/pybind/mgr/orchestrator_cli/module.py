@@ -367,15 +367,20 @@ Usage:
 
     @orchestrator._cli_write_command(
         'orchestrator osd rm',
-        "name=svc_id,type=CephString,n=N",
+        'name=svc_ids,type=CephString,n=N '
+        'name=force,type=CephBool,req=false',
         'Remove OSD services')
-    def _osd_rm(self, svc_id):
+    def _osd_rm(self, svc_ids, force=False):
         # type: (List[str]) -> HandleCommandResult
         """
-        Remove OSD's
+        Remove OSDs
         :cmd : Arguments for remove the osd
         """
-        completion = self.remove_osds(svc_id)
+        if not force:
+            check = self.check_remove_osds(svc_ids)
+            if not check['safe']:
+                return HandleCommandResult(stdout=check['message'])
+        completion = self.remove_osds(svc_ids)
         self._orchestrator_wait([completion])
         orchestrator.raise_if_exception(completion)
         return HandleCommandResult(stdout=completion.result_str())
