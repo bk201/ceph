@@ -410,6 +410,12 @@ export class TaskMessageService {
     });
   }
 
+  osd(metadata) {
+    return this.i18n(`OSD '{{svc_id}}'`, {
+      svc_id: metadata.svc_id
+    });
+  }
+
   pool(metadata) {
     return this.i18n(`pool '{{pool_name}}'`, {
       pool_name: metadata.pool_name
