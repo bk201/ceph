@@ -1469,6 +1469,12 @@ class OrchestratorClientMixin(Orchestrator):
             else:
                 break
 
+    def _orchestrator_apply_async(self, completions):
+        # type: (List[Completion]) -> None
+        """Apply completions without waiting."""
+        while any(not c.has_result for c in completions):
+            self.process(completions)
+
 
 class OutdatableData(object):
     DATEFMT = '%Y-%m-%d %H:%M:%S.%f'
