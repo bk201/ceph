@@ -2,11 +2,15 @@
 from __future__ import absolute_import
 import json
 import logging
-from . import ApiController, RESTController, Endpoint, ReadPermission, UpdatePermission
+from . import ApiController, RESTController, Endpoint
+from . import ReadPermission, UpdatePermission, DeletePermission
+from .orchestrator import raise_if_no_orchestrator
 from .. import mgr
+from ..exceptions import DashboardException
 from ..security import Scope
 from ..services.ceph_service import CephService, SendCommandError
-from ..services.exception import handle_send_command_error
+from ..services.exception import handle_send_command_error, handle_orchestrator_error
+from ..services.orchestrator import OrchClient
 from ..tools import str_to_bool
 try:
     from typing import Dict, List, Any, Union  # noqa: F401 pylint: disable=unused-import
@@ -102,6 +106,20 @@ class Osd(RESTController):
             'osd_metadata': mgr.get_metadata('osd', svc_id),
             'histogram': histogram,
         }
+
+    @DeletePermission
+    @raise_if_no_orchestrator
+    @handle_orchestrator_error('osd')
+    def delete(self, svc_id, force=None):
+        orch = OrchClient.instance()
+        if not force:
+            logger.info('Check for removing osd.%s...', svc_id)
+            check = orch.osds.check_remove([svc_id])
+            if not check['safe']:
+                logger.error('Unable to remove osd.%s: %s', svc_id, check['message'])
+                raise DashboardException(component='osd', msg=check['message'])
+        logger.info('Start removing osd.%s...', svc_id)
+        orch.osds.remove([svc_id])
 
     @RESTController.Resource('POST', query_params=['deep'])
     @UpdatePermission
@@ -211,6 +229,21 @@ class Osd(RESTController):
                 'message': str(e),
                 'is_safe_to_destroy': False,
             }
+
+    @Endpoint('GET', query_params=['svc_ids'])
+    @ReadPermission
+    @raise_if_no_orchestrator
+    @handle_orchestrator_error('osd')
+    def safe_to_remove(self, svc_ids):
+        """
+        :type ids: int|[int]
+        """
+        orch = OrchClient.instance()
+        check = orch.osds.check_remove([svc_ids])
+        return {
+            'is_safe_to_remove': check.get('safe', False),
+            'message': check.get('message', '')
+        }
 
     @RESTController.Resource('GET')
     def devices(self, svc_id):

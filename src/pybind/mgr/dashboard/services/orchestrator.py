@@ -27,17 +27,30 @@ class OrchestratorAPI(OrchestratorClientMixin):
             return dict(available=False,
                         description='Orchestrator is unavailable for unknown reason')
 
-    def orchestrator_wait(self, completions):
+    def apply(self, completions):
         return self._orchestrator_wait(completions)
 
+    def apply_async(self, completions):
+        return self._orchestrator_apply_async(completions)
 
-def wait_api_result(method):
+
+def apply(method):
+    """Wait for the result of an orchestrator call."""
     @wraps(method)
     def inner(self, *args, **kwargs):
         completion = method(self, *args, **kwargs)
-        self.api.orchestrator_wait([completion])
+        self.api.apply([completion])
         raise_if_exception(completion)
         return completion.result
+    return inner
+
+
+def apply_async(method):
+    """Send an orchestrator call without waiting for the result."""
+    @wraps(method)
+    def inner(self, *args, **kwargs):
+        completion = method(self, *args, **kwargs)
+        self.api.apply_async([completion])
     return inner
 
 
@@ -48,7 +61,7 @@ class ResourceManager(object):
 
 class HostManger(ResourceManager):
 
-    @wait_api_result
+    @apply
     def list(self):
         return self.api.get_hosts()
 
@@ -56,18 +69,18 @@ class HostManger(ResourceManager):
         hosts = [host for host in self.list() if host.name == hostname]
         return hosts[0] if hosts else None
 
-    @wait_api_result
+    @apply
     def add(self, hostname):
         return self.api.add_host(hostname)
 
-    @wait_api_result
+    @apply
     def remove(self, hostname):
         return self.api.remove_host(hostname)
 
 
 class InventoryManager(ResourceManager):
 
-    @wait_api_result
+    @apply
     def list(self, hosts=None, refresh=False):
         node_filter = InventoryFilter(nodes=hosts) if hosts else None
         return self.api.get_inventory(node_filter=node_filter, refresh=refresh)
@@ -75,7 +88,7 @@ class InventoryManager(ResourceManager):
 
 class ServiceManager(ResourceManager):
 
-    @wait_api_result
+    @apply
     def list(self, service_type=None, service_id=None, node_name=None):
         return self.api.describe_service(service_type, service_id, node_name)
 
@@ -86,16 +99,23 @@ class ServiceManager(ResourceManager):
         completion_list = [self.api.service_action('reload', service_type,
                                                    service_name, service_id)
                            for service_name, service_id in service_ids]
-        self.api.orchestrator_wait(completion_list)
+        self.api.apply(completion_list)
         for c in completion_list:
             raise_if_exception(c)
 
 
 class OsdManager(ResourceManager):
 
-    @wait_api_result
+    @apply_async
     def create(self, drive_group):
         return self.api.create_osds(drive_group)
+
+    @apply_async
+    def remove(self, osd_ids):
+        return self.api.remove_osds(osd_ids)
+
+    def check_remove(self, osd_ids):
+        return self.api.check_remove_osds(osd_ids)
 
 
 class OrchClient(object):
