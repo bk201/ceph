@@ -20,6 +20,7 @@ import copy
 import re
 import six
 import errno
+import json
 
 from ceph.deployment import inventory
 
@@ -29,7 +30,7 @@ from mgr_util import format_bytes
 try:
     from ceph.deployment.drive_group import DriveGroupSpec
     from typing import TypeVar, Generic, List, Optional, Union, Tuple, Iterator, Callable, Any, \
-        Type, Sequence
+        Type, Sequence, Dict
 except ImportError:
     pass
 
@@ -939,6 +940,31 @@ class Orchestrator(object):
                 to obtain the list of hosts where to apply the operation
         """
         raise NotImplementedError()
+
+    def check_remove_osds(self, osd_ids):
+        # type: (List[str]) -> Dict[str, Any]
+        """
+        Check if it's safe to remove OSD(s).
+
+        The implementation in the base class provides a general check, individual
+        backend implementaions can have their own checks.
+
+        :param osd_ids: list of OSD IDs
+        :return: a dictionary contains the following attributes:
+            `safe`: bool, indicate if it's safe to remove OSDs.
+            `message`: str, help message if it's not safe to remove OSDs.
+        """
+        _ = osd_ids
+        health_data = self.get('health') # type: ignore
+        health = json.loads(health_data['json'])
+        checks = health['checks'].keys()
+        unsafe_checks = set(['OSD_FULL', 'OSD_BACKFILLFULL', 'OSD_NEARFULL'])
+        failed_checks = checks & unsafe_checks
+        return {
+            'safe': not bool(failed_checks),
+            'message': 'Removing OSD(s) is not recommended because of these failed health check(s): {}.'.
+                       format(', '.join(failed_checks)) if failed_checks else ''
+        }
 
     def blink_device_light(self, ident_fault, on, locations):
         # type: (str, bool, List[DeviceLightLoc]) -> Completion
