@@ -97,6 +97,13 @@ class OsdManager(ResourceManager):
     def create(self, drive_group):
         return self.api.create_osds([drive_group])
 
+    @wait_api_result
+    def remove(self, osd_ids):
+        return self.api.remove_osds(osd_ids)
+
+    def check_remove(self, osd_ids):
+        return self.api.check_remove_osds(osd_ids)
+
 
 class OrchClient(object):
 
