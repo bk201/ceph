@@ -17,8 +17,7 @@ export class InventoryComponent implements OnChanges, OnInit {
 
   icons = Icons;
 
-  checkingOrchestrator = true;
-  orchestratorExist = false;
+  hasOrchestrator = false;
   docsUrl: string;
 
   devices: Array<InventoryDevice> = [];
@@ -31,32 +30,16 @@ export class InventoryComponent implements OnChanges, OnInit {
   ) {}
 
   ngOnInit() {
-    // duplicated code with grafana
-    const subs = this.summaryService.subscribe((summary: any) => {
-      if (!summary) {
-        return;
-      }
-
-      const releaseName = this.cephReleaseNamePipe.transform(summary.version);
-      this.docsUrl = `http://docs.ceph.com/docs/${releaseName}/mgr/orchestrator_cli/`;
-
-      setTimeout(() => {
-        subs.unsubscribe();
-      }, 0);
-    });
-
-    this.orchService.status().subscribe((data: { available: boolean }) => {
-      this.orchestratorExist = data.available;
-      this.checkingOrchestrator = false;
-
-      if (this.orchestratorExist) {
+    this.orchService.status().subscribe((status) => {
+      this.hasOrchestrator = status.available;
+      if (status.available) {
         this.getInventory();
       }
     });
   }
 
   ngOnChanges() {
-    if (this.orchestratorExist) {
+    if (this.hasOrchestrator) {
       this.devices = [];
       this.getInventory();
     }

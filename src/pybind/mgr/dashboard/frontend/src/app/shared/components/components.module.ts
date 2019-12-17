@@ -32,6 +32,8 @@ import { SparklineComponent } from './sparkline/sparkline.component';
 import { SubmitButtonComponent } from './submit-button/submit-button.component';
 import { UsageBarComponent } from './usage-bar/usage-bar.component';
 import { ViewCacheComponent } from './view-cache/view-cache.component';
+import { OrchestratorComponentDoc } from './orchestrator/orchestrator-doc.component';
+import { OrchestratorModalComponent } from './orchestrator-modal/orchestrator-modal.component';
 
 @NgModule({
   imports: [
@@ -69,7 +71,9 @@ import { ViewCacheComponent } from './view-cache/view-cache.component';
     RefreshSelectorComponent,
     ConfigOptionComponent,
     AlertPanelComponent,
-    FormModalComponent
+    FormModalComponent,
+    OrchestratorComponentDoc,
+    OrchestratorModalComponent
   ],
   providers: [],
   exports: [
@@ -88,7 +92,8 @@ import { ViewCacheComponent } from './view-cache/view-cache.component';
     SelectComponent,
     RefreshSelectorComponent,
     ConfigOptionComponent,
-    AlertPanelComponent
+    AlertPanelComponent,
+    OrchestratorComponentDoc
   ],
   entryComponents: [
     ModalComponent,

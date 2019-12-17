@@ -29,6 +29,7 @@ import { SsoNotFoundComponent } from './core/auth/sso/sso-not-found/sso-not-foun
 import { UserPasswordFormComponent } from './core/auth/user-password-form/user-password-form.component';
 import { ForbiddenComponent } from './core/forbidden/forbidden.component';
 import { NotFoundComponent } from './core/not-found/not-found.component';
+import { OrchestratorComponentDoc } from './shared/components/orchestrator/orchestrator-doc.component';
 import { ActionLabels, URLVerbs } from './shared/constants/app.constants';
 import { BreadcrumbsResolver, IBreadcrumb } from './shared/models/breadcrumbs';
 import { AuthGuardService } from './shared/services/auth-guard.service';
@@ -294,6 +295,12 @@ const routes: Routes = [
   },
   // Single Sign-On (SSO)
   { path: 'sso/404', component: SsoNotFoundComponent },
+  // Orchestrator
+  {
+    path: 'orchestrator/doc',
+    component: OrchestratorComponentDoc,
+    data: { breadcrumbs: 'Orchestrator/Doc'}
+  },
   // System
   { path: 'login', component: LoginComponent },
   { path: 'logout', children: [] },

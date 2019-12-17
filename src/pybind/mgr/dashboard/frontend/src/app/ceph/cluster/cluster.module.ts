@@ -48,6 +48,7 @@ import { SilenceFormComponent } from './prometheus/silence-form/silence-form.com
 import { SilenceListComponent } from './prometheus/silence-list/silence-list.component';
 import { SilenceMatcherModalComponent } from './prometheus/silence-matcher-modal/silence-matcher-modal.component';
 import { ServicesComponent } from './services/services.component';
+import { OrchestratorModalComponent } from '../../shared/components/orchestrator-modal/orchestrator-modal.component';
 
 @NgModule({
   entryComponents: [
@@ -60,7 +61,8 @@ import { ServicesComponent } from './services/services.component';
     OsdReweightModalComponent,
     SilenceMatcherModalComponent,
     OsdDevicesSelectionModalComponent,
-    OsdCreationPreviewModalComponent
+    OsdCreationPreviewModalComponent,
+    OrchestratorModalComponent
   ],
   imports: [
     CommonModule,

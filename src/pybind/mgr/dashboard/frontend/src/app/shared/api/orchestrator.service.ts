@@ -2,12 +2,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import * as _ from 'lodash';
-import { Observable, of as observableOf } from 'rxjs';
+import { Observable, of as observableOf, Subscriber } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
 import { InventoryDevice } from '../../ceph/cluster/inventory/inventory-devices/inventory-device.model';
 import { InventoryNode } from '../../ceph/cluster/inventory/inventory-node.model';
 import { ApiModule } from './api.module';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: ApiModule
@@ -18,10 +19,15 @@ export class OrchestratorService {
   serviceURL = 'api/orchestrator/service';
   osdURL = 'api/orchestrator/osd';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,
+              private router: Router) {}
 
-  status() {
-    return this.http.get(this.statusURL);
+  status(): Observable<{available: boolean, description: string}> {
+    return this.http.get<{available: boolean, description: string}>(this.statusURL);
+  }
+
+  navDoc() {
+    this.router.navigate(['/orchestrator/doc']);
   }
 
   inventoryList(hostname?: string): Observable<InventoryNode[]> {
