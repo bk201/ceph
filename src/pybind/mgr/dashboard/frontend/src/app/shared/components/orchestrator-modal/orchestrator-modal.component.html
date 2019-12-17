@@ -1,0 +1,16 @@
+<cd-modal [modalRef]="bsModalRef">
+  <ng-container class="modal-title"
+                i18n>No orchestrator configured</ng-container>
+
+  <ng-container class="modal-content">
+    <div class="modal-body">
+      <cd-orchestrator-doc></cd-orchestrator-doc>
+    </div>
+    <div class="modal-footer">
+      <cd-back-button [back]="bsModalRef.hide"
+                      name="Close"
+                      i18n-name>
+      </cd-back-button>
+    </div>
+  </ng-container>
+</cd-modal>

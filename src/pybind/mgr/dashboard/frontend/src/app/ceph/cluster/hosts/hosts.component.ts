@@ -6,6 +6,7 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { HostService } from '../../../shared/api/host.service';
 import { OrchestratorService } from '../../../shared/api/orchestrator.service';
 import { CriticalConfirmationModalComponent } from '../../../shared/components/critical-confirmation-modal/critical-confirmation-modal.component';
+import { OrchestratorModalComponent } from '../../../shared/components/orchestrator-modal/orchestrator-modal.component';
 import { ActionLabelsI18n } from '../../../shared/constants/app.constants';
 import { Icons } from '../../../shared/enum/icons.enum';
 import { CdTableAction } from '../../../shared/models/cd-table-action';
@@ -32,7 +33,6 @@ export class HostsComponent implements OnInit {
   columns: Array<CdTableColumn> = [];
   hosts: Array<object> = [];
   isLoadingHosts = false;
-  orchestratorAvailable = false;
   cdParams = { fromLink: '/hosts' };
   tableActions: CdTableAction[];
   selection = new CdTableSelection();
@@ -58,17 +58,13 @@ export class HostsComponent implements OnInit {
         name: this.actionLabels.ADD,
         permission: 'create',
         icon: Icons.add,
-        routerLink: () => this.urlBuilder.getAdd(),
-        disable: () => !this.orchestratorAvailable,
-        disableDesc: () => this.getDisableDesc()
+        routerLink: () => this.urlBuilder.getAdd()
       },
       {
         name: this.actionLabels.REMOVE,
         permission: 'delete',
         icon: Icons.destroy,
-        click: () => this.deleteHostModal(),
-        disable: () => !this.orchestratorAvailable || !this.selection.hasSelection,
-        disableDesc: () => this.getDisableDesc()
+        click: () => this.deleteHostModal()
       }
     ];
   }
@@ -93,10 +89,6 @@ export class HostsComponent implements OnInit {
         pipe: this.cephShortVersionPipe
       }
     ];
-
-    this.orchService.status().subscribe((data: { available: boolean }) => {
-      this.orchestratorAvailable = data.available;
-    });
   }
 
   updateSelection(selection: CdTableSelection) {
@@ -104,17 +96,23 @@ export class HostsComponent implements OnInit {
   }
 
   deleteHostModal() {
-    const hostname = this.selection.first().hostname;
-    this.modalRef = this.modalService.show(CriticalConfirmationModalComponent, {
-      initialState: {
-        itemDescription: 'Host',
-        itemNames: [hostname],
-        actionDescription: 'remove',
-        submitActionObservable: () =>
-          this.taskWrapper.wrapTaskAroundCall({
-            task: new FinishedTask('host/remove', { hostname: hostname }),
-            call: this.hostService.remove(hostname)
-          })
+    this.orchService.status().subscribe((status) => {
+      if (!status.available) {
+        this.modalService.show(OrchestratorModalComponent);
+      } else {
+        const hostname = this.selection.first().hostname;
+        this.modalRef = this.modalService.show(CriticalConfirmationModalComponent, {
+          initialState: {
+            itemDescription: 'Host',
+            itemNames: [hostname],
+            actionDescription: 'remove',
+            submitActionObservable: () =>
+              this.taskWrapper.wrapTaskAroundCall({
+                task: new FinishedTask('host/remove', { hostname: hostname }),
+                call: this.hostService.remove(hostname)
+              })
+          }
+        });
       }
     });
   }
@@ -152,11 +150,5 @@ export class HostsComponent implements OnInit {
         context.error();
       }
     );
-  }
-
-  getDisableDesc() {
-    if (!this.orchestratorAvailable) {
-      return this.i18n('Host operation is disabled because orchestrator is unavailable');
-    }
   }
 }

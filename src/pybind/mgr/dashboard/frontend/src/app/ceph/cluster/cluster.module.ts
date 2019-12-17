@@ -14,6 +14,7 @@ import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 
+import { OrchestratorModalComponent } from '../../shared/components/orchestrator-modal/orchestrator-modal.component';
 import { SharedModule } from '../../shared/shared.module';
 import { PerformanceCounterModule } from '../performance-counter/performance-counter.module';
 import { CephSharedModule } from '../shared/ceph-shared.module';
@@ -60,7 +61,8 @@ import { ServicesComponent } from './services/services.component';
     OsdReweightModalComponent,
     SilenceMatcherModalComponent,
     OsdDevicesSelectionModalComponent,
-    OsdCreationPreviewModalComponent
+    OsdCreationPreviewModalComponent,
+    OrchestratorModalComponent
   ],
   imports: [
     CommonModule,

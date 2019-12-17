@@ -20,8 +20,8 @@ export class OrchestratorService {
 
   constructor(private http: HttpClient) {}
 
-  status() {
-    return this.http.get(this.statusURL);
+  status(): Observable<{ available: boolean; description: string }> {
+    return this.http.get<{ available: boolean; description: string }>(this.statusURL);
   }
 
   inventoryList(hostname?: string): Observable<InventoryNode[]> {

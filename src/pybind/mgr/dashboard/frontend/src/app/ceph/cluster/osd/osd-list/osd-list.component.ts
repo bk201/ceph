@@ -5,9 +5,11 @@ import * as _ from 'lodash';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { forkJoin as observableForkJoin, Observable } from 'rxjs';
 
+import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { OsdService } from '../../../../shared/api/osd.service';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { CriticalConfirmationModalComponent } from '../../../../shared/components/critical-confirmation-modal/critical-confirmation-modal.component';
+import { OrchestratorModalComponent } from '../../../../shared/components/orchestrator-modal/orchestrator-modal.component';
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
 import { TableComponent } from '../../../../shared/datatable/table/table.component';
 import { CellTemplate } from '../../../../shared/enum/cell-template.enum';
@@ -76,6 +78,7 @@ export class OsdListComponent implements OnInit {
     private modalService: BsModalService,
     private i18n: I18n,
     private urlBuilder: URLBuilderService,
+    private orchService: OrchestratorService,
     public actionLabels: ActionLabelsI18n
   ) {
     this.permissions = this.authStorageService.getPermissions();
@@ -190,20 +193,28 @@ export class OsdListComponent implements OnInit {
       {
         name: this.actionLabels.REMOVE,
         permission: 'delete',
-        click: () =>
-          this.showCriticalConfirmationModal(
-            this.i18n('remove'),
-            this.i18n('OSD'),
-            this.i18n('removed'),
-            (ids: number[]) => {
-              return this.osdService.safeToRemove(JSON.stringify(ids));
-            },
-            'is_safe_to_remove',
-            (id: number) => {
-              this.selection = new CdTableSelection();
-              return this.osdService.remove(id, true);
+        click: () => {
+          this.orchService.status().subscribe((status) => {
+            if (!status.available) {
+              this.modalService.show(OrchestratorModalComponent);
+              // this.orchService.navDoc();
+            } else {
+              this.showCriticalConfirmationModal(
+                this.i18n('remove'),
+                this.i18n('OSD'),
+                this.i18n('removed'),
+                (ids: number[]) => {
+                  return this.osdService.safeToRemove(JSON.stringify(ids));
+                },
+                'is_safe_to_remove',
+                (id: number) => {
+                  this.selection = new CdTableSelection();
+                  return this.osdService.remove(id, true);
+                }
+              );
             }
-          ),
+          });
+        },
         disable: () => !this.hasOsdSelected || !this.selection.hasSingleSelection,
         icon: Icons.destroyCircle
       }

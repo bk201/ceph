@@ -25,6 +25,8 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
 import { LoadingPanelComponent } from './loading-panel/loading-panel.component';
 import { ModalComponent } from './modal/modal.component';
 import { NotificationsSidebarComponent } from './notifications-sidebar/notifications-sidebar.component';
+import { OrchestratorModalComponent } from './orchestrator-modal/orchestrator-modal.component';
+import { OrchestratorDocComponent } from './orchestrator/orchestrator-doc.component';
 import { RefreshSelectorComponent } from './refresh-selector/refresh-selector.component';
 import { SelectBadgesComponent } from './select-badges/select-badges.component';
 import { SelectComponent } from './select/select.component';
@@ -69,7 +71,9 @@ import { ViewCacheComponent } from './view-cache/view-cache.component';
     RefreshSelectorComponent,
     ConfigOptionComponent,
     AlertPanelComponent,
-    FormModalComponent
+    FormModalComponent,
+    OrchestratorDocComponent,
+    OrchestratorModalComponent
   ],
   providers: [],
   exports: [
@@ -88,7 +92,8 @@ import { ViewCacheComponent } from './view-cache/view-cache.component';
     SelectComponent,
     RefreshSelectorComponent,
     ConfigOptionComponent,
-    AlertPanelComponent
+    AlertPanelComponent,
+    OrchestratorDocComponent
   ],
   entryComponents: [
     ModalComponent,
