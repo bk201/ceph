@@ -8,6 +8,9 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
   styleUrls: ['./orchestrator-modal.component.scss']
 })
 export class OrchestratorModalComponent implements OnInit {
+  actionDescription: string;
+  itemDescription: string;
+
   constructor(public bsModalRef: BsModalRef) {}
 
   ngOnInit() {}

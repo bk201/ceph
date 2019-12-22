@@ -246,7 +246,7 @@ export class OsdService {
     return this.http.post(`${this.path}/${id}/destroy`, null);
   }
 
-  remove(id: number, force?: boolean) {
+  delete(id: number, force?: boolean) {
     const options = force ? { params: new HttpParams().set('force', 'true') } : {};
     return this.http.delete(`${this.path}/${id}`, options);
   }
@@ -259,12 +259,12 @@ export class OsdService {
     return this.http.get<SafeToDestroyResponse>(`${this.path}/safe_to_destroy?ids=${ids}`);
   }
 
-  safeToRemove(ids: string) {
-    interface SafeToRemoveResponse {
-      is_safe_to_remove: boolean;
+  safeToDelete(ids: string) {
+    interface SafeToDeleteResponse {
+      is_safe_to_delete: boolean;
       message?: string;
     }
-    return this.http.get<SafeToRemoveResponse>(`${this.path}/safe_to_remove?svc_ids=${ids}`);
+    return this.http.get<SafeToDeleteResponse>(`${this.path}/safe_to_delete?svc_ids=${ids}`);
   }
 
   getDevices(osdId: number) {

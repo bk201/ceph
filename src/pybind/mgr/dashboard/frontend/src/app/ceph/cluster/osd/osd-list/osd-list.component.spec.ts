@@ -15,6 +15,7 @@ import {
   PermissionHelper
 } from '../../../../../testing/unit-test-helper';
 import { CoreModule } from '../../../../core/core.module';
+import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { OsdService } from '../../../../shared/api/osd.service';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { CriticalConfirmationModalComponent } from '../../../../shared/components/critical-confirmation-modal/critical-confirmation-modal.component';
@@ -73,10 +74,14 @@ describe('OsdListComponent', () => {
     );
   };
 
-  const mockSafeToRemove = () => {
-    spyOn(TestBed.get(OsdService), 'safeToRemove').and.callFake(() =>
-      of({ is_safe_to_remove: true })
+  const mockSafeToDelete = () => {
+    spyOn(TestBed.get(OsdService), 'safeToDelete').and.callFake(() =>
+      of({ is_safe_to_delete: true })
     );
+  };
+
+  const mockOrchestratorStatus = () => {
+    spyOn(TestBed.get(OrchestratorService), 'status').and.callFake(() => of({ available: true }));
   };
 
   configureTestBed({
@@ -254,7 +259,7 @@ describe('OsdListComponent', () => {
           'Mark Lost',
           'Purge',
           'Destroy',
-          'Remove'
+          'Delete'
         ],
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Create' }
       },
@@ -263,7 +268,7 @@ describe('OsdListComponent', () => {
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Create' }
       },
       'create,delete': {
-        actions: ['Create', 'Mark Lost', 'Purge', 'Destroy', 'Remove'],
+        actions: ['Create', 'Mark Lost', 'Purge', 'Destroy', 'Delete'],
         primary: {
           multiple: 'Create',
           executing: 'Mark Lost',
@@ -286,7 +291,7 @@ describe('OsdListComponent', () => {
           'Mark Lost',
           'Purge',
           'Destroy',
-          'Remove'
+          'Delete'
         ],
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Scrub' }
       },
@@ -295,7 +300,7 @@ describe('OsdListComponent', () => {
         primary: { multiple: 'Scrub', executing: 'Scrub', single: 'Scrub', no: 'Scrub' }
       },
       delete: {
-        actions: ['Mark Lost', 'Purge', 'Destroy', 'Remove'],
+        actions: ['Mark Lost', 'Purge', 'Destroy', 'Delete'],
         primary: {
           multiple: 'Mark Lost',
           executing: 'Mark Lost',
@@ -371,8 +376,9 @@ describe('OsdListComponent', () => {
       expectOpensModal('Mark Lost', modalClass);
       expectOpensModal('Purge', modalClass);
       expectOpensModal('Destroy', modalClass);
-      mockSafeToRemove();
-      expectOpensModal('Remove', modalClass);
+      mockOrchestratorStatus();
+      mockSafeToDelete();
+      expectOpensModal('Delete', modalClass);
     });
   });
 
@@ -386,7 +392,7 @@ describe('OsdListComponent', () => {
         | 'markLost'
         | 'purge'
         | 'destroy'
-        | 'remove'
+        | 'delete'
     ): void => {
       const osdServiceSpy = spyOn(osdService, osdServiceMethodName).and.callFake(() => EMPTY);
       openActionModal(actionName);
@@ -413,8 +419,9 @@ describe('OsdListComponent', () => {
       expectOsdServiceMethodCalled('Mark Lost', 'markLost');
       expectOsdServiceMethodCalled('Purge', 'purge');
       expectOsdServiceMethodCalled('Destroy', 'destroy');
-      mockSafeToRemove();
-      expectOsdServiceMethodCalled('Remove', 'remove');
+      mockOrchestratorStatus();
+      mockSafeToDelete();
+      expectOsdServiceMethodCalled('Delete', 'delete');
     });
   });
 });

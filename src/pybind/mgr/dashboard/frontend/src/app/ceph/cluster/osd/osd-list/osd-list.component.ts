@@ -1,15 +1,14 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-
+import { Router } from '@angular/router';
 import { I18n } from '@ngx-translate/i18n-polyfill';
+
 import * as _ from 'lodash';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { forkJoin as observableForkJoin, Observable } from 'rxjs';
 
-import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { OsdService } from '../../../../shared/api/osd.service';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { CriticalConfirmationModalComponent } from '../../../../shared/components/critical-confirmation-modal/critical-confirmation-modal.component';
-import { OrchestratorModalComponent } from '../../../../shared/components/orchestrator-modal/orchestrator-modal.component';
 import { ActionLabelsI18n } from '../../../../shared/constants/app.constants';
 import { TableComponent } from '../../../../shared/datatable/table/table.component';
 import { CellTemplate } from '../../../../shared/enum/cell-template.enum';
@@ -20,6 +19,7 @@ import { CdTableSelection } from '../../../../shared/models/cd-table-selection';
 import { Permissions } from '../../../../shared/models/permissions';
 import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
 import { AuthStorageService } from '../../../../shared/services/auth-storage.service';
+import { DepCheckerService } from '../../../../shared/services/dep-checker.service';
 import { URLBuilderService } from '../../../../shared/services/url-builder.service';
 import { OsdFlagsModalComponent } from '../osd-flags-modal/osd-flags-modal.component';
 import { OsdPgScrubModalComponent } from '../osd-pg-scrub-modal/osd-pg-scrub-modal.component';
@@ -78,7 +78,8 @@ export class OsdListComponent implements OnInit {
     private modalService: BsModalService,
     private i18n: I18n,
     private urlBuilder: URLBuilderService,
-    private orchService: OrchestratorService,
+    private router: Router,
+    private depCheckerService: DepCheckerService,
     public actionLabels: ActionLabelsI18n
   ) {
     this.permissions = this.authStorageService.getPermissions();
@@ -87,7 +88,15 @@ export class OsdListComponent implements OnInit {
         name: this.actionLabels.CREATE,
         permission: 'create',
         icon: Icons.add,
-        routerLink: () => this.urlBuilder.getCreate(),
+        click: () => {
+          this.depCheckerService.checkOrchestratorOrModal(
+            this.actionLabels.CREATE,
+            this.i18n('OSD'),
+            () => {
+              this.router.navigate([this.urlBuilder.getCreate()]);
+            }
+          )
+        },
         canBePrimary: (selection: CdTableSelection) => !selection.hasSelection
       },
       {
@@ -187,36 +196,35 @@ export class OsdListComponent implements OnInit {
               return this.osdService.destroy(id);
             }
           ),
-        disable: () => this.isNotSelectedOrInState('up'),
-        icon: Icons.destroy
+        // disable: () => this.isNotSelectedOrInState('up'),
+        icon: Icons.destroyCircle
       },
       {
-        name: this.actionLabels.REMOVE,
+        name: this.actionLabels.DELETE,
         permission: 'delete',
         click: () => {
-          this.orchService.status().subscribe((status) => {
-            if (!status.available) {
-              this.modalService.show(OrchestratorModalComponent);
-              // this.orchService.navDoc();
-            } else {
+          this.depCheckerService.checkOrchestratorOrModal(
+            this.actionLabels.DELETE,
+            this.i18n('OSD'),
+            () => {
               this.showCriticalConfirmationModal(
-                this.i18n('remove'),
+                this.i18n('delete'),
                 this.i18n('OSD'),
-                this.i18n('removed'),
+                this.i18n('deleted'),
                 (ids: number[]) => {
-                  return this.osdService.safeToRemove(JSON.stringify(ids));
+                  return this.osdService.safeToDelete(JSON.stringify(ids));
                 },
-                'is_safe_to_remove',
+                'is_safe_to_delete',
                 (id: number) => {
                   this.selection = new CdTableSelection();
-                  return this.osdService.remove(id, true);
+                  return this.osdService.delete(id, true);
                 }
-              );
+              )
             }
-          });
+          )
         },
         disable: () => !this.hasOsdSelected || !this.selection.hasSingleSelection,
-        icon: Icons.destroyCircle
+        icon: Icons.destroy
       }
     ];
   }

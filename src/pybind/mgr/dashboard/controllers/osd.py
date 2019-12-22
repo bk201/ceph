@@ -234,14 +234,14 @@ class Osd(RESTController):
     @ReadPermission
     @raise_if_no_orchestrator
     @handle_orchestrator_error('osd')
-    def safe_to_remove(self, svc_ids):
+    def safe_to_delete(self, svc_ids):
         """
         :type ids: int|[int]
         """
         orch = OrchClient.instance()
         check = orch.osds.check_remove([svc_ids])
         return {
-            'is_safe_to_remove': check.get('safe', False),
+            'is_safe_to_delete': check.get('safe', False),
             'message': check.get('message', '')
         }
 

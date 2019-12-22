@@ -1,12 +1,11 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { I18n } from '@ngx-translate/i18n-polyfill';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 import { HostService } from '../../../shared/api/host.service';
-import { OrchestratorService } from '../../../shared/api/orchestrator.service';
 import { CriticalConfirmationModalComponent } from '../../../shared/components/critical-confirmation-modal/critical-confirmation-modal.component';
-import { OrchestratorModalComponent } from '../../../shared/components/orchestrator-modal/orchestrator-modal.component';
 import { ActionLabelsI18n } from '../../../shared/constants/app.constants';
 import { Icons } from '../../../shared/enum/icons.enum';
 import { CdTableAction } from '../../../shared/models/cd-table-action';
@@ -17,6 +16,7 @@ import { FinishedTask } from '../../../shared/models/finished-task';
 import { Permissions } from '../../../shared/models/permissions';
 import { CephShortVersionPipe } from '../../../shared/pipes/ceph-short-version.pipe';
 import { AuthStorageService } from '../../../shared/services/auth-storage.service';
+import { DepCheckerService } from '../../../shared/services/dep-checker.service';
 import { TaskWrapperService } from '../../../shared/services/task-wrapper.service';
 import { URLBuilderService } from '../../../shared/services/url-builder.service';
 
@@ -50,21 +50,30 @@ export class HostsComponent implements OnInit {
     private actionLabels: ActionLabelsI18n,
     private modalService: BsModalService,
     private taskWrapper: TaskWrapperService,
-    private orchService: OrchestratorService
+    private depCheckerService: DepCheckerService,
+    private router: Router,
   ) {
     this.permissions = this.authStorageService.getPermissions();
     this.tableActions = [
       {
-        name: this.actionLabels.ADD,
+        name: this.actionLabels.CREATE,
         permission: 'create',
         icon: Icons.add,
-        routerLink: () => this.urlBuilder.getAdd()
+        click: () => this.depCheckerService.checkOrchestratorOrModal(
+          this.actionLabels.CREATE,
+          this.i18n('Host'),
+          () => this.router.navigate([this.urlBuilder.getCreate()])
+        )
       },
       {
-        name: this.actionLabels.REMOVE,
+        name: this.actionLabels.DELETE,
         permission: 'delete',
         icon: Icons.destroy,
-        click: () => this.deleteHostModal()
+        click: () => this.depCheckerService.checkOrchestratorOrModal(
+          this.actionLabels.DELETE,
+          this.i18n('Host'),
+          () => this.showDeleteHostModal()
+        )
       }
     ];
   }
@@ -95,24 +104,18 @@ export class HostsComponent implements OnInit {
     this.selection = selection;
   }
 
-  deleteHostModal() {
-    this.orchService.status().subscribe((status) => {
-      if (!status.available) {
-        this.modalService.show(OrchestratorModalComponent);
-      } else {
-        const hostname = this.selection.first().hostname;
-        this.modalRef = this.modalService.show(CriticalConfirmationModalComponent, {
-          initialState: {
-            itemDescription: 'Host',
-            itemNames: [hostname],
-            actionDescription: 'remove',
-            submitActionObservable: () =>
-              this.taskWrapper.wrapTaskAroundCall({
-                task: new FinishedTask('host/remove', { hostname: hostname }),
-                call: this.hostService.remove(hostname)
-              })
-          }
-        });
+  showDeleteHostModal() {
+    const hostname = this.selection.first().hostname;
+    this.modalRef = this.modalService.show(CriticalConfirmationModalComponent, {
+      initialState: {
+        itemDescription: this.i18n('Host'),
+        itemNames: [hostname],
+        actionDescription: this.actionLabels.DELETE,
+        submitActionObservable: () =>
+          this.taskWrapper.wrapTaskAroundCall({
+            task: new FinishedTask('host/remove', { hostname: hostname }),
+            call: this.hostService.remove(hostname)
+          })
       }
     });
   }

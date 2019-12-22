@@ -33,8 +33,8 @@ export class HostFormComponent implements OnInit {
     private taskWrapper: TaskWrapperService,
     private orchService: OrchestratorService
   ) {
-    this.resource = this.i18n('host');
-    this.action = this.actionLabels.ADD;
+    this.resource = this.i18n('Host');
+    this.action = this.actionLabels.CREATE;
     this.createForm();
   }
 
