@@ -5,8 +5,6 @@ import { OrchestratorService } from '../../../shared/api/orchestrator.service';
 import { TableComponent } from '../../../shared/datatable/table/table.component';
 import { CdTableColumn } from '../../../shared/models/cd-table-column';
 import { CdTableFetchDataContext } from '../../../shared/models/cd-table-fetch-data-context';
-import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pipe';
-import { SummaryService } from '../../../shared/services/summary.service';
 import { Service } from './services.model';
 
 @Component({
@@ -25,18 +23,14 @@ export class ServicesComponent implements OnChanges, OnInit {
 
   checkingOrchestrator = true;
   orchestratorExist = false;
+  hasOrchestrator = false;
   docsUrl: string;
 
   columns: Array<CdTableColumn> = [];
   services: Array<Service> = [];
   isLoadingServices = false;
 
-  constructor(
-    private cephReleaseNamePipe: CephReleaseNamePipe,
-    private i18n: I18n,
-    private orchService: OrchestratorService,
-    private summaryService: SummaryService
-  ) {}
+  constructor(private i18n: I18n, private orchService: OrchestratorService) {}
 
   ngOnInit() {
     const columns = [
@@ -96,23 +90,8 @@ export class ServicesComponent implements OnChanges, OnInit {
       return !this.hiddenColumns.includes(col.prop);
     });
 
-    // duplicated code with grafana
-    const subs = this.summaryService.subscribe((summary: any) => {
-      if (!summary) {
-        return;
-      }
-
-      const releaseName = this.cephReleaseNamePipe.transform(summary.version);
-      this.docsUrl = `http://docs.ceph.com/docs/${releaseName}/mgr/orchestrator_cli/`;
-
-      setTimeout(() => {
-        subs.unsubscribe();
-      }, 0);
-    });
-
-    this.orchService.status().subscribe((data: { available: boolean }) => {
-      this.orchestratorExist = data.available;
-      this.checkingOrchestrator = false;
+    this.orchService.status().subscribe((status) => {
+      this.hasOrchestrator = status.available;
     });
   }
 
