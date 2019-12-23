@@ -1,7 +1,8 @@
+<cd-orchestrator-doc-panel *ngIf="!hasOrchestrator"></cd-orchestrator-doc-panel>
 <cd-loading-panel *ngIf="loading"
                   i18n>Loading...</cd-loading-panel>
-
-<div class="col-sm-12 col-lg-6">
+<div *ngIf="hasOrchestrator && !loading"
+     class="col-sm-12 col-lg-6">
   <form name="hostForm"
         *ngIf="!loading"
         #formDir="ngForm"

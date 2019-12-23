@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import { I18n } from '@ngx-translate/i18n-polyfill';
+
 import { HostService } from '../../../../shared/api/host.service';
+import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { ActionLabelsI18n, URLVerbs } from '../../../../shared/constants/app.constants';
 import { CdFormGroup } from '../../../../shared/forms/cd-form-group';
 import { CdValidators } from '../../../../shared/forms/cd-validators';
@@ -20,25 +23,34 @@ export class HostFormComponent implements OnInit {
   resource: string;
   loading = true;
   hostnames: string[];
+  hasOrchestrator = false;
 
   constructor(
     private router: Router,
     private i18n: I18n,
     private actionLabels: ActionLabelsI18n,
     private hostService: HostService,
-    private taskWrapper: TaskWrapperService
+    private taskWrapper: TaskWrapperService,
+    private orchService: OrchestratorService
   ) {
-    this.resource = this.i18n('host');
-    this.action = this.actionLabels.ADD;
+    this.resource = this.i18n('Host');
+    this.action = this.actionLabels.CREATE;
     this.createForm();
   }
 
   ngOnInit() {
-    this.hostService.list().subscribe((resp: any[]) => {
-      this.hostnames = resp.map((host) => {
-        return host['hostname'];
-      });
-      this.loading = false;
+    this.orchService.status().subscribe((status) => {
+      this.hasOrchestrator = status.available;
+      if (status.available) {
+        this.hostService.list().subscribe((resp: any[]) => {
+          this.hostnames = resp.map((host) => {
+            return host['hostname'];
+          });
+          this.loading = false;
+        });
+      } else {
+        this.loading = false;
+      }
     });
   }
 

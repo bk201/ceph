@@ -1,10 +1,10 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { I18n } from '@ngx-translate/i18n-polyfill';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 import { HostService } from '../../../shared/api/host.service';
-import { OrchestratorService } from '../../../shared/api/orchestrator.service';
 import { CriticalConfirmationModalComponent } from '../../../shared/components/critical-confirmation-modal/critical-confirmation-modal.component';
 import { ActionLabelsI18n } from '../../../shared/constants/app.constants';
 import { Icons } from '../../../shared/enum/icons.enum';
@@ -16,6 +16,7 @@ import { FinishedTask } from '../../../shared/models/finished-task';
 import { Permissions } from '../../../shared/models/permissions';
 import { CephShortVersionPipe } from '../../../shared/pipes/ceph-short-version.pipe';
 import { AuthStorageService } from '../../../shared/services/auth-storage.service';
+import { DepCheckerService } from '../../../shared/services/dep-checker.service';
 import { TaskWrapperService } from '../../../shared/services/task-wrapper.service';
 import { URLBuilderService } from '../../../shared/services/url-builder.service';
 
@@ -32,7 +33,6 @@ export class HostsComponent implements OnInit {
   columns: Array<CdTableColumn> = [];
   hosts: Array<object> = [];
   isLoadingHosts = false;
-  orchestratorAvailable = false;
   cdParams = { fromLink: '/hosts' };
   tableActions: CdTableAction[];
   selection = new CdTableSelection();
@@ -50,25 +50,32 @@ export class HostsComponent implements OnInit {
     private actionLabels: ActionLabelsI18n,
     private modalService: BsModalService,
     private taskWrapper: TaskWrapperService,
-    private orchService: OrchestratorService
+    private depCheckerService: DepCheckerService,
+    private router: Router
   ) {
     this.permissions = this.authStorageService.getPermissions();
     this.tableActions = [
       {
-        name: this.actionLabels.ADD,
+        name: this.actionLabels.CREATE,
         permission: 'create',
         icon: Icons.add,
-        routerLink: () => this.urlBuilder.getAdd(),
-        disable: () => !this.orchestratorAvailable,
-        disableDesc: () => this.getDisableDesc()
+        click: () =>
+          this.depCheckerService.checkOrchestratorOrModal(
+            this.actionLabels.CREATE,
+            this.i18n('Host'),
+            () => this.router.navigate([this.urlBuilder.getCreate()])
+          )
       },
       {
-        name: this.actionLabels.REMOVE,
+        name: this.actionLabels.DELETE,
         permission: 'delete',
         icon: Icons.destroy,
-        click: () => this.deleteHostModal(),
-        disable: () => !this.orchestratorAvailable || !this.selection.hasSelection,
-        disableDesc: () => this.getDisableDesc()
+        click: () =>
+          this.depCheckerService.checkOrchestratorOrModal(
+            this.actionLabels.DELETE,
+            this.i18n('Host'),
+            () => this.showDeleteHostModal()
+          )
       }
     ];
   }
@@ -93,23 +100,19 @@ export class HostsComponent implements OnInit {
         pipe: this.cephShortVersionPipe
       }
     ];
-
-    this.orchService.status().subscribe((data: { available: boolean }) => {
-      this.orchestratorAvailable = data.available;
-    });
   }
 
   updateSelection(selection: CdTableSelection) {
     this.selection = selection;
   }
 
-  deleteHostModal() {
+  showDeleteHostModal() {
     const hostname = this.selection.first().hostname;
     this.modalRef = this.modalService.show(CriticalConfirmationModalComponent, {
       initialState: {
-        itemDescription: 'Host',
+        itemDescription: this.i18n('Host'),
         itemNames: [hostname],
-        actionDescription: 'remove',
+        actionDescription: this.actionLabels.DELETE,
         submitActionObservable: () =>
           this.taskWrapper.wrapTaskAroundCall({
             task: new FinishedTask('host/remove', { hostname: hostname }),
@@ -152,11 +155,5 @@ export class HostsComponent implements OnInit {
         context.error();
       }
     );
-  }
-
-  getDisableDesc() {
-    if (!this.orchestratorAvailable) {
-      return this.i18n('Host operation is disabled because orchestrator is unavailable');
-    }
   }
 }
