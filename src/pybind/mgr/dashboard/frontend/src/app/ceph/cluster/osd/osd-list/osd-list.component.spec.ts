@@ -15,6 +15,7 @@ import {
   PermissionHelper
 } from '../../../../../testing/unit-test-helper';
 import { CoreModule } from '../../../../core/core.module';
+import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { OsdService } from '../../../../shared/api/osd.service';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { CriticalConfirmationModalComponent } from '../../../../shared/components/critical-confirmation-modal/critical-confirmation-modal.component';
@@ -77,6 +78,10 @@ describe('OsdListComponent', () => {
     spyOn(TestBed.get(OsdService), 'safeToDelete').and.callFake(() =>
       of({ is_safe_to_delete: true })
     );
+  };
+
+  const mockOrchestratorStatus = () => {
+    spyOn(TestBed.get(OrchestratorService), 'status').and.callFake(() => of({ available: true }));
   };
 
   configureTestBed({
@@ -371,6 +376,7 @@ describe('OsdListComponent', () => {
       expectOpensModal('Mark Lost', modalClass);
       expectOpensModal('Purge', modalClass);
       expectOpensModal('Destroy', modalClass);
+      mockOrchestratorStatus();
       mockSafeToDelete();
       expectOpensModal('Delete', modalClass);
     });
@@ -413,6 +419,7 @@ describe('OsdListComponent', () => {
       expectOsdServiceMethodCalled('Mark Lost', 'markLost');
       expectOsdServiceMethodCalled('Purge', 'purge');
       expectOsdServiceMethodCalled('Destroy', 'destroy');
+      mockOrchestratorStatus();
       mockSafeToDelete();
       expectOsdServiceMethodCalled('Delete', 'delete');
     });
