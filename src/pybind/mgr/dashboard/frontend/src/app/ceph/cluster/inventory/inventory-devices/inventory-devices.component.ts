@@ -1,12 +1,23 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { I18n } from '@ngx-translate/i18n-polyfill';
 
 import { getterForProp } from '@swimlane/ngx-datatable/release/utils';
 import * as _ from 'lodash';
 import { BsModalService } from 'ngx-bootstrap/modal';
+import { Subscription } from 'rxjs';
 
 import { OrchestratorService } from '../../../../shared/api/orchestrator.service';
 import { FormModalComponent } from '../../../../shared/components/form-modal/form-modal.component';
+import { TableComponent } from '../../../../shared/datatable/table/table.component';
 import { CellTemplate } from '../../../../shared/enum/cell-template.enum';
 import { Icons } from '../../../../shared/enum/icons.enum';
 import { NotificationType } from '../../../../shared/enum/notification-type.enum';
@@ -26,7 +37,10 @@ import { InventoryDevice } from './inventory-device.model';
   templateUrl: './inventory-devices.component.html',
   styleUrls: ['./inventory-devices.component.scss']
 })
-export class InventoryDevicesComponent implements OnInit, OnChanges {
+export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
+  @ViewChild(TableComponent, { static: true })
+  table: TableComponent;
+
   // Devices
   @Input() devices: InventoryDevice[] = [];
 
@@ -48,6 +62,8 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
 
   @Output() filterChange = new EventEmitter<InventoryDeviceFiltersChangeEvent>();
 
+  @Output() fetchInventory = new EventEmitter();
+
   filterInDevices: InventoryDevice[] = [];
   filterOutDevices: InventoryDevice[] = [];
 
@@ -57,6 +73,7 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
   selection: CdTableSelection = new CdTableSelection();
   permission: Permission;
   tableActions: CdTableAction[];
+  fetchInventorySub: Subscription;
 
   constructor(
     private authStorageService: AuthStorageService,
@@ -158,24 +175,50 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
 
     this.filterInDevices = [...this.devices];
     this.updateFilterOptions(this.devices);
+    if (this.fetchInventory.observers.length > 0) {
+      this.fetchInventorySub = this.table.fetchData.subscribe(() => {
+        this.fetchInventory.emit();
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.fetchInventorySub) {
+      this.fetchInventorySub.unsubscribe();
+    }
   }
 
   ngOnChanges() {
     this.updateFilterOptions(this.devices);
     this.filterInDevices = [...this.devices];
-    // TODO: apply filter, columns changes, filter changes
+    this.doFilter();
+  }
+
+  refresh() {
+    if (this.fetchInventory.observers.length > 0) {
+      this.fetchInventory.emit();
+    }
   }
 
   updateFilterOptions(devices: InventoryDevice[]) {
     // update filter options to all possible values in a column, might be time-consuming
     this.filters.forEach((filter) => {
       const values = _.sortedUniq(_.map(devices, filter.prop).sort());
-      const options = values.map((v: string) => {
+      const options = values.map((v) => {
         return {
-          value: v,
+          value: _.toString(v),
           formatValue: filter.pipe ? filter.pipe.transform(v) : v
         };
       });
+
+      // In case a previous value is not available anymore
+      if (
+        filter.value !== filter.initValue &&
+        _.isUndefined(_.find(options, { value: _.toString(filter.value) }))
+      ) {
+        filter.value = filter.initValue;
+      }
+
       filter.options = [{ value: '*', formatValue: '*' }, ...options];
     });
   }
@@ -195,7 +238,7 @@ export class InventoryDevicesComponent implements OnInit, OnChanges {
         formatValue: filter.pipe ? filter.pipe.transform(filter.value) : filter.value
       });
       // Separate devices to filter-in and filter-out parts.
-      // Cast column value to string type because options are always string.
+      // Cast column value to string type because values are always in string.
       const parts = _.partition(devices, (row) => {
         // use getter from ngx-datatable for props like 'sys_api.size'
         const valueGetter = getterForProp(filter.prop);
