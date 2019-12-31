@@ -108,7 +108,7 @@ describe('TableComponent', () => {
       component.search = keyword;
       component.updateFilter();
       expect(component.rows).toEqual(expectedResult);
-      component.updateFilter(true);
+      component.onClearSearch();
     };
 
     describe('searchableObjects', () => {
@@ -238,7 +238,7 @@ describe('TableComponent', () => {
       component.search = '3';
       component.updateFilter();
       expect(component.rows.length).toBe(1);
-      component.updateFilter(true);
+      component.onClearSearch();
       expect(component.rows.length).toBe(10);
     });
   });
