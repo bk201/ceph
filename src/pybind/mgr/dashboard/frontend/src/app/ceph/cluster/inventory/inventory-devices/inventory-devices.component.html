@@ -1,42 +1,79 @@
-<cd-table [data]="filterInDevices"
-          [columns]="columns"
-          identifier="uid"
-          [forceIdentifier]="true"
-          [selectionType]="selectionType"
-          columnMode="flex"
-          [autoReload]="false"
-          [searchField]="false"
-          (updateSelection)="updateSelection($event)">
-  <cd-table-actions class="table-actions"
-                    [permission]="permission"
-                    [selection]="selection"
-                    [tableActions]="tableActions">
-  </cd-table-actions>
-  <div class="table-filters form-inline"
-       *ngIf="filters.length !== 0">
-    <div class="form-group filter tc_filter"
-         *ngFor="let filter of filters">
-      <label class="col-form-label"><span>{{ filter.label }}</span><span>: </span></label>
-      <select class="custom-select"
-              [(ngModel)]="filter.value"
-              [ngModelOptions]="{standalone: true}"
-              (ngModelChange)="onFilterChange()"
-              [disabled]="filter.disabled">
-        <option *ngFor="let opt of filter.options"
-                [value]="opt.value">{{ opt.formatValue }}</option>
-      </select>
-    </div>
-    <div class="widget-toolbar tc_refreshBtn"
-         *ngIf="filters.length !== 0">
-      <button type="button"
-              title="Reset filters"
-              class="btn btn-light"
-              (click)="onFilterReset()">
-        <span [ngClass]="[icons.stack]">
-          <i [ngClass]="[icons.filter, icons.stack2x]"></i>
-          <i [ngClass]="[icons.destroy, icons.stack1x]"></i>
-        </span>
-      </button>
-    </div>
+<div *ngIf="filters.length !== 0"
+     class="mb-3 btn-group filter-toolbar">
+  <div dropdown
+       class="btn-group">
+    <a dropdownToggle
+       class="btn btn-light dropdown-toggle"
+       data-toggle="dropdown">
+      <i [ngClass]="[icons.large, icons.filter]"></i>
+      {{ selectedFilter.label }}
+    </a>
+    <ul *dropdownMenu
+        class="dropdown-menu px-1"
+        role="menu">
+      <li *ngFor="let filter of filters"
+          role="menuitem">
+          <a href=""
+             class="dropdown-item"
+             (click)="selectFilter(filter); false">{{ filter.label }}</a>
+      </li>
+    </ul>
   </div>
-</cd-table>
+  <div dropdown
+       class="btn-group">
+    <a dropdownToggle
+        class="btn btn-light dropdown-toggle"
+        data-toggle="dropdown">
+      {{ selectedFilter.applied ? selectedFilter.applied.formatted: 'Any' }}
+    </a>
+    <ul *dropdownMenu
+        class="dropdown-menu px-1"
+        role="menu">
+      <li *ngFor="let value of selectedFilter.values"
+          role="menuitem">
+          <a href=""
+             class="dropdown-item"
+             (click)="selectFilterValue(value); false">{{ value.formatted }}
+            <i *ngIf="selectedFilter.applied !== undefined && (selectedFilter.applied.raw === value.raw)" [ngClass]="[icons.check]"></i>
+          </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div *ngIf="filtered"
+     class="mb-2">
+  <span *ngFor="let filter of filters">
+    <span *ngIf="filter.applied"
+          class="badge badge-dark mr-2">
+      <span class="mr-2">{{ filter.label }}: {{ filter.applied.formatted }}</span>
+      <a class="badge-remove"
+        (click)="deleteFilter(filter); false">
+        <i [ngClass]="[icons.destroy]"
+          aria-hidden="true"></i>
+      </a>
+    </span>
+  </span>
+  <a class="tc_clearSelections"
+     href="" (click)="onClearFilters(); false">
+    <ng-container i18n>Clear all filters</ng-container>
+  </a>
+</div>
+
+<div>
+  <cd-table [data]="filterInDevices"
+            [columns]="columns"
+            identifier="uid"
+            [forceIdentifier]="true"
+            [selectionType]="selectionType"
+            columnMode="flex"
+            [autoReload]="false"
+            [searchField]="false"
+            (updateSelection)="updateSelection($event)">
+    <cd-table-actions class="table-actions"
+                      [permission]="permission"
+                      [selection]="selection"
+                      [tableActions]="tableActions">
+    </cd-table-actions>
+  </cd-table>
+</div>

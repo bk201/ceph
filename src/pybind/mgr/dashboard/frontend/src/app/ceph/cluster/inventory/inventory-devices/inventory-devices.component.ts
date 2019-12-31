@@ -31,6 +31,7 @@ import { NotificationService } from '../../../../shared/services/notification.se
 import { InventoryDeviceFilter } from './inventory-device-filter.interface';
 import { InventoryDeviceFiltersChangeEvent } from './inventory-device-filters-change-event.interface';
 import { InventoryDevice } from './inventory-device.model';
+import { ColumnFilter } from './column-filter.interface';
 
 @Component({
   selector: 'cd-inventory-devices',
@@ -69,7 +70,16 @@ export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
 
   icons = Icons;
   columns: Array<CdTableColumn> = [];
-  filters: InventoryDeviceFilter[] = [];
+
+  filters: ColumnFilter[] = [];
+
+  get filtered(): boolean {
+    return _.some(this.filters, (filter)=> {
+      return filter.applied !== undefined;
+    })
+  }
+
+  selectedFilter: any;
   selection: CdTableSelection = new CdTableSelection();
   permission: Permission;
   tableActions: CdTableAction[];
@@ -157,7 +167,6 @@ export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
       return !this.hiddenColumns.includes(col.prop);
     });
 
-    // init filters
     this.filters = this.columns
       .filter((col: any) => {
         return this.filterColumns.includes(col.prop);
@@ -166,20 +175,20 @@ export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
         return {
           label: col.name,
           prop: col.prop,
-          initValue: '*',
-          value: '*',
-          options: [{ value: '*', formatValue: '*' }],
+          values: [],
           pipe: col.pipe
         };
       });
 
     this.filterInDevices = [...this.devices];
-    this.updateFilterOptions(this.devices);
+    this.updateFilterValues(this.devices);
     if (this.fetchInventory.observers.length > 0) {
       this.fetchInventorySub = this.table.fetchData.subscribe(() => {
         this.fetchInventory.emit();
       });
     }
+
+    this.selectedFilter = _.first(this.filters);
   }
 
   ngOnDestroy() {
@@ -189,7 +198,7 @@ export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges() {
-    this.updateFilterOptions(this.devices);
+    this.updateFilterValues(this.devices);
     this.filterInDevices = [...this.devices];
     this.doFilter();
   }
@@ -200,26 +209,27 @@ export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  updateFilterOptions(devices: InventoryDevice[]) {
-    // update filter options to all possible values in a column, might be time-consuming
+  updateFilterValues(devices: InventoryDevice[]) {
+    // update all possible values in a column
     this.filters.forEach((filter) => {
+      // remove ""?
       const values = _.sortedUniq(_.map(devices, filter.prop).sort());
-      const options = values.map((v) => {
+      const options =  values.map((v) => {
         return {
-          value: _.toString(v),
-          formatValue: filter.pipe ? filter.pipe.transform(v) : v
+          raw: _.toString(v),
+          formatted: filter.pipe ? filter.pipe.transform(v) : v
         };
       });
 
       // In case a previous value is not available anymore
       if (
-        filter.value !== filter.initValue &&
-        _.isUndefined(_.find(options, { value: _.toString(filter.value) }))
+        filter.applied &&
+        !_.isUndefined(_.find(options, { value: _.toString(filter.applied.raw)}))
       ) {
-        filter.value = filter.initValue;
+        filter.applied = undefined;
       }
 
-      filter.options = [{ value: '*', formatValue: '*' }, ...options];
+      filter.values = options;
     });
   }
 
@@ -228,21 +238,21 @@ export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
     const appliedFilters = [];
     let devices: any = [...this.devices];
     this.filters.forEach((filter) => {
-      if (filter.value === filter.initValue) {
+      if (filter.applied === undefined) {
         return;
       }
       appliedFilters.push({
         label: filter.label,
         prop: filter.prop,
-        value: filter.value,
-        formatValue: filter.pipe ? filter.pipe.transform(filter.value) : filter.value
+        value: filter.applied.raw,
+        formatValue: filter.applied.formatted
       });
       // Separate devices to filter-in and filter-out parts.
       // Cast column value to string type because values are always in string.
       const parts = _.partition(devices, (row) => {
         // use getter from ngx-datatable for props like 'sys_api.size'
         const valueGetter = getterForProp(filter.prop);
-        return `${valueGetter(row, filter.prop)}` === filter.value;
+        return `${valueGetter(row, filter.prop)}` === filter.applied.raw;
       });
       devices = parts[0];
       this.filterOutDevices = [...this.filterOutDevices, ...parts[1]];
@@ -259,9 +269,9 @@ export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
     this.doFilter();
   }
 
-  onFilterReset() {
-    this.filters.forEach((item) => {
-      item.value = item.initValue;
+  onClearFilters() {
+    this.filters.forEach((filter) => {
+      filter.applied = undefined;
     });
     this.filterInDevices = [...this.devices];
     this.filterOutDevices = [];
@@ -270,6 +280,23 @@ export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
       filterInDevices: this.filterInDevices,
       filterOutDevices: this.filterOutDevices
     });
+
+    this.selectedFilter = _.first(this.filters);
+  }
+
+  selectFilter(filter) {
+    this.selectedFilter = filter;
+  }
+
+  selectFilterValue(value) {
+    // deep copy?
+    this.selectedFilter.applied = value;
+    this.doFilter();
+  }
+
+  deleteFilter(filter: ColumnFilter) {
+    filter.applied = undefined; 
+    this.doFilter();
   }
 
   updateSelection(selection: CdTableSelection) {
