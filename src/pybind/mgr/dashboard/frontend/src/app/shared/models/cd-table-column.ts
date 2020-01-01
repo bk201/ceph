@@ -7,4 +7,5 @@ export interface CdTableColumn extends TableColumn {
   isHidden?: boolean;
   prop: TableColumnProp; // Enforces properties to get sortable columns
   customTemplateConfig?: any; // Custom configuration used by cell templates.
+  filterable?: boolean;
 }
