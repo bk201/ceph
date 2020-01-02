@@ -6,7 +6,8 @@
           columnMode="flex"
           [autoReload]="false"
           [searchField]="false"
-          (updateSelection)="updateSelection($event)">
+          (updateSelection)="updateSelection($event)"
+          (columnFiltersChanged)="onColumnFiltersChnaged($event)">
   <cd-table-actions class="table-actions"
                     [permission]="permission"
                     [selection]="selection"

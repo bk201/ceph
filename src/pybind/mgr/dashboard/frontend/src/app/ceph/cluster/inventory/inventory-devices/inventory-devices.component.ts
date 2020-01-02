@@ -169,6 +169,10 @@ export class InventoryDevicesComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  onColumnFiltersChnaged(event) {
+    console.log(event);
+  }
+
   ngOnDestroy() {
     if (this.fetchInventorySub) {
       this.fetchInventorySub.unsubscribe();

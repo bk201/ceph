@@ -31,6 +31,7 @@ import { CdTableFetchDataContext } from '../../models/cd-table-fetch-data-contex
 import { CdTableSelection } from '../../models/cd-table-selection';
 import { CdUserConfig } from '../../models/cd-user-config';
 import { CdTableColumnFilter } from '../../models/cd-table-column-filter';
+import { CdTableColumnFiltersChange } from '../../models/cd-table-column-filter-change';
 
 @Component({
   selector: 'cd-table',
@@ -124,9 +125,15 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
   @Input()
   customCss?: { [css: string]: number | string | ((any) => boolean) };
 
+  // TODO:
+  // (1) existing filter (search field) override column filters
   // Show filters for these columns, specify empty array to disable
   @Input() filterColumns: string[] = [];
 
+  get columnFilterEnabled(): boolean {
+    return this.columnFilters.length !== 0;
+  }
+  
   get filtered(): boolean {
     return _.some(this.columnFilters, (filter)=> {
       return filter.value !== undefined;
@@ -154,6 +161,8 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
    */
   @Output()
   updateSelection = new EventEmitter();
+
+  @Output() columnFiltersChanged = new EventEmitter();
 
   /**
    * Use this variable to access the selected row(s).
@@ -377,7 +386,7 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
       const options =  values.map((v) => {
         return {
           raw: _.toString(v),
-          formatted: filter.column.pipe ? filter.column.pipe.transform(v) : v
+          formatted: filter.column.pipe ? filter.column.pipe.transform(v) : _.toString(v)
         };
       });
 
@@ -404,9 +413,9 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
   }
 
   doFilter() {
-    // this.filterOutDevices = [];
     const appliedFilters = [];
-    let devices: any = [...this.data];
+    let filterIn = [...this.data];
+    let filterOut = [];
     this.columnFilters.forEach((filter) => {
       if (filter.value === undefined) {
         return;
@@ -419,21 +428,35 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
       });
       // Separate devices to filter-in and filter-out parts.
       // Cast column value to string type because values are always in string.
-      const parts = _.partition(devices, (row) => {
+      const parts = _.partition(filterIn, (row) => {
         // use getter from ngx-datatable for props like 'sys_api.size'
         const valueGetter = getterForProp(filter.column.prop);
         return `${valueGetter(row, filter.column.prop)}` === filter.value.raw;
       });
-      devices = parts[0];
-      // this.filterOutDevices = [...this.filterOutDevices, ...parts[1]];
+      filterIn = parts[0];
+      filterOut = [...filterOut, ...parts[1]];
 
     });
-    this.rows = devices;
-    // this.filterChange.emit({
-    //   filters: appliedFilters,
-    //   filterInDevices: this.filterInDevices,
-    //   filterOutDevices: this.filterOutDevices
-    // });
+    this.rows = filterIn;
+    this.columnFiltersChanged.emit({
+      columns: appliedFilters,
+      filterIn: filterIn,
+      filterOut: filterOut
+    });
+
+    // Remove the selection if previously-selected rows are filtered out.
+    if (this.columnFilterEnabled) {
+      console.log('detect selection');
+      _.forEach(this.selection.selected, (selectedItem) => {
+        console.log(selectedItem);
+        if (_.find(this.rows, { [this.identifier]: selectedItem[this.identifier] }) === undefined) {
+          console.log('remove selection');
+          this.selection = new CdTableSelection();
+          this.onSelect(this.selection);
+        }
+      });
+    }
+    return filterIn;
   }
 
   onRemoveFilter(filter: CdTableColumnFilter) {
@@ -648,9 +671,10 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     if (clearSearch) {
       this.search = '';
     }
+    const tmpRows = this.doFilter();
     const columns = this.columns.filter((c) => c.cellTransformation !== CellTemplate.sparkline);
     // update the rows
-    this.rows = this.subSearch(this.data, TableComponent.prepareSearch(this.search), columns);
+    this.rows = this.subSearch(tmpRows, TableComponent.prepareSearch(this.search), columns);
     // Whenever the filter changes, always go back to the first page
     this.table.offset = 0;
   }
