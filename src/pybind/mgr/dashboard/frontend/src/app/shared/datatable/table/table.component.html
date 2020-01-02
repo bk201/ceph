@@ -5,7 +5,7 @@
 <div class="dataTables_wrapper">
 
   <div class="filter-toolbar">
-    <div *ngIf="filters.length !== 0"
+    <div *ngIf="columnFilters.length !== 0"
         class="mb-3 btn-group">
       <div dropdown
           class="btn-group">
@@ -13,16 +13,16 @@
           class="btn btn-light rounded-0 dropdown-toggle"
           data-toggle="dropdown">
           <i [ngClass]="[icons.large, icons.filter]"></i>
-          {{ selectedFilter.column.name }}
+          {{ selectedColumnFilter.name }}
         </a>
         <ul *dropdownMenu
             class="dropdown-menu px-1"
             role="menu">
-          <li *ngFor="let filter of filters"
+          <li *ngFor="let filter of columnFilters"
               role="menuitem">
               <a href=""
                 class="dropdown-item"
-                (click)="selectFilter(filter); false">{{ filter.column.name }}</a>
+                (click)="onSelectColumnFilter(filter); false">{{ filter.name }}</a>
           </li>
         </ul>
       </div>
@@ -31,28 +31,28 @@
         <a dropdownToggle
            class="btn btn-light rounded-0 dropdown-toggle"
            data-toggle="dropdown">
-          {{ selectedFilter.applied ? selectedFilter.applied.formatted: 'Any' }}
+          {{ selectedColumnFilter.filterApplied ? selectedColumnFilter.filterApplied.formatted: 'Any' }}
         </a>
         <ul *dropdownMenu
             class="dropdown-menu px-1"
             role="menu">
-          <li *ngFor="let value of selectedFilter.values"
+          <li *ngFor="let option of selectedColumnFilter.filterOptions"
               role="menuitem">
               <a href=""
                 class="dropdown-item"
-                (click)="onAddFilter(value); false">{{ value.formatted }}
-                <i *ngIf="selectedFilter.applied !== undefined && (selectedFilter.applied.raw === value.raw)" [ngClass]="[icons.check]"></i>
+                (click)="onAddFilter(option); false">{{ option.formatted }}
+                <i *ngIf="selectedColumnFilter.filterApplied !== undefined && (selectedColumnFilter.filterApplied.raw === option.raw)" [ngClass]="[icons.check]"></i>
               </a>
           </li>
         </ul>
       </div>
     </div>
-    <div *ngIf="filtered"
+    <div *ngIf="columnFiltered"
         class="mb-2">
-      <span *ngFor="let filter of filters">
-        <span *ngIf="filter.applied"
+      <span *ngFor="let filter of columnFilters">
+        <span *ngIf="filter.filterApplied"
               class="badge badge-dark mr-2">
-          <span class="mr-2">{{ filter.column.name }}: {{ filter.applied.formatted }}</span>
+          <span class="mr-2">{{ filter.name }}: {{ filter.filterApplied.formatted }}</span>
           <a class="badge-remove"
             (click)="onRemoveFilter(filter); false">
             <i [ngClass]="[icons.destroy]"
