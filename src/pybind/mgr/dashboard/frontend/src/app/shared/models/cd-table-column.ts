@@ -8,6 +8,4 @@ export interface CdTableColumn extends TableColumn {
   prop: TableColumnProp; // Enforces properties to get sortable columns
   customTemplateConfig?: any; // Custom configuration used by cell templates.
   filterable?: boolean;
-  filterOptions?: { raw: string, formatted: string }[];
-  filterApplied?: { raw: string, formatted: string };
 }

@@ -30,6 +30,7 @@ import { CdTableColumn } from '../../models/cd-table-column';
 import { CdTableFetchDataContext } from '../../models/cd-table-fetch-data-context';
 import { CdTableSelection } from '../../models/cd-table-selection';
 import { CdUserConfig } from '../../models/cd-user-config';
+import { CdTableColumnFilter } from '../../models/cd-table-column-filter';
 
 @Component({
   selector: 'cd-table',
@@ -123,6 +124,14 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
   @Input()
   customCss?: { [css: string]: number | string | ((any) => boolean) };
 
+  // Show filters for these columns, specify empty array to disable
+  @Input() filterColumns: string[] = [];
+
+  get filtered(): boolean {
+    return _.some(this.filters, (filter)=> {
+      return filter.applied !== undefined;
+    })
+  }
   /**
    * Should be a function to update the input data if undefined nothing will be triggered
    *
@@ -177,13 +186,8 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
   // table columns after the browser window has been resized.
   private currentWidth: number;
 
-  columnFilters: CdTableColumn[] = []
-  selectedColumnFilter: CdTableColumn;
-  get columnFiltered(): boolean {
-    return _.some(this.columnFilters, (colFilter)=> {
-      return colFilter.filterApplied !== undefined;
-    })
-  }
+  filters: CdTableColumnFilter[] = [];
+  selectedFilter: CdTableColumnFilter;
 
   constructor(private ngZone: NgZone, private cdRef: ChangeDetectorRef) {}
 
@@ -231,9 +235,9 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
 
     this.initCheckboxColumn();
     this.filterHiddenColumns();
-    this.columnFilters = _.filter(this.columns, { filterable: true });
-    this.selectedColumnFilter = _.first(this.columnFilters);
-    this.updateColumnFilters(this.data);
+    this.initColumnFilters();
+    this.updateColumnFilterValues(this.data);
+    this.selectedFilter = _.first(this.filters);
     // Load the data table content every N ms or at least once.
     // Force showing the loading indicator if there are subscribers to the fetchData
     // event. This is necessary because it has been set to False in useData() when
@@ -351,41 +355,50 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     this.tableColumns = this.columns.filter((c) => !c.isHidden);
   }
 
-  updateColumnFilters(data: any[]) {
+  initColumnFilters() {
+    this.filters = _.filter(this.columns, { filterable: true }).map((col: any) => {
+      return {
+        column: col,
+        values: [],
+      };
+    });
+  }
+
+  updateColumnFilterValues(data: any[]) {
     // update all possible values in a column
-    this.columnFilters.forEach((colFilter) => {
+    this.filters.forEach((filter) => {
       // only allow types that can be easily converted into string
-      const validValues = _.filter(_.map(data, colFilter.prop), (v)=> {
+      // what happen if empty?
+      const pre = _.filter(_.map(data, filter.column.prop), (v)=> {
         return ((_.isString(v) && v !== '') || _.isBoolean(v) || _.isFinite(v) || _.isDate(v));
       });
-      // sort and remove redundant
-      let values = _.sortedUniq(validValues.sort());
-      values = values.map((v) => {
+      const values = _.sortedUniq(pre.sort());
+      const options =  values.map((v) => {
         return {
           raw: _.toString(v),
-          formatted: colFilter.pipe ? colFilter.pipe.transform(v) : v
+          formatted: filter.column.pipe ? filter.column.pipe.transform(v) : v
         };
       });
 
       // In case a previous value is not available anymore
       if (
-        colFilter.filterApplied &&
-        _.isUndefined(_.find(values, { raw: colFilter.filterApplied.raw}))
+        filter.applied &&
+        _.isUndefined(_.find(options, { raw: filter.applied.raw}))
       ) {
-        colFilter.filterApplied = undefined;
+        filter.applied = undefined;
       }
 
-      colFilter.filterOptions = values;
+      filter.values = options;
     });
   }
 
-  onSelectColumnFilter(filter: CdTableColumn) {
-    this.selectedColumnFilter = filter;
+  selectFilter(filter) {
+    this.selectedFilter = filter;
   }
 
-  onAddFilter(option) {
+  onAddFilter(value) {
     // deep copy?
-    this.selectedColumnFilter.filterApplied = option;
+    this.selectedFilter.applied = value;
     this.doFilter();
   }
 
@@ -393,22 +406,22 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     // this.filterOutDevices = [];
     const appliedFilters = [];
     let devices: any = [...this.data];
-    this.columnFilters.forEach((colFilter) => {
-      if (colFilter.filterApplied === undefined) {
+    this.filters.forEach((filter) => {
+      if (filter.applied === undefined) {
         return;
       }
       appliedFilters.push({
-        name: colFilter.name,
-        prop: colFilter.prop,
-        value: colFilter.filterApplied.raw,
-        formatValue: colFilter.filterApplied.formatted
+        name: filter.column.name,
+        prop: filter.column.prop,
+        value: filter.applied.raw,
+        formatValue: filter.applied.formatted
       });
       // Separate devices to filter-in and filter-out parts.
       // Cast column value to string type because values are always in string.
       const parts = _.partition(devices, (row) => {
         // use getter from ngx-datatable for props like 'sys_api.size'
-        const valueGetter = getterForProp(colFilter.prop);
-        return `${valueGetter(row, colFilter.prop)}` === colFilter.filterApplied.raw;
+        const valueGetter = getterForProp(filter.column.prop);
+        return `${valueGetter(row, filter.column.prop)}` === filter.applied.raw;
       });
       devices = parts[0];
       // this.filterOutDevices = [...this.filterOutDevices, ...parts[1]];
@@ -422,16 +435,16 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     // });
   }
 
-  onRemoveFilter(filter: CdTableColumn) {
-    filter.filterApplied = undefined; 
+  onRemoveFilter(filter: CdTableColumnFilter) {
+    filter.applied = undefined; 
     this.doFilter();
   }
 
   onClearFilters() {
-    this.columnFilters.forEach((colFilter) => {
-      colFilter.filterApplied = undefined;
+    this.filters.forEach((filter) => {
+      filter.applied = undefined;
     });
-    this.selectedColumnFilter = _.first(this.columnFilters);
+    this.selectedFilter = _.first(this.filters);
     this.doFilter();
     // this.filterInDevices = [...this.devices];
     // this.filterOutDevices = [];
@@ -542,7 +555,7 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     if (!this.data) {
       return; // Wait for data
     }
-    this.updateColumnFilters(this.data);
+    this.updateColumnFilterValues(this.data);
     if (this.search.length > 0) {
       this.updateFilter();
     } else {
