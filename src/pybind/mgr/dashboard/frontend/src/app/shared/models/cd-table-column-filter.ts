@@ -3,6 +3,6 @@ import { CdTableColumn } from './cd-table-column';
 
 export interface CdTableColumnFilter {
   column: CdTableColumn;
-  values: { raw: string, formatted: string }[];
-  applied?: { raw: string, formatted: string };
+  options: { raw: string, formatted: string }[]; // possible options of a filter
+  value?: { raw: string, formatted: string }; // selected option
 }
