@@ -363,7 +363,7 @@ Grafana on your preferred hosts, proceed with the following steps.
 
 #. Enable the Ceph Exporter which comes as Ceph Manager module by running::
 
-  $ ceph mgr module enable prometheus
+     $ ceph mgr module enable prometheus
 
 More details can be found in the documentation of the :ref:`mgr-prometheus`.
 
@@ -393,34 +393,34 @@ More details can be found in the documentation of the :ref:`mgr-prometheus`.
 
 #. Add the Dashboards to Grafana:
 
-  Dashboards can be added to Grafana by importing dashboard jsons.
-  Following command can be used for downloading json files::
+   Dashboards can be added to Grafana by importing dashboard jsons.
+   Following command can be used for downloading json files::
 
-	wget https://raw.githubusercontent.com/ceph/ceph/master/monitoring/grafana/dashboards/<Dashboard-name>.json
+     wget https://raw.githubusercontent.com/ceph/ceph/master/monitoring/grafana/dashboards/<Dashboard-name>.json
 
-  You can find all the dashboard jsons `here <https://github.com/ceph/ceph/tree/
-  master/monitoring/grafana/dashboards>`_ .
+   You can find all the dashboard jsons `here <https://github.com/ceph/ceph/tree/
+   master/monitoring/grafana/dashboards>`_ .
 
-  For Example, for ceph-cluster overview you can use::
+   For Example, for ceph-cluster overview you can use::
 
-    wget https://raw.githubusercontent.com/ceph/ceph/master/monitoring/grafana/dashboards/ceph-cluster.json
+     wget https://raw.githubusercontent.com/ceph/ceph/master/monitoring/grafana/dashboards/ceph-cluster.json
 
 #. Configure Grafana in `/etc/grafana/grafana.ini` to adapt anonymous mode::
 
-    [auth.anonymous]
-    enabled = true
-    org_name = Main Org.
-    org_role = Viewer
+     [auth.anonymous]
+     enabled = true
+     org_name = Main Org.
+     org_role = Viewer
 
-  In newer versions of Grafana (starting with 6.2.0-beta1) a new setting named
-  ``allow_embedding`` has been introduced. This setting needs to be explicitly
-  set to ``true`` for the Grafana integration in Ceph Dashboard to work, as its
-  default is ``false``.
+   In newer versions of Grafana (starting with 6.2.0-beta1) a new setting named
+   ``allow_embedding`` has been introduced. This setting needs to be explicitly
+   set to ``true`` for the Grafana integration in Ceph Dashboard to work, as its
+   default is ``false``.
 
-  ::
+   ::
 
-    [security]
-    allow_embedding = true
+     [security]
+     allow_embedding = true
 
 After you have set up Grafana and Prometheus, you will need to configure the
 connection information that the Ceph Dashboard will use to access Grafana.
