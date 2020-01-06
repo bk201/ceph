@@ -245,8 +245,7 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     this.initCheckboxColumn();
     this.filterHiddenColumns();
     this.initColumnFilters();
-    this.selectedFilter = _.first(this.columnFilters);
-    this.updateColumnFilterOptions(this.data);
+    this.updateColumnFilterOptions();
     // Load the data table content every N ms or at least once.
     // Force showing the loading indicator if there are subscribers to the fetchData
     // event. This is necessary because it has been set to False in useData() when
@@ -372,14 +371,15 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
         options: [],
       };
     });
+    this.selectedFilter = _.first(this.columnFilters);
   }
 
-  updateColumnFilterOptions(data: any[]) {
+  updateColumnFilterOptions() {
     // update all possible values in a column
     this.columnFilters.forEach((filter) => {
       // only allow types that can be easily converted into string
       // what happen if empty?
-      const pre = _.filter(_.map(data, filter.column.prop), (v)=> {
+      const pre = _.filter(_.map(this.data, filter.column.prop), (v)=> {
         return ((_.isString(v) && v !== '') || _.isBoolean(v) || _.isFinite(v) || _.isDate(v));
       });
       const values = _.sortedUniq(pre.sort());
@@ -402,17 +402,22 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     });
   }
 
-  selectFilter(filter) {
+  onSelectFilter(filter) {
     this.selectedFilter = filter;
   }
 
-  onAddFilter(value) {
+  onAddFilter(option) {
     // deep copy?
-    this.selectedFilter.value = value;
-    this.doFilter();
+    this.selectedFilter.value = option;
+    this.updateFilter();
   }
 
-  doFilter() {
+  onRemoveFilter(filter: CdTableColumnFilter) {
+    filter.value = undefined; 
+    this.updateFilter();
+  }
+
+  doColumnFiltering() {
     const appliedFilters = [];
     let filterIn = [...this.data];
     let filterOut = [];
@@ -437,7 +442,7 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
       filterOut = [...filterOut, ...parts[1]];
 
     });
-    this.rows = filterIn;
+    // this.rows = filterIn;
     this.columnFiltersChanged.emit({
       columns: appliedFilters,
       filterIn: filterIn,
@@ -445,23 +450,17 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     });
 
     // Remove the selection if previously-selected rows are filtered out.
-    if (this.columnFilterEnabled) {
-      console.log('detect selection');
-      _.forEach(this.selection.selected, (selectedItem) => {
-        console.log(selectedItem);
-        if (_.find(this.rows, { [this.identifier]: selectedItem[this.identifier] }) === undefined) {
-          console.log('remove selection');
-          this.selection = new CdTableSelection();
-          this.onSelect(this.selection);
-        }
-      });
-    }
-    return filterIn;
-  }
+    console.log('detect selection');
+    _.forEach(this.selection.selected, (selectedItem) => {
+      console.log(selectedItem);
+      if (_.find(filterIn, { [this.identifier]: selectedItem[this.identifier] }) === undefined) {
+        console.log('remove selection');
+        this.selection = new CdTableSelection();
+        this.onSelect(this.selection);
+      }
+    });
 
-  onRemoveFilter(filter: CdTableColumnFilter) {
-    filter.value = undefined; 
-    this.doFilter();
+    return filterIn;
   }
 
   onClearFilters() {
@@ -469,15 +468,9 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
       filter.value = undefined;
     });
     this.selectedFilter = _.first(this.columnFilters);
-    this.doFilter();
-    // this.filterInDevices = [...this.devices];
-    // this.filterOutDevices = [];
-    // this.filterChange.emit({
-    //   filters: [],
-    //   filterInDevices: this.filterInDevices,
-    //   filterOutDevices: this.filterOutDevices
-    // });
+    this.updateFilter();
   }
+
 
   ngOnDestroy() {
     if (this.reloadSubscriber) {
@@ -579,13 +572,8 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     if (!this.data) {
       return; // Wait for data
     }
-    this.updateColumnFilterOptions(this.data);
-    if (this.search.length > 0) {
-      this.updateFilter();
-    } else {
-      // this.rows = [...this.data];
-      this.doFilter();
-    }
+    this.updateColumnFilterOptions();
+    this.updateFilter();
     this.reset();
     this.updateSelected();
   }
@@ -667,16 +655,23 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     this.userConfig.sorts = sorts;
   }
 
-  updateFilter(clearSearch = false) {
-    if (clearSearch) {
-      this.search = '';
+  onClearSearchFilter() {
+    this.search = '';
+    this.updateFilter();
+  }
+
+  updateFilter() {
+    let rows = this.columnFilterEnabled ? this.doColumnFiltering() : this.data;
+
+    if (this.search.length > 0) {
+      const columns = this.columns.filter((c) => c.cellTransformation !== CellTemplate.sparkline);
+      // update the rows
+      rows = this.subSearch(rows, TableComponent.prepareSearch(this.search), columns);
+      // Whenever the filter changes, always go back to the first page
+      this.table.offset = 0;
     }
-    const tmpRows = this.doFilter();
-    const columns = this.columns.filter((c) => c.cellTransformation !== CellTemplate.sparkline);
-    // update the rows
-    this.rows = this.subSearch(tmpRows, TableComponent.prepareSearch(this.search), columns);
-    // Whenever the filter changes, always go back to the first page
-    this.table.offset = 0;
+
+    this.rows = rows;
   }
 
   subSearch(data: any[], currentSearch: string[], columns: CdTableColumn[]) {

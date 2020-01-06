@@ -22,7 +22,7 @@
               role="menuitem">
               <a href=""
                 class="dropdown-item"
-                (click)="selectFilter(filter); false">{{ filter.column.name }}</a>
+                (click)="onSelectFilter(filter); false">{{ filter.column.name }}</a>
           </li>
         </ul>
       </div>
@@ -51,7 +51,7 @@
         class="mb-3">
       <span *ngFor="let filter of columnFilters">
         <span *ngIf="filter.value"
-              class="badge badge-dark mr-2">
+              class="badge badge-dark mr-2 rounded-0">
           <span class="mr-2">{{ filter.column.name }}: {{ filter.value.formatted }}</span>
           <a class="badge-remove"
             (click)="onRemoveFilter(filter); false">
@@ -100,7 +100,7 @@
       <div class="input-group-append">
         <button type="button"
                 class="btn btn-light"
-                (click)="updateFilter(true)">
+                (click)="onClearSearchFilter()">
           <i class="icon-prepend {{ icons.destroy }}"></i>
         </button>
       </div>
