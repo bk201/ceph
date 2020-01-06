@@ -123,7 +123,8 @@ export class PoolListComponent implements OnInit {
       {
         prop: 'type',
         name: this.i18n('Type'),
-        flexGrow: 2
+        flexGrow: 2,
+        filterable: true
       },
       {
         prop: 'application_metadata',
@@ -142,7 +143,8 @@ export class PoolListComponent implements OnInit {
         prop: 'size',
         name: this.i18n('Replica Size'),
         flexGrow: 1,
-        cellClass: 'text-right'
+        cellClass: 'text-right',
+        filterable: true
       },
       {
         prop: 'last_change',

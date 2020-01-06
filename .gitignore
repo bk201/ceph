@@ -73,3 +73,8 @@ GTAGS
 /src/pybind/mgr/dashboard/frontend/src/environments/environment.ts
 /src/pybind/mgr/dashboard/frontend/src/environments/environment.prod.ts
 /src/pybind/mgr/dashboard/frontend/src/locale/messages.xlf
+
+#/src/pybind/mgr/cephadm
+/src/python-common/.eggs
+/src/script/kubejacker/kubejacker/
+ceph-daemon-adoption-corpus/
