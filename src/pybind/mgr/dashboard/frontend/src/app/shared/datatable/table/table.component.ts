@@ -406,15 +406,13 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     this.selectedFilter = filter;
   }
 
-  onAddFilter(option) {
-    // deep copy?
-    this.selectedFilter.value = option;
-    this.updateFilter();
-  }
+  onChangeFilter(filter: CdTableColumnFilter, option?: { raw: string, formatted: string }) {
+    filter.value = option;
 
-  onRemoveFilter(filter: CdTableColumnFilter) {
-    filter.value = undefined; 
+    // When using column filters, always clear search field.
+    this.search = '';
     this.updateFilter();
+    this.updateSearchField();
   }
 
   doColumnFiltering() {
@@ -462,15 +460,6 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
 
     return filterIn;
   }
-
-  onClearFilters() {
-    this.columnFilters.forEach((filter) => {
-      filter.value = undefined;
-    });
-    this.selectedFilter = _.first(this.columnFilters);
-    this.updateFilter();
-  }
-
 
   ngOnDestroy() {
     if (this.reloadSubscriber) {
@@ -655,9 +644,21 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
     this.userConfig.sorts = sorts;
   }
 
-  onClearSearchFilter() {
+  onClearFilters() {
     this.search = '';
+
+    this.columnFilters.forEach((filter) => {
+      filter.value = undefined;
+    });
+    this.selectedFilter = _.first(this.columnFilters);
     this.updateFilter();
+  }
+
+  updateSearchField() {
+    const filters = _.filter(this.columnFilters, (filter) => {
+      return !_.isUndefined(filter.value);
+    });
+    this.search = _.join(_.map(filters, (filter) => `${filter.column.prop}:${filter.value.raw}`), ' ');
   }
 
   updateFilter() {
