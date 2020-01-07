@@ -309,6 +309,8 @@ class CephadmOrchestrator(MgrModule, orchestrator.Orchestrator):
 
         self._worker_pool = multiprocessing.pool.ThreadPool(1)
 
+        self._temp_files = []
+        self._ssh_options = None
         self._reconfig_ssh()
 
         CephadmOrchestrator.instance = self
@@ -396,18 +398,21 @@ class CephadmOrchestrator(MgrModule, orchestrator.Orchestrator):
         temp_files = []  # type: list
         ssh_options = []  # type: List[str]
 
+        def __create_tmp_file(prefix, content):
+            with tempfile.NamedTemporaryFile(mode='w', prefix=prefix, encoding='utf-8', delete=False) as f:
+                os.fchmod(f.fileno(), 0o600)
+                f.write(content)
+                return f.name
+
         # ssh_config
         ssh_config_fname = self.ssh_config_file
         ssh_config = self.get_store("ssh_config")
         if ssh_config is not None or ssh_config_fname is None:
             if not ssh_config:
                 ssh_config = DEFAULT_SSH_CONFIG
-            f = tempfile.NamedTemporaryFile(prefix='cephadm-conf-')
-            os.fchmod(f.fileno(), 0o600)
-            f.write(ssh_config.encode('utf-8'))
-            f.flush()  # make visible to other processes
-            temp_files += [f]
-            ssh_config_fname = f.name
+            tmp_file = __create_tmp_file('cephadm-conf-', ssh_config)
+            temp_files.append(tmp_file)
+            ssh_config_fname = tmp_file
         if ssh_config_fname:
             if not os.path.isfile(ssh_config_fname):
                 raise Exception("ssh_config \"{}\" does not exist".format(
@@ -420,18 +425,16 @@ class CephadmOrchestrator(MgrModule, orchestrator.Orchestrator):
         self.ssh_pub = ssh_pub
         self.ssh_key = ssh_key
         if ssh_key and ssh_pub:
-            tkey = tempfile.NamedTemporaryFile(prefix='cephadm-identity-')
-            tkey.write(ssh_key.encode('utf-8'))
-            os.fchmod(tkey.fileno(), 0o600)
-            tkey.flush()  # make visible to other processes
-            tpub = open(tkey.name + '.pub', 'w')
-            os.fchmod(tpub.fileno(), 0o600)
-            tpub.write(ssh_pub)
-            tpub.flush()  # make visible to other processes
-            temp_files += [tkey, tpub]
-            ssh_options += ['-i', tkey.name]
+            tkey = __create_tmp_file('cephadm-identity-', ssh_key)
+            temp_files.append(tkey)
+            ssh_options += ['-i', tkey]
 
+        self.log.debug('self._temp_files 1: %s', self._temp_files)
+        for tmp_file in self._temp_files:
+            self.log.debug('remove old temp file: %s', tmp_file)
+            os.unlink(tmp_file)
         self._temp_files = temp_files
+        self.log.debug('self._temp_files 2: %s', self._temp_files)
         if ssh_options:
             self._ssh_options = ' '.join(ssh_options)  # type: Optional[str]
         else:
@@ -494,6 +497,7 @@ class CephadmOrchestrator(MgrModule, orchestrator.Orchestrator):
         if inbuf is None or len(inbuf) == 0:
             return -errno.EINVAL, "", "empty ssh config provided"
         self.set_store("ssh_config", inbuf)
+        self._reconfig_ssh()
         return 0, "", ""
 
     @orchestrator._cli_write_command(
@@ -505,6 +509,7 @@ class CephadmOrchestrator(MgrModule, orchestrator.Orchestrator):
         """
         self.set_store("ssh_config", None)
         self.ssh_config_tmp = None
+        self._reconfig_ssh()
         return 0, "", ""
 
     @orchestrator._cli_write_command(

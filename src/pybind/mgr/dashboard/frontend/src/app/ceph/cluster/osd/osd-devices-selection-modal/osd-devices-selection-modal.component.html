@@ -7,6 +7,62 @@
           [formGroup]="formGroup"
           novalidate>
       <div class="modal-body">
+        <div class="col-sm-8">
+          <fieldset>
+            <legend i18n>Filters</legend>
+            <div class="form-group row">
+              <label class="col-form-label col-sm-4"
+                      for="hostname">
+                <ng-container i18n>Hostname</ng-container>
+                <span class="required"></span>
+              </label>
+              <div class="col-sm-8">
+                <select class="form-control custom-select"
+                        id="hostname"
+                        formControlName="hostname"
+                        name="hostname">
+                  <option ngValue=""
+                          i18n>-- Select a hostname --</option>
+                  <option ngValue="*"
+                          i18n>-- All --</option>
+                  <option *ngFor="let hostname of ['a', 'b']"
+                          [value]="hostname">
+                    {{ hostname }}
+                  </option>
+                </select>
+                <span class="invalid-feedback"
+                      *ngIf="formGroup.showError('hostname', frm, 'required')"
+                      i18n>This field is required!</span>
+              </div>
+            </div>
+            <div class="form-group row"
+                 *ngFor="let filter of filters2">
+              <label class="col-sm-4 col-form-label"
+                     [for]="filter">
+                <ng-container i18n>{{ filter.label }}</ng-container>
+              </label>
+              <div class="col-sm-8">
+                <select class="form-control custom-select"
+                        [id]="filter.prop"
+                        [formControlName]="filter.prop"
+                        [name]="filter.prop">
+                  <option ngValue=""
+                          i18n>-- Select a {{ filter.label }} --</option>
+                  <option *ngFor="let option of filter.options"
+                          [value]="option">
+                    {{ option }}
+                  </option>
+                </select>
+                <!-- <span class="invalid-feedback"
+                      *ngIf="formGroup.showError('hostname', formDir, 'required')"
+                      i18n>This field is required!</span> -->
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+      <fieldset>
+        <legend i18n>Devices</legend>
         <div class="col-sm-12">
           <cd-inventory-devices [devices]="devices"
                                 [filterColumns]="filterColumns"
@@ -14,11 +70,13 @@
                                 (filterChange)="onFilterChange($event)">
           </cd-inventory-devices>
         </div>
+      </fieldset>
       </div>
+
       <div class="modal-footer">
         <cd-submit-button (submitAction)="onSubmit()"
-                          [form]="formGroup"
-                          [disabled]="!canSubmit || filterInDevices.length === 0">{{ action | titlecase }}</cd-submit-button>
+                          [form]="formGroup">{{ action | titlecase }}</cd-submit-button>
+                          <!-- [disabled]="!canSubmit || filterInDevices.length === 0">{{ action | titlecase }}</cd-submit-button> -->
         <cd-back-button [back]="bsModalRef.hide"></cd-back-button>
       </div>
     </form>

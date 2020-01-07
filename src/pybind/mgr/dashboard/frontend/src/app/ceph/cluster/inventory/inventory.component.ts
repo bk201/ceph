@@ -5,6 +5,7 @@ import { Icons } from '../../../shared/enum/icons.enum';
 import { CephReleaseNamePipe } from '../../../shared/pipes/ceph-release-name.pipe';
 import { SummaryService } from '../../../shared/services/summary.service';
 import { InventoryDevice } from './inventory-devices/inventory-device.model';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'cd-inventory',
@@ -64,6 +65,12 @@ export class InventoryComponent implements OnChanges, OnInit {
     this.orchService.inventoryDeviceList(this.hostname).subscribe(
       (devices: InventoryDevice[]) => {
         this.devices = devices;
+        // for (let i=10; i<200; i++) {
+        //   const tmp = _.clone(devices[0]);
+        //   tmp.hostname = `node-${i}`;
+        //   tmp.uid = `${tmp.hostname}-${tmp.path}`;
+        //   this.devices.push(tmp);
+        // }
       },
       () => {
         this.devices = [];

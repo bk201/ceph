@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+import logging
 import os.path
 
 import time
@@ -8,6 +9,7 @@ import cherrypy
 
 try:
     from ceph.deployment.drive_group import DriveGroupSpec, DriveGroupValidationError
+    from ceph.deployment.drive_selection import DriveSelection
 except ImportError:
     pass
 
@@ -19,6 +21,9 @@ from ..security import Scope
 from ..services.exception import handle_orchestrator_error
 from ..services.orchestrator import OrchClient
 from ..tools import TaskManager, wraps
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_device_osd_map():
@@ -137,6 +142,28 @@ class OrchestratorOsd(RESTController):
     def create(self, drive_group):
         orch = OrchClient.instance()
         try:
+            # DriveSelection()
+            spec = DriveGroupSpec.from_json(drive_group)
+            host_pattern = drive_group['host_pattern']
+            result = {}
+            if host_pattern == '*':
+                inventory_nodes = [node for node in orch.inventory.list(None)]
+                for inventory_node in inventory_nodes:
+                    logger.debug('hostname: {}'.format(inventory_node.name))
+                    drives = ([device for device in inventory_node.devices.devices if device.available])
+                    logger.debug('kf: drives:')
+                    for drive in drives:
+                        logger.debug('kf: %s', drive.to_json())
+                    ds = DriveSelection(spec, inventory_node.devices)
+                    logger.debug('kf: data devices: %s', [device.to_json() for device in ds.data_devices()])
+                    logger.debug('kf: wal devices: %s', [device.to_json() for device in ds.wal_devices()])
+                    logger.debug('kf: db devices: %s', [device.to_json() for device in ds.db_devices()])
+                    result[inventory_node.name] = {
+                        'data_devices': [device.to_json() for device in ds.data_devices()],
+                        'wal_devices': [device.to_json() for device in ds.wal_devices()],
+                        'db_devices': [device.to_json() for device in ds.db_devices()]
+                    }
             orch.osds.create(DriveGroupSpec.from_json(drive_group))
+            return result
         except (ValueError, TypeError, DriveGroupValidationError) as e:
             raise DashboardException(e, component='osd')

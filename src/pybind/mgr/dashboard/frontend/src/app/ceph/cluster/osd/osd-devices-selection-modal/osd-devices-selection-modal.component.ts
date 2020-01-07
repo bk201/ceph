@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { Validators } from '@angular/forms';
 
 import * as _ from 'lodash';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -30,6 +31,11 @@ export class OsdDevicesSelectionModalComponent {
   devices: InventoryDevice[] = [];
   canSubmit = false;
   filters = [];
+  filters2 = [{
+    prop: 'type',
+    label: 'Type',
+    options: ['HDD', 'SSD']
+  }];
   filterInDevices: InventoryDevice[] = [];
   filterOutDevices: InventoryDevice[] = [];
 
@@ -45,7 +51,20 @@ export class OsdDevicesSelectionModalComponent {
   }
 
   createForm() {
-    this.formGroup = this.formBuilder.group({});
+    const controls = {
+      hostname: [
+        '',
+        Validators.required
+      ],
+    };
+    const filterControls = _.reduce(this.filters2, (controls, filter) => {
+      controls[filter.prop] = [
+        '',
+        Validators.required
+      ];
+      return controls;
+    }, {});
+    this.formGroup = this.formBuilder.group(_.merge(controls, filterControls));
   }
 
   onFilterChange(event: InventoryDeviceFiltersChangeEvent) {

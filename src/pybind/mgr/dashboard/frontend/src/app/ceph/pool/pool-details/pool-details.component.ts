@@ -64,6 +64,7 @@ export class PoolDetailsComponent implements OnChanges {
   }
 
   ngOnChanges() {
+    console.log(`ngOnChanges in pool-details: ${this.selection}`);
     if (this.selection.hasSingleSelection) {
       this.poolService.getConfiguration(this.selection.first().pool_name).subscribe((poolConf) => {
         this.selectedPoolConfiguration = poolConf;
