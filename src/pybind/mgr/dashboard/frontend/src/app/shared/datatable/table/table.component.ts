@@ -407,7 +407,12 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
   }
 
   onChangeFilter(filter: CdTableColumnFilter, option?: { raw: string, formatted: string }) {
-    filter.value = option;
+    // when click on an applied option
+    if (!_.isUndefined(option) && !_.isUndefined(filter.value) && option.raw === filter.value.raw) {
+      filter.value = undefined;
+    } else {
+      filter.value = option;
+    }
 
     // When using column filters, always clear search field.
     this.search = '';
