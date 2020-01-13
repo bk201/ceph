@@ -375,14 +375,14 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
         column: col,
         options: [],
         value: col.filterInitValue
-          ? this._createColumnFilterOption(col.filterInitValue, col.pipe)
+          ? this.createColumnFilterOption(col.filterInitValue, col.pipe)
           : undefined
       };
     });
     this.selectedFilter = _.first(this.columnFilters);
   }
 
-  _createColumnFilterOption(value: any, pipe?: PipeTransform): { raw: string; formatted: string } {
+  private createColumnFilterOption(value: any, pipe?: PipeTransform): { raw: string; formatted: string } {
     return {
       raw: _.toString(value),
       formatted: pipe ? pipe.transform(value) : _.toString(value)
@@ -404,7 +404,7 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
         values = filter.column.filterOptions;
       }
 
-      const options = values.map((v) => this._createColumnFilterOption(v, filter.column.pipe));
+      const options = values.map((v) => this.createColumnFilterOption(v, filter.column.pipe));
 
       // In case a previous value is not available anymore
       if (filter.value && _.isUndefined(_.find(options, { raw: filter.value.raw }))) {
@@ -420,10 +420,7 @@ export class TableComponent implements AfterContentChecked, OnInit, OnChanges, O
   }
 
   onChangeFilter(filter: CdTableColumnFilter, option?: { raw: string; formatted: string }) {
-    filter.value = option;
-
-    // When using column filters, always clear search field.
-    this.search = '';
+    filter.value = _.isEqual(filter.value, option) ? undefined : option;
     this.updateFilter();
   }
 
