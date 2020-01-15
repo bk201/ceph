@@ -166,6 +166,10 @@ export class TaskMessageService {
     'host/remove': this.newTaskMessage(this.commonOperations.remove, (metadata) =>
       this.host(metadata)
     ),
+    // OSD tasks
+    'osd/delete': this.newTaskMessage(this.commonOperations.delete, (metadata) =>
+      this.osd(metadata)
+    ),
     // Pool tasks
     'pool/create': this.newTaskMessage(
       this.commonOperations.create,
@@ -416,6 +420,12 @@ export class TaskMessageService {
   host(metadata: any) {
     return this.i18n(`host '{{hostname}}'`, {
       hostname: metadata.hostname
+    });
+  }
+
+  osd(metadata: any) {
+    return this.i18n(`OSD '{{svc_id}}'`, {
+      svc_id: metadata.svc_id
     });
   }
 

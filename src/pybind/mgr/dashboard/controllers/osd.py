@@ -5,7 +5,7 @@ import logging
 
 from mgr_util import get_most_recent_rate
 
-from . import ApiController, RESTController, Endpoint
+from . import ApiController, RESTController, Endpoint, Task
 from . import ReadPermission, UpdatePermission, DeletePermission
 from .orchestrator import raise_if_no_orchestrator
 from .. import mgr
@@ -22,6 +22,10 @@ except ImportError:
 
 
 logger = logging.getLogger('controllers.osd')
+
+
+def osd_task(name, metadata, wait_for=2.0):
+    return Task("osd/{}".format(name), metadata, wait_for)
 
 
 @ApiController('/osd', Scope.OSD)
@@ -127,6 +131,7 @@ class Osd(RESTController):
     @DeletePermission
     @raise_if_no_orchestrator
     @handle_orchestrator_error('osd')
+    @osd_task('delete', {'svc_id': '{svc_id}'})
     def delete(self, svc_id, force=None):
         orch = OrchClient.instance()
         if not force:
