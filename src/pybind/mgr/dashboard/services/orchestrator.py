@@ -99,7 +99,8 @@ class OsdManager(ResourceManager):
 
     @wait_api_result
     def remove(self, osd_ids):
-        return self.api.remove_osds(osd_ids)
+        osd_daemons = ['osd.{}'.format(osd_id) for osd_id in osd_ids]
+        return self.api.remove_daemons(osd_daemons, force=True)
 
     def check_remove(self, osd_ids):
         return self.api.check_remove_osds(osd_ids)
