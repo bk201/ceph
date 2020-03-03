@@ -2801,6 +2801,7 @@ receivers:
         """
         The CLI call to retrieve an osd removal report
         """
+        self.osd_removal_report = self._generate_osd_removal_status()
         return trivial_result(self.osd_removal_report)
 
     def list_specs(self) -> orchestrator.Completion:
