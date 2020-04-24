@@ -80,11 +80,16 @@ class IscsiGatewaysConfig(object):
     def _load_config_from_orchestrator():
         config = {'gateways': {}}  # type: dict
         try:
-            instances = OrchClient.instance().services.list("iscsi")
-            for instance in instances:
-                config['gateways'][instance.hostname] = {
-                    'service_url': instance.service_url
-                }
+            specs = [s.spec for s in OrchClient.instance().services.list(service_type='iscsi')]
+            for spec in specs:
+                daemons = OrchClient.instance().services.list_daemons(
+                    service_name=spec.service_name())
+                for daemon in daemons:
+                    service_url = 'http://{}:{}@{}:{}'.format(
+                        spec.api_user, spec.api_password, daemon.hostname, spec.api_port or '5000')
+                    config['gateways'][daemon.hostname] = {
+                        'service_url': service_url
+                    }
         except (RuntimeError, OrchestratorError, ImportError):
             pass
         return config

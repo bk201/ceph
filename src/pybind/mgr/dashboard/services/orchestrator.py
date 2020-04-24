@@ -76,8 +76,9 @@ class InventoryManager(ResourceManager):
 
 class ServiceManager(ResourceManager):
     @wait_api_result
-    def list(self, service_name: Optional[str] = None) -> List[ServiceDescription]:
-        return self.api.describe_service(None, service_name)
+    def list(self, service_type: Optional[str] = None,
+             service_name: Optional[str] = None) -> List[ServiceDescription]:
+        return self.api.describe_service(service_type=service_type, service_name=service_name)
 
     @wait_api_result
     def get(self, service_name: str) -> ServiceDescription:

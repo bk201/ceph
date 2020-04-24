@@ -13,7 +13,7 @@ class Service(RESTController):
     @raise_if_no_orchestrator
     def list(self, service_name: Optional[str] = None) -> List[dict]:
         orch = OrchClient.instance()
-        return [service.to_json() for service in orch.services.list(service_name)]
+        return [service.to_json() for service in orch.services.list(None, service_name)]
 
     @raise_if_no_orchestrator
     def get(self, service_name: str) -> List[dict]:
