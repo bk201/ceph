@@ -15,7 +15,7 @@ from ..exceptions import DashboardException
 from ..security import Scope
 from ..services.ceph_service import CephService, SendCommandError
 from ..services.exception import handle_send_command_error, handle_orchestrator_error
-from ..services.orchestrator import OrchClient
+from ..services.orchestrator import OrchClient, OrchFeature
 from ..tools import str_to_bool
 try:
     from typing import Dict, List, Any, Union  # noqa: F401 pylint: disable=unused-import
@@ -154,7 +154,7 @@ class Osd(RESTController):
         }
 
     @DeletePermission
-    @raise_if_no_orchestrator
+    @raise_if_no_orchestrator([OrchFeature.OSD_DELETE, OrchFeature.OSD_GET_REMOVE_STATUS])
     @handle_orchestrator_error('osd')
     @osd_task('delete', {'svc_id': '{svc_id}'})
     def delete(self, svc_id, preserve_id=None, force=None):
@@ -259,7 +259,7 @@ class Osd(RESTController):
             'uuid': uuid,
         }
 
-    @raise_if_no_orchestrator
+    @raise_if_no_orchestrator([OrchFeature.OSD_CREATE])
     @handle_orchestrator_error('osd')
     def _create_with_drive_groups(self, drive_groups):
         """Create OSDs with DriveGroups."""
@@ -327,7 +327,7 @@ class Osd(RESTController):
 
     @Endpoint('GET', query_params=['svc_ids'])
     @ReadPermission
-    @raise_if_no_orchestrator
+    @raise_if_no_orchestrator()
     @handle_orchestrator_error('osd')
     def safe_to_delete(self, svc_ids):
         """

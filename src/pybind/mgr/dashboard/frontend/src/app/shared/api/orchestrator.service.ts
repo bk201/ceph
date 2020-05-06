@@ -1,12 +1,15 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
+import { I18n } from '@ngx-translate/i18n-polyfill';
 import * as _ from 'lodash';
 import { Observable, of as observableOf } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
 import { InventoryDevice } from '../../ceph/cluster/inventory/inventory-devices/inventory-device.model';
 import { InventoryHost } from '../../ceph/cluster/inventory/inventory-host.model';
+import { OrchestratorFeature } from '../models/orchestrator.enum';
+import { OrchestratorStatus } from '../models/orchestrator.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -14,10 +17,35 @@ import { InventoryHost } from '../../ceph/cluster/inventory/inventory-host.model
 export class OrchestratorService {
   private url = 'api/orchestrator';
 
-  constructor(private http: HttpClient) {}
+  disableMessages = {
+    no_orchestrator: this.i18n('The feature is disabled because Orchestrator is not available.'),
+    missing_feature: this.i18n(`The Orchestrator backend doesn't support this feature.`)
+  };
 
-  status(): Observable<{ available: boolean; description: string }> {
-    return this.http.get<{ available: boolean; description: string }>(`${this.url}/status`);
+  constructor(private http: HttpClient, private i18n: I18n) {}
+
+  status(): Observable<OrchestratorStatus> {
+    return this.http.get<OrchestratorStatus>(`${this.url}/status`);
+  }
+
+  hasFeature(status: OrchestratorStatus, features: OrchestratorFeature[]): boolean {
+    return _.every(features, (feature) => _.get(status.features, `${feature}.available`));
+  }
+
+  getTableActionDisableDesc(
+    status: OrchestratorStatus,
+    features: OrchestratorFeature[]
+  ): string | undefined {
+    if (!status) {
+      return undefined;
+    }
+    if (!status.available) {
+      return this.disableMessages.no_orchestrator;
+    }
+    if (!this.hasFeature(status, features)) {
+      return this.disableMessages.missing_feature;
+    }
+    return undefined;
   }
 
   identifyDevice(hostname: string, device: string, duration: number) {

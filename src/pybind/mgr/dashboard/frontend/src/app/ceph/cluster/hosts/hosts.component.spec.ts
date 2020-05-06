@@ -121,23 +121,17 @@ describe('HostsComponent', () => {
     it('should return message (not managed by Orchestrator)', () => {
       component.selection.add({
         sources: {
-          ceph: false,
-          orchestrator: true
-        }
-      });
-      component.selection.add({
-        sources: {
           ceph: true,
           orchestrator: false
         }
       });
-      expect(component.getDeleteDisableDesc(component.selection)).toBe(
-        'Host deletion is disabled because a selected host is not managed by Orchestrator.'
+      expect(component.getDisableDesc('edit', component.selection)).toBe(
+        'The feature is disabled because the selected host is not managed by Orchestrator.'
       );
     });
 
     it('should return undefined (no selection)', () => {
-      expect(component.getDeleteDisableDesc(component.selection)).toBeUndefined();
+      expect(component.getDisableDesc('edit', component.selection)).toBeUndefined();
     });
 
     it('should return undefined (managed by Orchestrator)', () => {
@@ -147,13 +141,7 @@ describe('HostsComponent', () => {
           orchestrator: true
         }
       });
-      component.selection.add({
-        sources: {
-          ceph: false,
-          orchestrator: true
-        }
-      });
-      expect(component.getDeleteDisableDesc(component.selection)).toBeUndefined();
+      expect(component.getDisableDesc('edit', component.selection)).toBeUndefined();
     });
   });
 });

@@ -24,6 +24,8 @@ import { FormModalComponent } from '../../../../shared/components/form-modal/for
 import { TableActionsComponent } from '../../../../shared/datatable/table-actions/table-actions.component';
 import { CdTableAction } from '../../../../shared/models/cd-table-action';
 import { CdTableSelection } from '../../../../shared/models/cd-table-selection';
+import { OrchestratorFeature } from '../../../../shared/models/orchestrator.enum';
+import { OrchestratorStatus } from '../../../../shared/models/orchestrator.interface';
 import { Permissions } from '../../../../shared/models/permissions';
 import { AuthStorageService } from '../../../../shared/services/auth-storage.service';
 import { ModalService } from '../../../../shared/services/modal.service';
@@ -85,9 +87,10 @@ describe('OsdListComponent', () => {
   };
 
   const mockOrchestratorStatus = () => {
-    spyOn(TestBed.inject(OrchestratorService), 'status').and.callFake(() =>
-      of({ available: true })
-    );
+    const status: OrchestratorStatus = { available: true, description: '', features: {} };
+    const features = [OrchestratorFeature.OSD_CREATE, OrchestratorFeature.OSD_DELETE];
+    features.forEach((feature) => (status['features'][feature] = { available: true }));
+    spyOn(TestBed.inject(OrchestratorService), 'status').and.callFake(() => of(status));
   };
 
   configureTestBed({

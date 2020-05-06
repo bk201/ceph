@@ -22,6 +22,8 @@ import { CdTableAction } from '../../../../shared/models/cd-table-action';
 import { CdTableColumn } from '../../../../shared/models/cd-table-column';
 import { CdTableColumnFiltersChange } from '../../../../shared/models/cd-table-column-filters-change';
 import { CdTableSelection } from '../../../../shared/models/cd-table-selection';
+import { OrchestratorFeature } from '../../../../shared/models/orchestrator.enum';
+import { OrchestratorStatus } from '../../../../shared/models/orchestrator.interface';
 import { Permission } from '../../../../shared/models/permissions';
 import { DimlessBinaryPipe } from '../../../../shared/pipes/dimless-binary.pipe';
 import { AuthStorageService } from '../../../../shared/services/auth-storage.service';
@@ -68,6 +70,12 @@ export class InventoryDevicesComponent implements OnInit, OnDestroy {
   tableActions: CdTableAction[];
   fetchInventorySub: Subscription;
 
+  @Input() orchStatus: OrchestratorStatus = undefined;
+
+  actionOrchFeatures = {
+    identify: [OrchestratorFeature.DEVICE_BLINK_LIGHT]
+  };
+
   constructor(
     private authStorageService: AuthStorageService,
     private dimlessBinary: DimlessBinaryPipe,
@@ -85,7 +93,8 @@ export class InventoryDevicesComponent implements OnInit, OnDestroy {
         icon: Icons.show,
         click: () => this.identifyDevice(),
         name: this.i18n('Identify'),
-        disable: () => !this.selection.hasSingleSelection,
+        disable: () => !this.selection.hasSingleSelection || this.getDisable('identify'),
+        disableDesc: (selection: CdTableSelection) => this.getDisableDesc('identify', selection),
         canBePrimary: (selection: CdTableSelection) => !selection.hasSingleSelection,
         visible: () => _.isString(this.selectionType)
       }
@@ -175,6 +184,23 @@ export class InventoryDevicesComponent implements OnInit, OnDestroy {
 
   onColumnFiltersChanged(event: CdTableColumnFiltersChange) {
     this.filterChange.emit(event);
+  }
+
+  getDisable(action: 'identify'): boolean {
+    if (!this.orchStatus?.available) {
+      return true;
+    }
+    return !this.orchService.hasFeature(this.orchStatus, this.actionOrchFeatures[action]);
+  }
+
+  getDisableDesc(action: 'identify', selection: CdTableSelection): string | undefined {
+    if (!selection.hasSelection) {
+      return undefined;
+    }
+    return this.orchService.getTableActionDisableDesc(
+      this.orchStatus,
+      this.actionOrchFeatures[action]
+    );
   }
 
   updateSelection(selection: CdTableSelection) {
