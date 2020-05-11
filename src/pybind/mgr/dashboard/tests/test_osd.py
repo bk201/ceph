@@ -222,13 +222,18 @@ class OsdTest(ControllerTestCase):
                     with mock.patch.object(mgr, 'get_latest', return_value=1146609664):
                         yield
 
-    def test_osd_list_aggregation(self):
+    @mock.patch('dashboard.controllers.orchestrator.OrchClient.instance')
+    def test_osd_list_aggregation(self, instance):
         """
         This test emulates the state of a cluster where an OSD has only been
         removed (with e.g. `ceph osd rm`), but it hasn't been removed from the
         CRUSH map.  Ceph reports a health warning alongside a `1 osds exist in
         the crush map but not in the osdmap` warning in such a case.
         """
+        fake_client = mock.Mock()
+        instance.return_value = fake_client
+        fake_client.available.return_value = True
+        fake_client.osds.removing_status.return_value = []
         osds_actual = [0, 1]
         osds_leftover = [0, 1, 2]
         with self._mock_osd_list(osd_stat_ids=osds_actual, osdmap_tree_node_ids=osds_leftover,

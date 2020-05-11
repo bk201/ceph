@@ -45,6 +45,8 @@ const BASE_URL = 'osd';
   providers: [{ provide: URLBuilderService, useValue: new URLBuilderService(BASE_URL) }]
 })
 export class OsdListComponent extends ListWithDetails implements OnInit {
+  @ViewChild('osdIdTpl', { static: true })
+  osdIdTpl: TemplateRef<any>;
   @ViewChild('osdUsageTpl', { static: true })
   osdUsageTpl: TemplateRef<any>;
   @ViewChild('markOsdConfirmationTpl', { static: true })
@@ -251,7 +253,12 @@ export class OsdListComponent extends ListWithDetails implements OnInit {
     ];
     this.columns = [
       { prop: 'host.name', name: $localize`Host` },
-      { prop: 'id', name: $localize`ID`, flexGrow: 1, cellTransformation: CellTemplate.bold },
+      {
+        prop: 'id',
+        name: $localize`ID`,
+        flexGrow: 1,
+        cellTemplate: this.osdIdTpl
+      },
       {
         prop: 'collectedStates',
         name: $localize`Status`,
@@ -370,6 +377,14 @@ export class OsdListComponent extends ListWithDetails implements OnInit {
     }
   }
 
+  isNotSelectedOrInDeployState(state: 'deleting'): boolean {
+    const selectedOsds = this.getSelectedOsds();
+    if (selectedOsds.length === 0) {
+      return true;
+    }
+    return selectedOsds.some((osd) => osd.orchestrator.deploy_state === state);
+  }
+
   getOsdList() {
     this.osdService.getList().subscribe((data: any[]) => {
       this.osds = data.map((osd) => {
@@ -378,6 +393,8 @@ export class OsdListComponent extends ListWithDetails implements OnInit {
         osd.stats_history.in_bytes = osd.stats_history.op_in_bytes.map((i: string) => i[1]);
         osd.stats.usage = osd.stats.stat_bytes_used / osd.stats.stat_bytes;
         osd.cdIsBinary = true;
+        const deploy_state = _.get(osd, 'orchestrator.deploy_state');
+        osd.cdExecuting = deploy_state !== 'none' ? deploy_state : undefined;
         return osd;
       });
     });

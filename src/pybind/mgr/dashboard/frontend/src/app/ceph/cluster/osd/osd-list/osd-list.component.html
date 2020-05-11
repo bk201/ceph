@@ -100,3 +100,13 @@
     </ng-container>
   </ng-container>
 </ng-template>
+
+<ng-template #osdIdTpl
+             let-row="row"
+             let-value="value">
+  <i [ngClass]="[icons.spinner, icons.spin]"
+     *ngIf="row.cdExecuting"></i>
+  <strong>{{ value }}</strong>
+  <span *ngIf="row.cdExecuting"
+        class="text-muted italic">({{ row.cdExecuting }})</span>
+</ng-template>

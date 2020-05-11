@@ -64,7 +64,12 @@ class Osd(RESTController):
                 if osd_id >= 0 and osd_id in osds:
                     osds[osd_id]['host'] = host
 
-        # Extending by osd histogram data
+        orch = OrchClient.instance()
+        removal_osd_ids = []
+        if orch.available(features=[OrchFeature.OSD_GET_REMOVE_STATUS]):
+            removal_osd_ids = [osd.osd_id for osd in orch.osds.removing_status()]
+
+        # Extending by osd histogram and orchestrator data
         for osd_id, osd in osds.items():
             osd['stats'] = {}
             osd['stats_history'] = {}
@@ -79,7 +84,9 @@ class Osd(RESTController):
             # Gauge stats
             for stat in ['osd.numpg', 'osd.stat_bytes', 'osd.stat_bytes_used']:
                 osd['stats'][stat.split('.')[1]] = mgr.get_latest('osd', osd_spec, stat)
-
+            osd['orchestrator'] = {
+                'deploy_state': 'deleting' if str(osd_id) in removal_osd_ids else 'none'
+            }
         return list(osds.values())
 
     @staticmethod
