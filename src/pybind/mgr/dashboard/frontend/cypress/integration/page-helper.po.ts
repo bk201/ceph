@@ -162,6 +162,15 @@ export abstract class PageHelper {
     });
   }
 
+  waitTableCount(spanType: 'selected' | 'found' | 'total', count: number) {
+    this.waitDataTableToLoad();
+    cy.contains('.datatable-footer-inner .page-count span', spanType)
+      .should(($elem) => {
+        const text = $elem.first().text();
+        expect(Number(text.match(/(\d+)\s+\w*/)[1])).to.equal(count);
+      });
+  }
+
   getTableRow(content: string) {
     this.waitDataTableToLoad();
 
@@ -226,10 +235,14 @@ export abstract class PageHelper {
     cy.contains(`.tc_filter_option .dropdown-item`, option).click();
   }
 
+  setPageSize(size: string) {
+    cy.get('cd-table .dataTables_paginate input').first().clear().type(size);
+  }
+
   seachTable(text: string) {
     this.waitDataTableToLoad();
 
-    cy.get('cd-table .dataTables_paginate input').first().clear().type('10');
+    this.setPageSize('10');
     cy.get('cd-table .search input').first().clear().type(text);
   }
 

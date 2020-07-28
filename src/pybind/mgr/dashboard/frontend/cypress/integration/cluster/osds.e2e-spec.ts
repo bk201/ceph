@@ -1,7 +1,9 @@
 import { OSDsPageHelper } from './osds.po';
+import { DashboardPageHelper } from '../ui/dashboard.po';
 
 describe('OSDs page', () => {
   const osds = new OSDsPageHelper();
+  const dashboard = new DashboardPageHelper();
 
   beforeEach(() => {
     cy.login();
@@ -23,7 +25,9 @@ describe('OSDs page', () => {
   describe('check existence of fields on OSD page', () => {
     it('should check that number of rows and count in footer match', () => {
       osds.getTableTotalCount().then((text) => {
+        osds.setPageSize(text.toString());
         osds.getTableRows().its('length').should('equal', text);
+        osds.setPageSize('10');
       });
     });
 
@@ -54,6 +58,43 @@ describe('OSDs page', () => {
             'Histogram',
             'Performance Details'
           ]);
+        });
+      });
+    });
+  });
+
+  describe('when Orchestrator is available', () => {
+    before(function () {
+      if (!Cypress.env('WITH_ORCHESTRATOR')) {
+        this.skip();
+      }
+    });
+
+    it('should create and delete OSDs', () => {
+      osds.getTableTotalCount().as('initOSDCount');
+      osds.navigateTo('create');
+      osds.create('hdd');
+
+      cy.get('@newOSDCount').then((newCount) => {
+        cy.get('@initOSDCount').then((oldCount) => {
+          const expectedCount = Number(oldCount) + Number(newCount);
+
+          // check total rows
+          osds.waitTableCount('total', expectedCount);
+
+          // landing page is easier to check OSD status
+          dashboard.navigateTo();
+          dashboard.infoCardBody('OSDs').should('contain.text', `${expectedCount} total`);
+          dashboard.infoCardBody('OSDs').should('contain.text', `${expectedCount} up`);
+          dashboard.infoCardBody('OSDs').should('contain.text', `${expectedCount} in`);
+
+          expect(Number(newCount)).to.be.gte(2);
+          // Delete the first OSD we created
+          osds.navigateTo();
+          osds.deleteByIDs([Number(oldCount)], false);
+          // Replace the second OSD we created
+          osds.navigateTo();
+          osds.deleteByIDs([Number(oldCount)+1], true);
         });
       });
     });
