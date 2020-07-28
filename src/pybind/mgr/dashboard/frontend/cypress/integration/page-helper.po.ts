@@ -73,6 +73,10 @@ export abstract class PageHelper {
     return cy.get('.nav.nav-tabs li');
   }
 
+  getTab(tabName: string) {
+    return cy.contains('.nav.nav-tabs li', new RegExp(`^${tabName}$`));
+  }
+
   getTabText(index: number) {
     return this.getTabs().its(index).text();
   }
@@ -162,6 +166,14 @@ export abstract class PageHelper {
     });
   }
 
+  waitTableCount(spanType: 'selected' | 'found' | 'total', count: number) {
+    this.waitDataTableToLoad();
+    cy.contains('.datatable-footer-inner .page-count span', spanType).should(($elem) => {
+      const text = $elem.first().text();
+      expect(Number(text.match(/(\d+)\s+\w*/)[1])).to.equal(count);
+    });
+  }
+
   getTableRow(content: string) {
     this.waitDataTableToLoad();
 
@@ -188,6 +200,15 @@ export abstract class PageHelper {
     } else {
       return cy.get('.datatable-body-cell-label').first();
     }
+  }
+
+  getTableCell(columnIndex: number, exactContent: string) {
+    this.waitDataTableToLoad();
+    this.seachTable(exactContent);
+    return cy.contains(
+      `datatable-body-row datatable-body-cell:nth-child(${columnIndex})`,
+      new RegExp(`^${exactContent}$`)
+    );
   }
 
   getExpandCollapseElement(content?: string) {
@@ -226,10 +247,14 @@ export abstract class PageHelper {
     cy.contains(`.tc_filter_option .dropdown-item`, option).click();
   }
 
+  setPageSize(size: string) {
+    cy.get('cd-table .dataTables_paginate input').first().clear().type(size);
+  }
+
   seachTable(text: string) {
     this.waitDataTableToLoad();
 
-    cy.get('cd-table .dataTables_paginate input').first().clear().type('10');
+    this.setPageSize('10');
     cy.get('cd-table .search input').first().clear().type(text);
   }
 
@@ -237,6 +262,12 @@ export abstract class PageHelper {
     this.waitDataTableToLoad();
 
     return cy.get('cd-table .search button').click();
+  }
+
+  // Click the action button
+  clickActionButton(action: string) {
+    cy.get('.table-actions button.dropdown-toggle').first().click();
+    cy.get(`button.${action}`).click();
   }
 
   /**
