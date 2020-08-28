@@ -3,12 +3,6 @@ import { HostsPageHelper } from '../cluster/hosts.po';
 describe('Hosts page', () => {
   const hosts = new HostsPageHelper();
 
-  before(function () {
-    if (!Cypress.env('WITH_ORCHESTRATOR')) {
-      this.skip();
-    }
-  });
-
   beforeEach(() => {
     cy.login();
     hosts.navigateTo();

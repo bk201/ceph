@@ -71,9 +71,7 @@ export class OSDsPageHelper extends PageHelper {
         cy.wrap($el).click();
       }
     });
-
-    cy.get('.table-actions button.dropdown-toggle').first().click(); // open submenu
-    cy.get('button.delete').click(); // click on "delete" menu item
+    this.clickActionButton('delete');
     if (replace) {
       cy.get('cd-modal label[for="preserve"]').click();
     }

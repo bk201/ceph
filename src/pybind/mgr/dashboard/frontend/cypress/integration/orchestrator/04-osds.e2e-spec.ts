@@ -5,12 +5,6 @@ describe('OSDs page', () => {
   const osds = new OSDsPageHelper();
   const dashboard = new DashboardPageHelper();
 
-  before(function () {
-    if (!Cypress.env('WITH_ORCHESTRATOR')) {
-      this.skip();
-    }
-  });
-
   beforeEach(() => {
     cy.login();
     osds.navigateTo();
@@ -27,7 +21,7 @@ describe('OSDs page', () => {
           const expectedCount = Number(oldCount) + Number(newCount);
 
           // check total rows
-          osds.waitTableCount('total', expectedCount);
+          osds.expectTableCount('total', expectedCount);
 
           // landing page is easier to check OSD status
           dashboard.navigateTo();

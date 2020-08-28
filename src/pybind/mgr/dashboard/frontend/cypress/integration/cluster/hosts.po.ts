@@ -75,11 +75,7 @@ export class HostsPageHelper extends PageHelper {
 
   @PageHelper.restrictTo(pages.index.url)
   delete(hostname: string) {
-    this.getTableCell(this.columnIndex.hostname, hostname).click();
-    this.clickActionButton('delete');
-    cy.get('cd-modal label[for="confirmation"]').click();
-    cy.get('cd-modal cd-submit-button').click();
-    cy.get(`${this.pages.index.id}`);
+    super.delete(hostname, this.columnIndex.hostname);
   }
 
   // Add or remove labels on a host, then verify labels in the table

@@ -1,5 +1,5 @@
 roles:
-# 3 osd roles on host.a is required for cephadm task. It check if the cluster is healthy.
+# 3 osd roles on host.a is required for cephadm task. It checks if the cluster is healthy.
 # More daemons will be deployed on both hosts in e2e tests.
 - - host.a
   - osd.0

@@ -3,12 +3,6 @@ import { InventoryPageHelper } from '../cluster/inventory.po';
 describe('Inventory page', () => {
   const inventory = new InventoryPageHelper();
 
-  before(function () {
-    if (!Cypress.env('WITH_ORCHESTRATOR')) {
-      this.skip();
-    }
-  });
-
   beforeEach(() => {
     cy.login();
     inventory.navigateTo();

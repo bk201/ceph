@@ -3,12 +3,6 @@ import { HostsPageHelper } from '../cluster/hosts.po';
 describe('Hosts page', () => {
   const hosts = new HostsPageHelper();
 
-  before(function () {
-    if (!Cypress.env('WITH_ORCHESTRATOR')) {
-      this.skip();
-    }
-  });
-
   beforeEach(() => {
     cy.login();
     hosts.navigateTo();
@@ -28,7 +22,6 @@ describe('Hosts page', () => {
     it('should delete a host and add it back', function () {
       const host = Cypress._.last(this.hosts)['name'];
       hosts.delete(host);
-      hosts.checkExist(host, false);
 
       // add it back
       hosts.navigateTo('create');

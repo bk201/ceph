@@ -166,7 +166,7 @@ export abstract class PageHelper {
     });
   }
 
-  waitTableCount(spanType: 'selected' | 'found' | 'total', count: number) {
+  expectTableCount(spanType: 'selected' | 'found' | 'total', count: number) {
     this.waitDataTableToLoad();
     cy.contains('.datatable-footer-inner .page-count span', spanType).should(($elem) => {
       const text = $elem.first().text();
@@ -266,22 +266,26 @@ export abstract class PageHelper {
 
   // Click the action button
   clickActionButton(action: string) {
-    cy.get('.table-actions button.dropdown-toggle').first().click();
-    cy.get(`button.${action}`).click();
+    cy.get('.table-actions button.dropdown-toggle').first().click(); // open submenu
+    cy.get(`button.${action}`).click(); // click on "action" menu item
   }
 
   /**
    * This is a generic method to delete table rows.
    * It will select the first row that contains the provided name and delete it.
    * After that it will wait until the row is no longer displayed.
+   * @param name The string to search in table cells.
+   * @param columnIndex If provided, search string in columnIndex column.
    */
-  delete(name: string) {
+  delete(name: string, columnIndex?: number) {
     // Selects row
-    this.getFirstTableCell(name).click();
+    const getRow = columnIndex
+      ? this.getTableCell.bind(this, columnIndex)
+      : this.getFirstTableCell.bind(this);
+    getRow(name).click();
 
     // Clicks on table Delete button
-    cy.get('.table-actions button.dropdown-toggle').first().click(); // open submenu
-    cy.get('button.delete').click(); // click on "delete" menu item
+    this.clickActionButton('delete');
 
     // Confirms deletion
     cy.get('cd-modal .custom-control-label').click();
@@ -291,6 +295,6 @@ export abstract class PageHelper {
     cy.get('cd-modal').should('not.exist');
 
     // Waits for item to be removed from table
-    this.getFirstTableCell(name).should('not.exist');
+    getRow(name).should('not.exist');
   }
 }

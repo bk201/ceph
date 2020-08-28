@@ -36,7 +36,8 @@ gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub
 EOF
         $SUDO yum install -y google-chrome-stable
         $SUDO rm /etc/yum.repos.d/google-chrome.repo
-        $SUDO yum install -y xorg-x11-server-Xvfb.x86_64
+        # Cypress dependencies
+        $SUDO yum install -y xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss.x86_64 libXScrnSaver alsa-lib
     else
         echo "Unsupported distribution."
         exit 1
@@ -46,7 +47,7 @@ EOF
 cypress_run () {
     local specs="$1"
     local timeout="$2"
-    local override_config="testFiles=${specs}"
+    local override_config="ignoreTestFiles=*.po.ts,testFiles=${specs}"
 
     if [ x"$timeout" != "x" ]; then
         override_config="${override_config},defaultCommandTimeout=${timeout}"
@@ -59,13 +60,19 @@ install_chrome
 
 CYPRESS_BASE_URL=$(ceph mgr services | jq -r .dashboard)
 export CYPRESS_BASE_URL
-export CYPRESS_WITH_ORCHESTRATOR=true
 
 cd $DASHBOARD_FRONTEND_DIR
 
 # This is required for Cypress to understand typescript
 npm ci --unsafe-perm
+npx cypress verify
 npx cypress info
+
+# Remove device_health_metrics pool
+# Low pg count causes OSD removal failure.
+ceph device monitoring off
+ceph tell mon.\* injectargs '--mon-allow-pool-delete=true'
+ceph osd pool rm device_health_metrics device_health_metrics --yes-i-really-really-mean-it
 
 # Take `orch device ls` as ground truth.
 ceph orch device ls --refresh
@@ -78,7 +85,8 @@ ceph dashboard ac-user-set-password admin admin --force-password
 # These tests are designed with execution order in mind, since orchestrator operations
 # are likely to change cluster state, we can't just run tests in arbitrarily order.
 # See /ceph/src/pybind/mgr/dashboard/frontend/cypress/integration/orchestrator/ folder.
-find cypress
+find cypress # List all specs
+
 cypress_run "orchestrator/01-hosts.e2e-spec.ts"
 
 # Hosts are removed and added in the previous step. Do a refresh again.
