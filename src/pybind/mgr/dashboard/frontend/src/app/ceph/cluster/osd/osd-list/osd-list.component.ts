@@ -324,8 +324,15 @@ export class OsdListComponent extends ListWithDetails implements OnInit {
   }
 
   getDisable(action: 'create' | 'delete', selection: CdTableSelection): boolean | string {
-    if (action === 'delete' && !selection.hasSelection) {
-      return true;
+    if (action === 'delete') {
+      if (!selection.hasSelection) {
+        return true;
+      }
+      const selectedOsds = this.getSelectedOsds();
+      if (selectedOsds.some((osd) => osd.orchestrator.deploy_state === 'deleting')) {
+        return 'deleting'
+
+      }
     }
     return this.orchService.getTableActionDisableDesc(
       this.orchStatus,

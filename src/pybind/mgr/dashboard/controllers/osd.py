@@ -85,7 +85,7 @@ class Osd(RESTController):
             for stat in ['osd.numpg', 'osd.stat_bytes', 'osd.stat_bytes_used']:
                 osd['stats'][stat.split('.')[1]] = mgr.get_latest('osd', osd_spec, stat)
             osd['orchestrator'] = {
-                'deploy_state': 'deleting' if str(osd_id) in removal_osd_ids else 'none'
+                'deploy_state': 'deleting' if osd_id in removal_osd_ids else 'none'
             }
         return list(osds.values())
 
