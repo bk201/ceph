@@ -1,4 +1,4 @@
 tasks:
 - cephadm:
-    image: docker.io/ceph/ceph:v15.2.0
-    cephadm_branch: v15.2.0
+    image: docker.io/ceph/daemon-base:latest-octopus-devel
+    cephadm_branch: wip-kiefer-testing-2020-11-04-1131
