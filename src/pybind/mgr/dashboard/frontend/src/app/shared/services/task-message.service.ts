@@ -333,6 +333,10 @@ export class TaskMessageService {
       new TaskMessageOperation($localize`Identifying`, $localize`identify`, $localize`Identified`),
       (metadata) => $localize`device '${metadata.device}' on host '${metadata.hostname}'`
     ),
+    'orchestrator/erase_device': this.newTaskMessage(
+      new TaskMessageOperation($localize`Erasing`, $localize`erase`, $localize`Erased`),
+      (metadata) => $localize`device '${metadata.path}' on host '${metadata.hostname}'`
+    ),
     // Service tasks
     'service/create': this.newTaskMessage(this.commonOperations.create, (metadata) =>
       this.service(metadata)

@@ -16,5 +16,6 @@ export enum OrchestratorFeature {
   OSD_DELETE = 'remove_osds',
 
   DEVICE_LIST = 'get_inventory',
-  DEVICE_BLINK_LIGHT = 'blink_device_light'
+  DEVICE_BLINK_LIGHT = 'blink_device_light',
+  DEVICE_ZAP = 'zap_device'
 }

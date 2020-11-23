@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import logging
 import os.path
 import time
 from functools import wraps
@@ -10,7 +11,7 @@ from ..exceptions import DashboardException
 from ..security import Scope
 from ..services.exception import handle_orchestrator_error
 from ..services.orchestrator import OrchClient, OrchFeature
-from ..tools import TaskManager, str_to_bool
+from ..tools import TaskManager, str_to_bool, dict_get
 from . import ApiController, ControllerDoc, Endpoint, EndpointDoc, \
     ReadPermission, RESTController, Task, UpdatePermission
 
@@ -18,6 +19,8 @@ STATUS_SCHEMA = {
     "available": (bool, "Orchestrator status"),
     "message": (str, "Error message")
 }
+
+logger = logging.getLogger(__name__)
 
 
 def get_device_osd_map():
@@ -95,7 +98,7 @@ class Orchestrator(RESTController):
     @Endpoint(method='POST')
     @UpdatePermission
     @raise_if_no_orchestrator([OrchFeature.DEVICE_BLINK_LIGHT])
-    @handle_orchestrator_error('osd')
+    @handle_orchestrator_error('device')
     @orchestrator_task('identify_device', ['{hostname}', '{device}'])
     def identify_device(self, hostname, device, duration):  # pragma: no cover
         # type: (str, str, int) -> None
@@ -115,6 +118,26 @@ class Orchestrator(RESTController):
             time.sleep(1)
         orch.blink_device_light(hostname, device, 'ident', False)
         TaskManager.current_task().set_progress(100)
+
+    @Endpoint(method='POST')
+    @UpdatePermission
+    @raise_if_no_orchestrator([OrchFeature.DEVICE_ZAP])
+    @handle_orchestrator_error('device')
+    @orchestrator_task('erase_device', ['{hostname}', '{path}'])
+    def erase_device(self, hostname, path, force=False):
+        logging.info('Erasing device %s:%s, force: %s', hostname, path, force)
+
+        # Check the device is not linked to any OSDs
+        device_osd_map = get_device_osd_map()
+        dev = os.path.basename(path)
+        osd_ids = dict_get(device_osd_map, '{}.{}'.format(hostname, dev), [])
+        if osd_ids and not force:
+            error_msg = 'Device {}:{} is linked to OSDs: {}'.format(hostname, path, osd_ids)
+            logger.error(error_msg)
+            raise DashboardException(component='orchestrator', msg=error_msg)
+
+        orch = OrchClient.instance()
+        orch.zap_device(hostname, path)
 
 
 @ApiController('/orchestrator/inventory', Scope.HOSTS)

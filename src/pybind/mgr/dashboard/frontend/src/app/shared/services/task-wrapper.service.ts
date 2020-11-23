@@ -29,12 +29,15 @@ export class TaskWrapperService {
           if (resp.status === 202) {
             this._handleExecutingTasks(task);
           } else {
+            console.log('aaaa');
+            
             this.summaryService.refresh();
             task.success = true;
             this.notificationService.notifyTask(task);
           }
         },
         (resp) => {
+          console.log('bbbb');
           task.success = false;
           task.exception = resp.error;
           observer.error(resp);

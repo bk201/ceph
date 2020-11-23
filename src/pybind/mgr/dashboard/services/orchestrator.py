@@ -182,6 +182,10 @@ class OrchClient(object):
         return self.api.blink_device_light(
             ident_fault, on, [DeviceLightLoc(hostname, device, device)])
 
+    @wait_api_result
+    def zap_device(self, hostname: str, path: str) -> Completion:
+        return self.api.zap_device(host=hostname, path=path)
+
 
 class OrchFeature(object):
     HOST_LIST = 'get_hosts'
@@ -203,3 +207,4 @@ class OrchFeature(object):
 
     DEVICE_LIST = 'get_inventory'
     DEVICE_BLINK_LIGHT = 'blink_device_light'
+    DEVICE_ZAP = 'zap_device'

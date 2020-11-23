@@ -12,6 +12,7 @@ import _ from 'lodash';
 import { Subscription } from 'rxjs';
 
 import { OrchestratorService } from '~/app/shared/api/orchestrator.service';
+import { CriticalConfirmationModalComponent } from '~/app/shared/components/critical-confirmation-modal/critical-confirmation-modal.component';
 import { FormModalComponent } from '~/app/shared/components/form-modal/form-modal.component';
 import { TableComponent } from '~/app/shared/datatable/table/table.component';
 import { CellTemplate } from '~/app/shared/enum/cell-template.enum';
@@ -21,6 +22,7 @@ import { CdTableAction } from '~/app/shared/models/cd-table-action';
 import { CdTableColumn } from '~/app/shared/models/cd-table-column';
 import { CdTableColumnFiltersChange } from '~/app/shared/models/cd-table-column-filters-change';
 import { CdTableSelection } from '~/app/shared/models/cd-table-selection';
+import { FinishedTask } from '~/app/shared/models/finished-task';
 import { OrchestratorFeature } from '~/app/shared/models/orchestrator.enum';
 import { OrchestratorStatus } from '~/app/shared/models/orchestrator.interface';
 import { Permission } from '~/app/shared/models/permissions';
@@ -28,7 +30,10 @@ import { DimlessBinaryPipe } from '~/app/shared/pipes/dimless-binary.pipe';
 import { AuthStorageService } from '~/app/shared/services/auth-storage.service';
 import { ModalService } from '~/app/shared/services/modal.service';
 import { NotificationService } from '~/app/shared/services/notification.service';
+import { TaskWrapperService } from '~/app/shared/services/task-wrapper.service';
 import { InventoryDevice } from './inventory-device.model';
+
+const BASE_URL = 'orchestrator';
 
 @Component({
   selector: 'cd-inventory-devices',
@@ -72,7 +77,8 @@ export class InventoryDevicesComponent implements OnInit, OnDestroy {
   @Input() orchStatus: OrchestratorStatus = undefined;
 
   actionOrchFeatures = {
-    identify: [OrchestratorFeature.DEVICE_BLINK_LIGHT]
+    identify: [OrchestratorFeature.DEVICE_BLINK_LIGHT],
+    erase: [OrchestratorFeature.DEVICE_ZAP]
   };
 
   constructor(
@@ -80,7 +86,8 @@ export class InventoryDevicesComponent implements OnInit, OnDestroy {
     private dimlessBinary: DimlessBinaryPipe,
     private modalService: ModalService,
     private notificationService: NotificationService,
-    private orchService: OrchestratorService
+    private orchService: OrchestratorService,
+    private taskWrapper: TaskWrapperService,
   ) {}
 
   ngOnInit() {
@@ -93,6 +100,15 @@ export class InventoryDevicesComponent implements OnInit, OnDestroy {
         name: $localize`Identify`,
         disable: (selection: CdTableSelection) => this.getDisable('identify', selection),
         canBePrimary: (selection: CdTableSelection) => !selection.hasSingleSelection,
+        visible: () => _.isString(this.selectionType)
+      },
+      {
+        permission: 'update',
+        icon: Icons.erase,
+        click: () => this.eraseDevice(),
+        name: $localize`Erase`,
+        disable: (selection: CdTableSelection) => this.getDisable('erase', selection),
+        canBePrimary: () => false,
         visible: () => _.isString(this.selectionType)
       }
     ];
@@ -183,7 +199,7 @@ export class InventoryDevicesComponent implements OnInit, OnDestroy {
     this.filterChange.emit(event);
   }
 
-  getDisable(action: 'identify', selection: CdTableSelection): boolean | string {
+  getDisable(action: 'identify' | 'erase', selection: CdTableSelection): boolean | string {
     if (!selection.hasSingleSelection) {
       return true;
     }
@@ -230,6 +246,23 @@ export class InventoryDevicesComponent implements OnInit, OnDestroy {
           );
         });
       }
+    });
+  }
+
+  eraseDevice() {
+    const selected = this.selection.first();
+    const host = selected.hostname;
+    const path = selected.path;
+    const name = `${host} ${path}`
+    this.modalService.show(CriticalConfirmationModalComponent, {
+      itemDescription: $localize`Device`,
+      itemNames: [name],
+      actionDescription: `erase`,
+      submitActionObservable: () =>
+        this.taskWrapper.wrapTaskAroundCall({
+          task: new FinishedTask(`${BASE_URL}/erase_device`, { hostname: host, path: path}),
+          call: this.orchService.eraseDevice(host, path)
+        })
     });
   }
 }

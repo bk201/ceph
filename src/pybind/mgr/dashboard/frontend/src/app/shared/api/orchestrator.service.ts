@@ -55,6 +55,11 @@ export class OrchestratorService {
     });
   }
 
+  eraseDevice(hostname: string, path: string) {
+    const data = { hostname: hostname, path: path }
+    return this.http.post(`${this.url}/erase_device`, data, { observe: 'response' });
+  }
+
   inventoryList(hostname?: string, refresh?: boolean): Observable<InventoryHost[]> {
     let params = new HttpParams();
     if (hostname) {
